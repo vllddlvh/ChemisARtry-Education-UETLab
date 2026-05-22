@@ -64,6 +64,9 @@ function LabPage() {
         x.name.toLowerCase().includes(query)
       );
       if (m) { setSelected(m); handleSpawn(m); toast.info(`🎙️ "${text}"`); return; }
+      // If not found locally, notify user to check PubChem
+      toast.info(`🎙️ "${query}" not in local library — try PubChem tab`);
+      return;
     }
     if (/reset|clear|remove/.test(t)) {
       setResetSignal((v) => v + 1); setLastReaction(null);
@@ -144,6 +147,7 @@ function LabPage() {
             selected={selected}
             onSelect={setSelected}
             onSpawn={() => handleSpawn()}
+            onSpawnMolecule={(m) => handleSpawn(m)}
             onReset={() => { setResetSignal((v) => v + 1); setLastReaction(null); }}
             arOn={arOn}
             onToggleAr={() => setArOn((v) => !v)}

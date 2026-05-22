@@ -10,6 +10,7 @@ const nav = [
   { to: "/periodic-table", label: "Periodic" },
   { to: "/molecules", label: "Molecules" },
   { to: "/reactions", label: "Reactions" },
+  { to: "/search", label: "Explorer" },
   { to: "/progress", label: "Progress" },
 ] as const;
 

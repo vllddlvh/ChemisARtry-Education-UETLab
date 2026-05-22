@@ -23,7 +23,7 @@ const features = [
   { icon: Boxes, title: "Ball-and-stick", text: "Accurate CPK colors. Explore geometry, bond order, and molecular structure in 3D." },
   { icon: GraduationCap, title: "Education mode", text: "Toggle atom labels, bond counts, and reaction enthalpy for deeper learning." },
   { icon: Mic, title: "Voice commands", text: "Say \"show water\" or \"reset\" — hands-free control during class demos." },
-  { icon: Sparkles, title: "Cloud-synced", text: "Sign in to track spawns, reactions, and earn chemistry achievements." },
+  { icon: Sparkles, title: "100M+ compounds", text: "Search any compound from PubChem. View 3D structures, SMILES, properties — all in your browser." },
 ];
 
 function Home() {
@@ -56,9 +56,9 @@ function Home() {
               </Button>
             </div>
             <div className="mt-6 flex items-center gap-5 text-xs text-muted-foreground">
-              <div>✓ 9 molecules</div>
-              <div>✓ 5 reactions</div>
-              <div>✓ CPK coloring</div>
+              <div>✓ 100M+ compounds</div>
+              <div>✓ 3D structures</div>
+              <div>✓ PubChem integrated</div>
             </div>
           </div>
           <div className="relative">

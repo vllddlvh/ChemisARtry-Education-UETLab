@@ -1,11 +1,13 @@
 // Element detail panel — shows 3D atom + tabs of info, with AR launcher.
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Box } from "lucide-react";
+import { Sparkles, Box, Loader2, ExternalLink } from "lucide-react";
 import AtomViewer3D from "./AtomViewer3D";
 import { categoryStyle, SHELL_NAMES, type PTElement } from "@/lib/periodic-table-data";
+import { searchPubChem, type PubChemCompoundSummary } from "@/lib/pubchem-api";
 
 type Props = {
   element: PTElement | null;
@@ -19,6 +21,37 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
   const s = categoryStyle(element.category);
   const protons = element.number;
   const neutrons = Math.max(0, Math.round(element.atomic_mass) - protons);
+
+  // PubChem lookup for the element
+  const [pubchemData, setPubchemData] = useState<PubChemCompoundSummary | null>(null);
+  const [pubchemLoading, setPubchemLoading] = useState(false);
+  const [relatedCompounds, setRelatedCompounds] = useState<PubChemCompoundSummary[]>([]);
+
+  useEffect(() => {
+    if (!open || !element) return;
+    let cancelled = false;
+    setPubchemLoading(true);
+    setPubchemData(null);
+    setRelatedCompounds([]);
+
+    // Fetch element data + related compounds in parallel
+    Promise.all([
+      searchPubChem(element.name, 1),
+      searchPubChem(`${element.name} compound`, 5),
+    ])
+      .then(([elementResult, compoundsResult]) => {
+        if (cancelled) return;
+        setPubchemData(elementResult.compounds[0] ?? null);
+        // Filter out the element itself from related compounds
+        const related = compoundsResult.compounds.filter(
+          (c) => c.cid !== elementResult.compounds[0]?.cid
+        );
+        setRelatedCompounds(related.slice(0, 4));
+      })
+      .catch(() => { /* best-effort */ })
+      .finally(() => { if (!cancelled) setPubchemLoading(false); });
+    return () => { cancelled = true; };
+  }, [open, element]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -70,10 +103,11 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
         {/* Tabs */}
         <div className="px-5 py-4">
           <Tabs defaultValue="overview">
-            <TabsList className="w-full grid grid-cols-3">
+            <TabsList className="w-full grid grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="config">Electron config</TabsTrigger>
+              <TabsTrigger value="config">Config</TabsTrigger>
               <TabsTrigger value="shells">Shells</TabsTrigger>
+              <TabsTrigger value="pubchem">PubChem</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-4 space-y-3 text-sm">
@@ -115,6 +149,79 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                   </div>
                 ))}
               </div>
+            </TabsContent>
+
+            <TabsContent value="pubchem" className="mt-4 space-y-3">
+              {pubchemLoading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Loading from PubChem...
+                </div>
+              )}
+              {pubchemData && (
+                <div className="space-y-3">
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                    <Row label="IUPAC Name" value={pubchemData.iupacName || "—"} />
+                    <Row label="Molecular Formula" value={pubchemData.molecularFormula || "—"} />
+                    <Row label="Molecular Weight" value={pubchemData.molecularWeight ? `${Number(pubchemData.molecularWeight).toFixed(3)} g/mol` : "—"} />
+                    <Row label="Complexity" value={pubchemData.complexity ? String(Number(pubchemData.complexity).toFixed(1)) : "—"} />
+                    <Row label="H-Bond Donors" value={String(pubchemData.hBondDonorCount)} />
+                    <Row label="H-Bond Acceptors" value={String(pubchemData.hBondAcceptorCount)} />
+                    <Row label="Charge" value={String(pubchemData.charge)} />
+                    <Row label="CID" value={String(pubchemData.cid)} />
+                  </dl>
+                  {pubchemData.canonicalSmiles && (
+                    <div className="rounded-lg bg-muted p-2.5 font-mono text-[11px] break-all">
+                      <span className="text-muted-foreground">SMILES: </span>
+                      {pubchemData.canonicalSmiles}
+                    </div>
+                  )}
+                  {pubchemData.inchi && (
+                    <div className="rounded-lg bg-muted p-2.5 font-mono text-[11px] break-all">
+                      <span className="text-muted-foreground">InChI: </span>
+                      {pubchemData.inchi}
+                    </div>
+                  )}
+                  <a
+                    href={`https://pubchem.ncbi.nlm.nih.gov/compound/${pubchemData.cid}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3 w-3" /> View full data on PubChem
+                  </a>
+                </div>
+              )}
+              {!pubchemLoading && !pubchemData && (
+                <p className="text-xs text-muted-foreground">No PubChem data found for this element.</p>
+              )}
+
+              {/* Related compounds */}
+              {relatedCompounds.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-border">
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                    Related compounds
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {relatedCompounds.map((c) => (
+                      <a
+                        key={c.cid}
+                        href={`https://pubchem.ncbi.nlm.nih.gov/compound/${c.cid}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg border border-border bg-muted/40 p-2 hover:border-primary/40 transition text-xs"
+                      >
+                        <div className="font-mono font-bold text-primary truncate">{c.molecularFormula}</div>
+                        <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                          {c.iupacName || "—"}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          MW: {Number(c.molecularWeight).toFixed(1)}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
 
