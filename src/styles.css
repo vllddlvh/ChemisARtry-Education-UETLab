@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -82,8 +83,8 @@
   --lab-lavender: oklch(0.8 0.1 300);
 
   /* Gradients + shadows */
-  --gradient-hero: linear-gradient(135deg, oklch(0.92 0.08 200) 0%, oklch(0.94 0.09 85) 50%, oklch(0.9 0.1 330) 100%);
-  --gradient-primary: linear-gradient(135deg, oklch(0.65 0.17 220) 0%, oklch(0.7 0.15 190) 100%);
+  --gradient-hero: linear-gradient(135deg, oklch(0.92 0.08 200) 0%, oklch(0.96 0.06 160) 50%, oklch(0.90 0.08 240) 100%);
+  --gradient-primary: linear-gradient(135deg, oklch(0.62 0.15 180) 0%, oklch(0.65 0.17 220) 100%);
   --gradient-panel: linear-gradient(180deg, color-mix(in oklab, white 92%, transparent) 0%, color-mix(in oklab, white 78%, transparent) 100%);
 
   --shadow-soft: 0 4px 20px -8px color-mix(in oklab, oklch(0.5 0.15 240) 25%, transparent);

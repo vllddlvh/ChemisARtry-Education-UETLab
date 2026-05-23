@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FlaskConical, Loader2, ExternalLink, Zap } from "lucide-react";
 import type { Reaction } from "@/lib/chemistry";
+import { ALL_LESSONS } from "@/lib/lessons-data";
 
-export const Route = createFileRoute("/reactions")({
+export const Route = createFileRoute("/tools/reactions")({
   head: () => ({
     meta: [
       { title: "Reactions — MoleLab AR" },
@@ -72,6 +73,10 @@ function ReactionsPage() {
                       {r.energy_kj != null && (
                         <Tag label={`ΔH ≈ ${r.energy_kj} kJ/mol`} accent={r.energy_kj < 0 ? "warm" : "cool"} />
                       )}
+                      {(() => {
+                        const lesson = ALL_LESSONS.find(l => l.practice.missions.some(m => m.completionKey.includes("react:") && r.reactants.every(re => m.completionKey.includes(re))));
+                        return lesson ? <Tag label={`Bài học: ${lesson.title}`} accent="cool" /> : null;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -170,7 +175,7 @@ function ReactionsPage() {
               )}
 
               <Button asChild className="w-full mt-4 rounded-full bg-gradient-primary">
-                <Link to="/lab">Try in AR Lab →</Link>
+                <Link to="/lab/sim" search={{ spawn: detailReaction.reactants.join(",") }}>Thử trong Lab →</Link>
               </Button>
             </>
           )}

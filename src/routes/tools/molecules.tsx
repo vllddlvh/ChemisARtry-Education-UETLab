@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Molecule } from "@/lib/chemistry";
-import { Search, Loader2, Globe, Atom, ExternalLink, Sparkles } from "lucide-react";
+import { Search, Loader2, Globe, Atom, ExternalLink, Sparkles, Box } from "lucide-react";
+import { ALL_LESSONS } from "@/lib/lessons-data";
+import { Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/molecules")({
+export const Route = createFileRoute("/tools/molecules")({
   head: () => ({
     meta: [
       { title: "Molecules — MoleLab AR" },
@@ -236,6 +238,33 @@ function MoleculesPage() {
                 <Stat label="Bonds" value={open.bonds.length} />
                 <Stat label="Category" value={open.category} />
               </div>
+
+              {(() => {
+                const relatedLessons = ALL_LESSONS.filter(l => 
+                  l.explore3D.molecules.includes(open.formula) || l.practice.defaultMolecules.includes(open.formula)
+                );
+                if (relatedLessons.length === 0) return null;
+                return (
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Xuất hiện trong bài học</div>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {relatedLessons.map(l => (
+                        <Link key={l.id} to="/learn/lesson" search={{ lessonId: l.id }} className="block p-3 rounded-xl border border-border bg-muted/40 hover:border-primary/50 transition">
+                          <div className="text-[10px] font-semibold text-primary">{l.chapter}</div>
+                          <div className="font-bold text-sm">{l.title}</div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <Button asChild className="w-full mt-4 rounded-full bg-gradient-primary">
+                <Link to="/lab/sim" search={{ spawn: open.formula }}>
+                  <Box className="mr-2 h-4 w-4" />
+                  Dùng trong Lab
+                </Link>
+              </Button>
             </>
           )}
         </DialogContent>

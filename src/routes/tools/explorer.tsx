@@ -14,7 +14,7 @@ import {
   FlaskConical, Beaker, BookOpen,
 } from "lucide-react";
 
-export const Route = createFileRoute("/search")({
+export const Route = createFileRoute("/tools/explorer")({
   head: () => ({
     meta: [
       { title: "Compound Explorer — MoleLab AR" },
@@ -65,7 +65,7 @@ function SearchPage() {
             </p>
           </div>
           <Button asChild className="rounded-full bg-gradient-primary">
-            <Link to="/lab">
+            <Link to="/lab/sim">
               <FlaskConical className="mr-2 h-4 w-4" /> AR Lab
             </Link>
           </Button>
@@ -238,6 +238,13 @@ function SearchPage() {
                   >
                     <ExternalLink className="h-3 w-3" /> PubChem page
                   </a>
+
+                  <Button asChild className="w-full mt-4 rounded-full bg-gradient-primary">
+                    <Link to="/lab/sim" search={{ spawn: selected.molecularFormula }}>
+                      <FlaskConical className="mr-2 h-4 w-4" />
+                      Thêm vào Lab
+                    </Link>
+                  </Button>
                 </div>
               </div>
             ) : (

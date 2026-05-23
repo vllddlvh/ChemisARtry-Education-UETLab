@@ -1,123 +1,162 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import heroImg from "@/assets/hero-molecules.jpg";
-import { Hand, Sparkles, GraduationCap, Mic, FlaskConical, Boxes } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { FlaskConical, BookOpen, Trophy, ArrowRight } from "lucide-react";
+import SiteHeader from "@/components/SiteHeader";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MoleLab AR — Chemistry you can touch" },
-      { name: "description", content: "Interactive AR chemistry playground. Spawn 3D molecules with your hand, combine them, trigger real reactions. Free in your browser." },
-      { property: "og:title", content: "MoleLab AR — Chemistry you can touch" },
-      { property: "og:description", content: "Interactive AR chemistry playground. Spawn 3D molecules with your hand, combine them, trigger real reactions." },
+      { title: "ChemisARtry — Học Hoá học bằng thực tế tăng cường" },
+      { name: "description", content: "Học Hoá học qua lộ trình tương tác 3D và thí nghiệm AR." },
     ],
   }),
-  component: Home,
+  component: LandingPage,
 });
 
-const features = [
-  { icon: Hand, title: "Hand-tracked AR", text: "MediaPipe detects your hand. Pinch to grab, rotate your wrist to spin, use two hands to scale." },
-  { icon: FlaskConical, title: "Real reactions", text: "Bring two molecules together and watch H₂ + O₂ → H₂O with particles and glow." },
-  { icon: Boxes, title: "Ball-and-stick", text: "Accurate CPK colors. Explore geometry, bond order, and molecular structure in 3D." },
-  { icon: GraduationCap, title: "Education mode", text: "Toggle atom labels, bond counts, and reaction enthalpy for deeper learning." },
-  { icon: Mic, title: "Voice commands", text: "Say \"show water\" or \"reset\" — hands-free control during class demos." },
-  { icon: Sparkles, title: "100M+ compounds", text: "Search any compound from PubChem. View 3D structures, SMILES, properties — all in your browser." },
-];
+function LandingPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
-function Home() {
+  // Đã đăng nhập thì tự động vào dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      navigate({ to: "/dashboard", replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  if (loading || user) return null;
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen bg-background">
       <SiteHeader />
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative pt-24 pb-32 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-hero -z-10" />
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay -z-10" />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-70" />
-        <div className="relative mx-auto max-w-7xl px-6 pt-12 md:pt-20 pb-16 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-card/80 backdrop-blur px-3 py-1 text-xs font-medium border border-border shadow-soft">
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              Browser-based AR · no download
-            </div>
-            <h1 className="mt-5 text-4xl md:text-6xl font-bold font-display leading-[1.05] tracking-tight">
-              Chemistry you can <span className="text-primary">touch</span>.
+          <div className="mx-auto max-w-5xl px-4 md:px-6 text-center">
+            <h1 className="text-5xl md:text-7xl font-display font-extrabold tracking-tight mb-8">
+              Học Hoá học bằng cách<br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500">
+                chạm vào phân tử
+              </span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground max-w-lg leading-relaxed">
-              Raise your hand in front of the camera to spawn 3D molecules, combine them,
-              and watch real chemical reactions unfold — right in your browser.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              Lộ trình bài học theo chương trình THPT · Mô hình 3D tương tác · Thí nghiệm AR bằng tay không
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rounded-full bg-gradient-primary shadow-glow">
-                <Link to="/lab">🚀 Enter the AR Lab</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link to="/molecules">Browse molecules</Link>
-              </Button>
-            </div>
-            <div className="mt-6 flex items-center gap-5 text-xs text-muted-foreground">
-              <div>✓ 100M+ compounds</div>
-              <div>✓ 3D structures</div>
-              <div>✓ PubChem integrated</div>
-            </div>
-          </div>
-          <div className="relative">
-            <img
-              src={heroImg}
-              alt="Colorful 3D molecules floating above an open hand"
-              width={1536}
-              height={1024}
-              className="w-full rounded-3xl shadow-panel animate-float-slow"
-            />
-          </div>
-        </div>
-      </section>
 
-      {/* Features */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-display font-bold">Everything for hands-on chemistry</h2>
-          <p className="text-muted-foreground mt-2">Built for classrooms, curious learners, and science fans.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {features.map((f) => (
-            <div key={f.title} className="rounded-3xl border border-border bg-card p-6 shadow-soft hover:-translate-y-1 hover:shadow-panel transition">
-              <div className="h-11 w-11 rounded-2xl bg-gradient-primary text-primary-foreground flex items-center justify-center shadow-glow">
-                <f.icon className="h-5 w-5" />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="rounded-full bg-gradient-primary h-14 px-8 text-base">
+                <Link to="/auth" search={{ mode: "signup" }}>Bắt đầu học — miễn phí</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full h-14 px-8 text-base bg-background/50 backdrop-blur">
+                <Link to="/lab/sim">Xem thử không cần đăng nhập</Link>
+              </Button>
+            </div>
+            
+            {/* Demo Preview Mock */}
+            <div className="mt-16 mx-auto max-w-4xl rounded-2xl border border-border/50 bg-card/40 backdrop-blur-xl shadow-2xl overflow-hidden aspect-video relative flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/10 to-blue-500/10" />
+              <div className="text-muted-foreground/50 font-display text-2xl font-bold flex flex-col items-center">
+                <FlaskConical className="h-16 w-16 mb-4 opacity-50" />
+                Video/Image AR Lab Demo
               </div>
-              <h3 className="mt-4 font-bold text-lg">{f.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{f.text}</p>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        <div className="rounded-3xl bg-gradient-hero p-8 md:p-12 shadow-panel">
-          <h2 className="text-3xl font-display font-bold">How it works</h2>
-          <ol className="mt-6 grid md:grid-cols-3 gap-5">
-            {[
-              { n: "1", t: "Allow camera", d: "We only process video on-device. Nothing is recorded." },
-              { n: "2", t: "Pick a molecule", d: "Choose from water, methane, ammonia, and more." },
-              { n: "3", t: "Pinch & combine", d: "Grab molecules with a pinch gesture. Bring two together to react." },
-            ].map((s) => (
-              <li key={s.n} className="rounded-2xl bg-card/80 backdrop-blur p-5 border border-border">
-                <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground grid place-items-center font-bold">{s.n}</div>
-                <div className="mt-3 font-bold">{s.t}</div>
-                <div className="text-sm text-muted-foreground mt-1">{s.d}</div>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-8">
-            <Button asChild size="lg" className="rounded-full bg-gradient-primary shadow-glow">
-              <Link to="/lab">Start experimenting →</Link>
+        {/* Feature Highlights */}
+        <section className="py-24 bg-card/30">
+          <div className="mx-auto max-w-6xl px-4 md:px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-display font-bold">Học để hiểu, không chỉ học thuộc</h2>
+              <p className="text-muted-foreground mt-4">Thay vì nhìn công thức 2D, hãy tương tác trực tiếp với phân tử.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <FeatureCard 
+                icon={<FlaskConical className="h-8 w-8" />}
+                title="Thí nghiệm AR bằng tay"
+                desc="Dùng tay điều khiển phân tử trong không gian thật. Phản ứng xảy ra ngay trước mắt bạn."
+              />
+              <FeatureCard 
+                icon={<BookOpen className="h-8 w-8" />}
+                title="Bài học theo chương trình"
+                desc="Gắn chặt với SGK Hoá 10, 11, 12. Học đến đâu, thực hành 3D đến đó."
+              />
+              <FeatureCard 
+                icon={<Trophy className="h-8 w-8" />}
+                title="Thành tích & Tiến độ"
+                desc="Theo dõi quá trình học, thu thập huy hiệu và mở khoá các thí nghiệm bí mật."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Path Preview */}
+        <section className="py-24 border-t border-border/50">
+          <div className="mx-auto max-w-4xl px-4 md:px-6">
+            <h2 className="text-3xl font-display font-bold text-center mb-12">Lộ trình học rõ ràng</h2>
+            
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="rounded-3xl border border-border bg-card p-8">
+                <div className="text-2xl mb-4">🧪</div>
+                <h3 className="font-bold text-xl mb-2">Road 1: Nguyên tố & Liên kết</h3>
+                <p className="text-muted-foreground text-sm mb-6">Xây dựng nền tảng vững chắc về cấu tạo chất.</p>
+                <ul className="space-y-3 text-sm font-medium mb-8">
+                  <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> Cấu tạo nguyên tử</li>
+                  <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> Bảng tuần hoàn</li>
+                  <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-primary" /> Liên kết hoá học</li>
+                </ul>
+              </div>
+              
+              <div className="rounded-3xl border border-border bg-muted/20 p-8 opacity-80">
+                <div className="text-2xl mb-4">⚗️</div>
+                <h3 className="font-bold text-xl mb-2">Road 2: Phản ứng Hoá học</h3>
+                <p className="text-muted-foreground text-sm mb-6">Tìm hiểu cách các chất tương tác và biến đổi.</p>
+                <ul className="space-y-3 text-sm font-medium text-muted-foreground mb-8">
+                  <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" /> Phân loại phản ứng</li>
+                  <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" /> Nhiệt hoá học</li>
+                  <li className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" /> Tốc độ phản ứng</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="text-center mt-10">
+              <Button asChild variant="link" className="text-primary group">
+                <Link to="/learn">Xem toàn bộ lộ trình <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" /></Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-32 bg-gradient-hero text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay -z-10" />
+          <div className="mx-auto max-w-2xl px-4 relative z-10">
+            <h2 className="text-4xl font-display font-bold mb-6">Sẵn sàng học Hoá theo cách mới?</h2>
+            <p className="text-muted-foreground mb-10">Không cần cài đặt. Chạy trực tiếp trên trình duyệt web.</p>
+            <Button asChild size="lg" className="rounded-full bg-gradient-primary h-14 px-10 text-base shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
+              <Link to="/auth" search={{ mode: "signup" }}>Tạo tài khoản miễn phí</Link>
             </Button>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
+    </div>
+  );
+}
 
-      <SiteFooter />
+function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <div className="rounded-3xl border border-border bg-card p-8 hover:border-primary/30 transition-colors">
+      <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold mb-3">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed">{desc}</p>
     </div>
   );
 }

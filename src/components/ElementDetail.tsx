@@ -8,6 +8,8 @@ import { Sparkles, Box, Loader2, ExternalLink } from "lucide-react";
 import AtomViewer3D from "./AtomViewer3D";
 import { categoryStyle, SHELL_NAMES, type PTElement } from "@/lib/periodic-table-data";
 import { searchPubChem, type PubChemCompoundSummary } from "@/lib/pubchem-api";
+import { ALL_LESSONS } from "@/lib/lessons-data";
+import { Link } from "@tanstack/react-router";
 
 type Props = {
   element: PTElement | null;
@@ -52,6 +54,10 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
       .finally(() => { if (!cancelled) setPubchemLoading(false); });
     return () => { cancelled = true; };
   }, [open, element]);
+
+  const relatedLessons = element 
+    ? ALL_LESSONS.filter(l => l.explore3D.elements.includes(element.symbol))
+    : [];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -103,11 +109,12 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
         {/* Tabs */}
         <div className="px-5 py-4">
           <Tabs defaultValue="overview">
-            <TabsList className="w-full grid grid-cols-4">
+            <TabsList className="w-full grid grid-cols-5 text-xs">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="config">Config</TabsTrigger>
               <TabsTrigger value="shells">Shells</TabsTrigger>
               <TabsTrigger value="pubchem">PubChem</TabsTrigger>
+              <TabsTrigger value="lessons">Bài học</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-4 space-y-3 text-sm">
@@ -223,15 +230,41 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                 </div>
               )}
             </TabsContent>
+
+            <TabsContent value="lessons" className="mt-4 space-y-3">
+              {relatedLessons.length > 0 ? (
+                <div className="space-y-3">
+                  {relatedLessons.map(l => (
+                    <Link key={l.id} to="/learn/lesson" search={{ lessonId: l.id }} className="block p-3 rounded-xl border border-border bg-card hover:border-primary/50 transition">
+                      <div className="text-xs font-semibold text-primary">{l.chapter}</div>
+                      <div className="font-bold">{l.title}</div>
+                      <div className="text-xs text-muted-foreground mt-1 line-clamp-1">Khám phá nguyên tố {element.name} trong bài học này.</div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-6 text-center text-muted-foreground text-sm">
+                  Nguyên tố này chưa xuất hiện trong lộ trình bài học.
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
 
-          <Button
-            className="w-full mt-5 rounded-full bg-gradient-primary"
-            onClick={() => onLaunchAR(element)}
-          >
-            <Box className="mr-2 h-4 w-4" />
-            Interact in AR (webcam + hand gestures)
-          </Button>
+          <div className="grid grid-cols-2 gap-2 mt-5">
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/lab/sim" search={{ spawn: element.symbol }}>
+                <Box className="mr-2 h-4 w-4" />
+                Dùng trong Lab
+              </Link>
+            </Button>
+            <Button
+              className="rounded-full bg-gradient-primary"
+              onClick={() => onLaunchAR(element)}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Interact in AR
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

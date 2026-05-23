@@ -9,43 +9,47 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SearchRouteImport } from './routes/search'
-import { Route as ReactionsRouteImport } from './routes/reactions'
 import { Route as ProgressRouteImport } from './routes/progress'
-import { Route as PeriodicTableRouteImport } from './routes/periodic-table'
-import { Route as MoleculesRouteImport } from './routes/molecules'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as LearnRouteImport } from './routes/learn'
 import { Route as LabRouteImport } from './routes/lab'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LabIndexRouteImport } from './routes/lab.index'
+import { Route as ToolsReactionsRouteImport } from './routes/tools/reactions'
+import { Route as ToolsPeriodicTableRouteImport } from './routes/tools/periodic-table'
+import { Route as ToolsMoleculesRouteImport } from './routes/tools/molecules'
+import { Route as ToolsExplorerRouteImport } from './routes/tools/explorer'
+import { Route as LearnRoadRouteImport } from './routes/learn/road'
+import { Route as LearnLessonRouteImport } from './routes/learn/lesson'
+import { Route as LabSimRouteImport } from './routes/lab/sim'
+import { Route as LabArRouteImport } from './routes/lab/ar'
 
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReactionsRoute = ReactionsRouteImport.update({
-  id: '/reactions',
-  path: '/reactions',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PeriodicTableRoute = PeriodicTableRouteImport.update({
-  id: '/periodic-table',
-  path: '/periodic-table',
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MoleculesRoute = MoleculesRouteImport.update({
-  id: '/molecules',
-  path: '/molecules',
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabRoute = LabRouteImport.update({
   id: '/lab',
   path: '/lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -58,98 +62,187 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LabIndexRoute = LabIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LabRoute,
+} as any)
+const ToolsReactionsRoute = ToolsReactionsRouteImport.update({
+  id: '/tools/reactions',
+  path: '/tools/reactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsPeriodicTableRoute = ToolsPeriodicTableRouteImport.update({
+  id: '/tools/periodic-table',
+  path: '/tools/periodic-table',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsMoleculesRoute = ToolsMoleculesRouteImport.update({
+  id: '/tools/molecules',
+  path: '/tools/molecules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsExplorerRoute = ToolsExplorerRouteImport.update({
+  id: '/tools/explorer',
+  path: '/tools/explorer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoadRoute = LearnRoadRouteImport.update({
+  id: '/road',
+  path: '/road',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnLessonRoute = LearnLessonRouteImport.update({
+  id: '/lesson',
+  path: '/lesson',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LabSimRoute = LabSimRouteImport.update({
+  id: '/sim',
+  path: '/sim',
+  getParentRoute: () => LabRoute,
+} as any)
+const LabArRoute = LabArRouteImport.update({
+  id: '/ar',
+  path: '/ar',
+  getParentRoute: () => LabRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/lab': typeof LabRoute
-  '/molecules': typeof MoleculesRoute
-  '/periodic-table': typeof PeriodicTableRoute
+  '/dashboard': typeof DashboardRoute
+  '/lab': typeof LabRouteWithChildren
+  '/learn': typeof LearnRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/progress': typeof ProgressRoute
-  '/reactions': typeof ReactionsRoute
-  '/search': typeof SearchRoute
+  '/lab/ar': typeof LabArRoute
+  '/lab/sim': typeof LabSimRoute
+  '/learn/lesson': typeof LearnLessonRoute
+  '/learn/road': typeof LearnRoadRoute
+  '/tools/explorer': typeof ToolsExplorerRoute
+  '/tools/molecules': typeof ToolsMoleculesRoute
+  '/tools/periodic-table': typeof ToolsPeriodicTableRoute
+  '/tools/reactions': typeof ToolsReactionsRoute
+  '/lab/': typeof LabIndexRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/lab': typeof LabRoute
-  '/molecules': typeof MoleculesRoute
-  '/periodic-table': typeof PeriodicTableRoute
+  '/dashboard': typeof DashboardRoute
+  '/onboarding': typeof OnboardingRoute
   '/progress': typeof ProgressRoute
-  '/reactions': typeof ReactionsRoute
-  '/search': typeof SearchRoute
+  '/lab/ar': typeof LabArRoute
+  '/lab/sim': typeof LabSimRoute
+  '/learn/lesson': typeof LearnLessonRoute
+  '/learn/road': typeof LearnRoadRoute
+  '/tools/explorer': typeof ToolsExplorerRoute
+  '/tools/molecules': typeof ToolsMoleculesRoute
+  '/tools/periodic-table': typeof ToolsPeriodicTableRoute
+  '/tools/reactions': typeof ToolsReactionsRoute
+  '/lab': typeof LabIndexRoute
+  '/learn': typeof LearnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/lab': typeof LabRoute
-  '/molecules': typeof MoleculesRoute
-  '/periodic-table': typeof PeriodicTableRoute
+  '/dashboard': typeof DashboardRoute
+  '/lab': typeof LabRouteWithChildren
+  '/learn': typeof LearnRouteWithChildren
+  '/onboarding': typeof OnboardingRoute
   '/progress': typeof ProgressRoute
-  '/reactions': typeof ReactionsRoute
-  '/search': typeof SearchRoute
+  '/lab/ar': typeof LabArRoute
+  '/lab/sim': typeof LabSimRoute
+  '/learn/lesson': typeof LearnLessonRoute
+  '/learn/road': typeof LearnRoadRoute
+  '/tools/explorer': typeof ToolsExplorerRoute
+  '/tools/molecules': typeof ToolsMoleculesRoute
+  '/tools/periodic-table': typeof ToolsPeriodicTableRoute
+  '/tools/reactions': typeof ToolsReactionsRoute
+  '/lab/': typeof LabIndexRoute
+  '/learn/': typeof LearnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/dashboard'
     | '/lab'
-    | '/molecules'
-    | '/periodic-table'
+    | '/learn'
+    | '/onboarding'
     | '/progress'
-    | '/reactions'
-    | '/search'
+    | '/lab/ar'
+    | '/lab/sim'
+    | '/learn/lesson'
+    | '/learn/road'
+    | '/tools/explorer'
+    | '/tools/molecules'
+    | '/tools/periodic-table'
+    | '/tools/reactions'
+    | '/lab/'
+    | '/learn/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/lab'
-    | '/molecules'
-    | '/periodic-table'
+    | '/dashboard'
+    | '/onboarding'
     | '/progress'
-    | '/reactions'
-    | '/search'
+    | '/lab/ar'
+    | '/lab/sim'
+    | '/learn/lesson'
+    | '/learn/road'
+    | '/tools/explorer'
+    | '/tools/molecules'
+    | '/tools/periodic-table'
+    | '/tools/reactions'
+    | '/lab'
+    | '/learn'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/dashboard'
     | '/lab'
-    | '/molecules'
-    | '/periodic-table'
+    | '/learn'
+    | '/onboarding'
     | '/progress'
-    | '/reactions'
-    | '/search'
+    | '/lab/ar'
+    | '/lab/sim'
+    | '/learn/lesson'
+    | '/learn/road'
+    | '/tools/explorer'
+    | '/tools/molecules'
+    | '/tools/periodic-table'
+    | '/tools/reactions'
+    | '/lab/'
+    | '/learn/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  LabRoute: typeof LabRoute
-  MoleculesRoute: typeof MoleculesRoute
-  PeriodicTableRoute: typeof PeriodicTableRoute
+  DashboardRoute: typeof DashboardRoute
+  LabRoute: typeof LabRouteWithChildren
+  LearnRoute: typeof LearnRouteWithChildren
+  OnboardingRoute: typeof OnboardingRoute
   ProgressRoute: typeof ProgressRoute
-  ReactionsRoute: typeof ReactionsRoute
-  SearchRoute: typeof SearchRoute
+  ToolsExplorerRoute: typeof ToolsExplorerRoute
+  ToolsMoleculesRoute: typeof ToolsMoleculesRoute
+  ToolsPeriodicTableRoute: typeof ToolsPeriodicTableRoute
+  ToolsReactionsRoute: typeof ToolsReactionsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reactions': {
-      id: '/reactions'
-      path: '/reactions'
-      fullPath: '/reactions'
-      preLoaderRoute: typeof ReactionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/progress': {
       id: '/progress'
       path: '/progress'
@@ -157,18 +250,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/periodic-table': {
-      id: '/periodic-table'
-      path: '/periodic-table'
-      fullPath: '/periodic-table'
-      preLoaderRoute: typeof PeriodicTableRouteImport
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/molecules': {
-      id: '/molecules'
-      path: '/molecules'
-      fullPath: '/molecules'
-      preLoaderRoute: typeof MoleculesRouteImport
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab': {
@@ -176,6 +269,13 @@ declare module '@tanstack/react-router' {
       path: '/lab'
       fullPath: '/lab'
       preLoaderRoute: typeof LabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -192,18 +292,119 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/lab/': {
+      id: '/lab/'
+      path: '/'
+      fullPath: '/lab/'
+      preLoaderRoute: typeof LabIndexRouteImport
+      parentRoute: typeof LabRoute
+    }
+    '/tools/reactions': {
+      id: '/tools/reactions'
+      path: '/tools/reactions'
+      fullPath: '/tools/reactions'
+      preLoaderRoute: typeof ToolsReactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/periodic-table': {
+      id: '/tools/periodic-table'
+      path: '/tools/periodic-table'
+      fullPath: '/tools/periodic-table'
+      preLoaderRoute: typeof ToolsPeriodicTableRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/molecules': {
+      id: '/tools/molecules'
+      path: '/tools/molecules'
+      fullPath: '/tools/molecules'
+      preLoaderRoute: typeof ToolsMoleculesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools/explorer': {
+      id: '/tools/explorer'
+      path: '/tools/explorer'
+      fullPath: '/tools/explorer'
+      preLoaderRoute: typeof ToolsExplorerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/road': {
+      id: '/learn/road'
+      path: '/road'
+      fullPath: '/learn/road'
+      preLoaderRoute: typeof LearnRoadRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/lesson': {
+      id: '/learn/lesson'
+      path: '/lesson'
+      fullPath: '/learn/lesson'
+      preLoaderRoute: typeof LearnLessonRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/lab/sim': {
+      id: '/lab/sim'
+      path: '/sim'
+      fullPath: '/lab/sim'
+      preLoaderRoute: typeof LabSimRouteImport
+      parentRoute: typeof LabRoute
+    }
+    '/lab/ar': {
+      id: '/lab/ar'
+      path: '/ar'
+      fullPath: '/lab/ar'
+      preLoaderRoute: typeof LabArRouteImport
+      parentRoute: typeof LabRoute
+    }
   }
 }
+
+interface LabRouteChildren {
+  LabArRoute: typeof LabArRoute
+  LabSimRoute: typeof LabSimRoute
+  LabIndexRoute: typeof LabIndexRoute
+}
+
+const LabRouteChildren: LabRouteChildren = {
+  LabArRoute: LabArRoute,
+  LabSimRoute: LabSimRoute,
+  LabIndexRoute: LabIndexRoute,
+}
+
+const LabRouteWithChildren = LabRoute._addFileChildren(LabRouteChildren)
+
+interface LearnRouteChildren {
+  LearnLessonRoute: typeof LearnLessonRoute
+  LearnRoadRoute: typeof LearnRoadRoute
+  LearnIndexRoute: typeof LearnIndexRoute
+}
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnLessonRoute: LearnLessonRoute,
+  LearnRoadRoute: LearnRoadRoute,
+  LearnIndexRoute: LearnIndexRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  LabRoute: LabRoute,
-  MoleculesRoute: MoleculesRoute,
-  PeriodicTableRoute: PeriodicTableRoute,
+  DashboardRoute: DashboardRoute,
+  LabRoute: LabRouteWithChildren,
+  LearnRoute: LearnRouteWithChildren,
+  OnboardingRoute: OnboardingRoute,
   ProgressRoute: ProgressRoute,
-  ReactionsRoute: ReactionsRoute,
-  SearchRoute: SearchRoute,
+  ToolsExplorerRoute: ToolsExplorerRoute,
+  ToolsMoleculesRoute: ToolsMoleculesRoute,
+  ToolsPeriodicTableRoute: ToolsPeriodicTableRoute,
+  ToolsReactionsRoute: ToolsReactionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

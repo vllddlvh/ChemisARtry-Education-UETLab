@@ -13,7 +13,7 @@ import { loadPeriodicTable, categoryStyle, type PTElement } from "@/lib/periodic
 
 const AtomARScene = lazy(() => import("@/components/AtomARScene"));
 
-export const Route = createFileRoute("/periodic-table")({
+export const Route = createFileRoute("/tools/periodic-table")({
   head: () => ({
     meta: [
       { title: "Periodic Table 3D / AR — MoleLab" },

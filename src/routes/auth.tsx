@@ -1,49 +1,76 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { z } from "zod";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { FlaskConical } from "lucide-react";
+
+const searchSchema = z.object({ mode: z.enum(["signin", "signup"]).catch("signin") });
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Sign in — MoleLab AR" },
-      { name: "description", content: "Sign in to track your molecule spawns and reactions." },
+      { title: "Đăng nhập — ChemisARtry" },
+      { name: "description", content: "Đăng nhập để lưu tiến độ học tập và thành tích của bạn." },
     ],
   }),
   component: AuthPage,
 });
 
 function AuthPage() {
+  const { mode: initialMode } = Route.useSearch();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const { user, loading } = useAuth();
+  
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // Sync mode if URL changes
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate({ to: "/dashboard", replace: true });
+    }
+  }, [user, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Account created", { description: "Check your inbox to confirm your email." });
+        
+        if (!data.session) {
+          toast.success("Tạo tài khoản thành công!", { description: "Vui lòng kiểm tra email để xác nhận." });
+          setMode("signin");
+        } else {
+          toast.success("Tạo tài khoản thành công!");
+          navigate({ to: "/onboarding" });
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Welcome back!");
-        navigate({ to: "/" });
+        toast.success("Chào mừng trở lại!");
+        navigate({ to: "/dashboard" });
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Authentication failed");
+      toast.error(err instanceof Error ? err.message : "Xác thực thất bại");
     } finally {
       setBusy(false);
     }
@@ -52,80 +79,114 @@ function AuthPage() {
   const handleGoogle = async () => {
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/dashboard` },
       });
-      if (result.error) {
-        toast.error(result.error instanceof Error ? result.error.message : "Google sign-in failed");
-        setBusy(false);
-        return;
-      }
-      if (result.redirected) return; // browser will redirect
-      navigate({ to: "/" });
-    } catch {
-      toast.error("Google sign-in failed");
+      if (error) throw error;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Đăng nhập Google thất bại");
       setBusy(false);
     }
   };
 
+  if (loading || user) return null;
+
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-5">
-      <div className="w-full max-w-md rounded-3xl bg-panel shadow-panel border border-border p-8">
-        <div className="text-center mb-6">
-          <div className="text-4xl mb-2 inline-block animate-float-slow">🧬</div>
-          <h1 className="text-2xl font-bold">MoleLab AR</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {mode === "signin" ? "Sign in to save your progress" : "Create an account to track experiments"}
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full rounded-full"
-          onClick={handleGoogle}
-          disabled={busy}
-        >
-          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.1a6.99 6.99 0 0 1 0-4.2V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.83z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83C6.71 7.31 9.14 5.38 12 5.38z"/>
-          </svg>
-          Continue with Google
-        </Button>
-
-        <div className="relative my-5">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-3 text-muted-foreground">or</span>
+    <div className="min-h-screen bg-background flex">
+      {/* Left Column: Visual/Marketing (Hidden on mobile) */}
+      <div className="hidden lg:flex flex-1 relative bg-gradient-hero items-center justify-center p-12 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay -z-10" />
+        
+        <div className="relative z-10 w-full max-w-lg">
+          <div className="aspect-square rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
+            <FlaskConical className="h-24 w-24 text-primary opacity-80 mb-8" />
+            <h2 className="text-3xl font-display font-bold text-foreground mb-4">
+              Hàng nghìn học sinh đã học cùng ChemisARtry
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Tham gia ngay để trải nghiệm Hoá học theo cách trực quan nhất.
+            </p>
           </div>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      {/* Right Column: Form */}
+      <div className="w-full lg:w-[500px] flex flex-col justify-center px-8 sm:px-12 py-12 relative">
+        <Link to="/" className="absolute top-8 left-8 text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors">
+          ← Quay lại trang chủ
+        </Link>
+
+        <div className="mx-auto w-full max-w-sm mt-8">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-display font-bold">
+              {mode === "signin" ? "Đăng nhập" : "Tạo tài khoản"}
+            </h1>
+            <p className="text-muted-foreground text-sm mt-2">
+              {mode === "signin"
+                ? "Chào mừng trở lại! Vui lòng điền thông tin của bạn."
+                : "Bắt đầu hành trình khám phá Hoá học 3D của bạn."}
+            </p>
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <Button type="submit" className="w-full rounded-full bg-gradient-primary" disabled={busy}>
-            {mode === "signin" ? "Sign in" : "Create account"}
+
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="w-full mb-6 rounded-xl h-11" 
+            onClick={handleGoogle} 
+            disabled={busy}
+          >
+            <svg viewBox="0 0 24 24" className="mr-2 h-4 w-4" aria-hidden="true">
+              <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335" />
+              <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4" />
+              <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05" />
+              <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26537 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853" />
+            </svg>
+            Tiếp tục với Google
           </Button>
-        </form>
 
-        <div className="text-center text-sm mt-5 text-muted-foreground">
-          {mode === "signin" ? (
-            <>No account? <button className="text-primary font-medium" onClick={() => setMode("signup")}>Sign up</button></>
-          ) : (
-            <>Already have one? <button className="text-primary font-medium" onClick={() => setMode("signin")}>Sign in</button></>
-          )}
-        </div>
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Hoặc tiếp tục với email</span></div>
+          </div>
 
-        <div className="text-center mt-4">
-          <Link to="/" className="text-xs text-muted-foreground hover:text-primary">← Continue without account</Link>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="rounded-xl" disabled={busy} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Mật khẩu</Label>
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="rounded-xl" minLength={6} disabled={busy} />
+            </div>
+
+            <Button type="submit" className="w-full rounded-xl h-11 bg-gradient-primary mt-2" disabled={busy}>
+              {busy ? "Đang xử lý..." : mode === "signin" ? "Đăng nhập" : "Đăng ký"}
+            </Button>
+          </form>
+
+          <div className="mt-8 text-center text-sm">
+            {mode === "signin" ? (
+              <span className="text-muted-foreground">
+                Chưa có tài khoản?{" "}
+                <Link to="/auth" search={{ mode: "signup" }} className="text-primary hover:underline font-medium">
+                  Đăng ký ngay
+                </Link>
+              </span>
+            ) : (
+              <span className="text-muted-foreground">
+                Đã có tài khoản?{" "}
+                <Link to="/auth" search={{ mode: "signin" }} className="text-primary hover:underline font-medium">
+                  Đăng nhập
+                </Link>
+              </span>
+            )}
+            <div className="mt-4">
+              <Link to="/lab/sim" className="text-muted-foreground hover:text-foreground underline underline-offset-4">
+                Tiếp tục không cần đăng nhập
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
