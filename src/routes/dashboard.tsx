@@ -1,10 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Trophy, FlaskConical, Sparkles, Atom, BookOpen, Zap } from "lucide-react";
-import type { User } from "@supabase/supabase-js";
+import { FlaskConical, Sparkles, Atom, Zap, LogOut, Home, BarChart2 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -26,12 +25,8 @@ type ProgressRow = {
 function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [progress, setProgress] = useState<ProgressRow | null>(null);
-
-  // Cho phép guest truy cập để test
-  // useEffect(() => {
-  //   if (!authLoading && !user) navigate({ to: "/auth" });
-  // }, [authLoading, user, navigate]);
 
   useEffect(() => {
     if (!user) return;
@@ -45,8 +40,8 @@ function DashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted-foreground">Đang tải…</div>
+      <div className="dark min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="text-muted-foreground animate-pulse">Đang tải…</div>
       </div>
     );
   }
@@ -58,29 +53,49 @@ function DashboardPage() {
     updated_at: new Date().toISOString(),
   };
 
-  const greeting = getGreeting();
   const displayName = user?.email?.split("@")[0] ?? "Khách";
+  const userInitial = displayName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* TODO: thay bằng SiteHeader mới khi rebuild nav */}
-      <div className="mx-auto max-w-6xl w-full px-4 md:px-6 py-8 flex-1">
-        {/* Greeting */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold">
-            {greeting}, {displayName}! 👋
-          </h1>
-          <p className="text-muted-foreground mt-1">Hôm nay bạn muốn học gì?</p>
+    <div className="dark h-screen w-full flex bg-background text-foreground overflow-hidden font-body relative">
+      {/* Background noise */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
+
+      {/* LEFT SIDEBAR */}
+      <aside className="w-[260px] border-r border-border/50 bg-background/50 backdrop-blur-xl flex flex-col z-10 shrink-0">
+        <div className="p-6 pb-8">
+          <Link to="/dashboard" className="flex items-center gap-3 font-display font-bold text-xl hover:opacity-80 transition-opacity">
+            <span className="text-3xl">⚗️</span>
+            <span>ChemisARtry</span>
+          </Link>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-          {/* Left: Lộ trình học */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Tiếp tục học
-            </h2>
+        <nav className="flex-1 px-4 space-y-2">
+          <SidebarItem icon={<Home className="size-6" />} label="Học tập" active={location.pathname === "/dashboard"} to="/dashboard" />
+          <SidebarItem icon={<FlaskConical className="size-6" />} label="Phòng thí nghiệm" active={location.pathname.includes("/lab")} to="/lab/sim" />
+          <SidebarItem icon={<Atom className="size-6" />} label="Bảng tuần hoàn" active={location.pathname.includes("/tools/periodic-table")} to="/tools/periodic-table" />
+          <SidebarItem icon={<Sparkles className="size-6" />} label="Tìm kiếm" active={location.pathname.includes("/tools/explorer")} to="/tools/explorer" />
+          <SidebarItem icon={<BarChart2 className="size-6" />} label="Báo cáo" active={location.pathname.includes("/progress")} to="/progress" />
+        </nav>
 
-            {/* Road 1 card */}
+        <div className="p-4 mt-auto">
+          <button onClick={handleLogout} className="flex items-center gap-4 w-full px-4 py-3 rounded-2xl text-muted-foreground hover:bg-muted/50 hover:text-foreground font-bold transition-colors">
+            <LogOut className="size-6" />
+            Đăng xuất
+          </button>
+        </div>
+      </aside>
+
+      {/* MIDDLE CONTENT */}
+      <main className="flex-1 overflow-y-auto relative z-10 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="max-w-2xl mx-auto px-6 py-12 min-h-full flex flex-col items-center">
+          
+          <div className="w-full space-y-8 pb-24">
             <RoadCard
               icon="🧪"
               title="Road 1: Nguyên tố & Liên kết Hoá học"
@@ -91,8 +106,7 @@ function DashboardPage() {
               search={{ roadId: 1 }}
               ctaLabel="Bắt đầu Road 1 →"
             />
-
-            {/* Road 2 card */}
+            
             <RoadCard
               icon="⚗️"
               title="Road 2: Phản ứng Hoá học"
@@ -103,51 +117,84 @@ function DashboardPage() {
               search={{ roadId: 2 }}
               ctaLabel="Bắt đầu Road 2 →"
             />
-
-            {/* Quick access */}
-            <div className="mt-6">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                Truy cập nhanh
-              </h2>
-              <div className="grid grid-cols-3 gap-3">
-                <QuickLink href="/lab/sim" icon={<FlaskConical className="h-5 w-5" />} label="Phòng thí nghiệm" />
-                <QuickLink href="/tools/periodic-table" icon={<Atom className="h-5 w-5" />} label="Bảng tuần hoàn" />
-                <QuickLink href="/tools/explorer" icon={<Sparkles className="h-5 w-5" />} label="Tìm kiếm" />
-              </div>
-            </div>
           </div>
+        </div>
+      </main>
 
-          {/* Right: Thống kê */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Thống kê
-            </h2>
-            <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-              <StatRow icon={<Atom className="h-4 w-4" />} label="Phân tử đã spawn" value={p.molecules_spawned} />
-              <StatRow icon={<Zap className="h-4 w-4" />} label="Phản ứng đã thực hiện" value={p.reactions_triggered} />
-              <StatRow icon={<BookOpen className="h-4 w-4" />} label="Phân tử gần nhất" value={p.last_molecule ?? "—"} />
-            </div>
+      {/* RIGHT SIDEBAR */}
+      <aside className="w-[340px] border-l border-border/50 bg-background/50 backdrop-blur-xl flex flex-col z-10 shrink-0 p-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        
+        {/* Top Header Row */}
+        <div className="flex items-center justify-between mb-10 mt-2 px-2">
+          <div className="flex items-center gap-2 font-display font-bold text-lab-coral cursor-pointer hover:scale-110 transition-transform">
+            <span className="text-2xl drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]">🔥</span> 0
+          </div>
+          <div className="flex items-center gap-2 font-display font-bold text-lab-sun cursor-pointer hover:scale-110 transition-transform">
+            <span className="text-2xl drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">⭐</span> 0
+          </div>
+          <Link to="/progress" className="size-10 rounded-full bg-primary/20 text-primary grid place-items-center font-display font-bold border-2 border-primary/50 cursor-pointer hover:scale-110 hover:shadow-glow transition-all">
+            {userInitial}
+          </Link>
+        </div>
 
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Thành tích gần đây
-            </h2>
-            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
-              <AchievementRow icon="✨" label="First Spark" unlocked={p.molecules_spawned >= 1} />
-              <AchievementRow icon="⚗️" label="Apprentice Alchemist" unlocked={p.molecules_spawned >= 10} />
-              <AchievementRow icon="💥" label="Reaction!" unlocked={p.reactions_triggered >= 1} />
-            </div>
+        {/* Stats / Nhiệm vụ */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-5 px-1">
+            <h3 className="font-display font-bold text-lg text-foreground">Nhiệm vụ hôm nay</h3>
+            <Link to="/progress" className="text-xs text-primary font-bold hover:underline uppercase tracking-wider">Xem tất cả</Link>
+          </div>
+          
+          <div className="rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl p-5 space-y-6 shadow-soft">
+            <TaskRow icon={<Zap className="size-6 text-lab-sun" />} title="Phản ứng thực hiện" progress={p.reactions_triggered} max={5} />
+            <TaskRow icon={<Atom className="size-6 text-primary" />} title="Phân tử đã tạo" progress={p.molecules_spawned} max={10} />
+          </div>
+        </div>
 
-            <Button asChild className="w-full rounded-full bg-gradient-primary">
-              <Link to="/progress">Xem toàn bộ tiến độ →</Link>
+        {/* Promo / Thành tích */}
+        <div>
+          <div className="rounded-3xl border border-border/50 bg-gradient-to-b from-card/80 to-card/20 backdrop-blur-xl p-6 shadow-soft text-center group">
+            <h3 className="font-display font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors">Xem báo cáo chi tiết?</h3>
+            <p className="text-sm text-muted-foreground mb-6">Theo dõi toàn bộ tiến trình học, điểm số và thành tích của bạn.</p>
+            <Button asChild size="lg" className="w-full rounded-full bg-foreground hover:bg-primary text-background hover:text-primary-foreground font-bold h-12 transition-colors border-0">
+              <Link to="/progress">Xem toàn bộ báo cáo</Link>
             </Button>
           </div>
         </div>
-      </div>
+
+      </aside>
     </div>
   );
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────
+
+function SidebarItem({ icon, label, active, to }: { icon: React.ReactNode, label: string, active: boolean, to: string }) {
+  return (
+    <Link to={to} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold transition-all ${active ? "bg-primary/10 text-primary border border-primary/20 shadow-[inset_0_0_20px_rgba(45,212,191,0.1)]" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}>
+      {icon}
+      <span className="text-[15px]">{label}</span>
+    </Link>
+  );
+}
+
+function TaskRow({ icon, title, progress, max }: { icon: React.ReactNode, title: string, progress: number, max: number }) {
+  const pct = Math.min(100, Math.round((progress / max) * 100));
+  const done = progress >= max;
+  return (
+    <div className="flex items-start gap-4">
+      <div className="mt-1">{icon}</div>
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="text-[15px] font-bold text-foreground">{title}</div>
+          <div className="text-sm font-bold text-muted-foreground">{progress}<span className="opacity-50">/{max}</span></div>
+        </div>
+        <div className="h-3 rounded-full bg-muted/80 overflow-hidden relative shadow-inner">
+          <div className={`absolute top-0 bottom-0 left-0 rounded-full transition-all duration-700 ${done ? "bg-primary" : "bg-lab-sun"}`} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function RoadCard({
   icon, title, subtitle, progress, total, href, search, ctaLabel, locked = false,
@@ -158,58 +205,25 @@ function RoadCard({
 }) {
   const pct = Math.round((progress / total) * 100);
   return (
-    <div className={`rounded-2xl border p-5 transition ${locked ? "border-border bg-muted/30 opacity-70" : "border-border bg-card hover:shadow-soft"}`}>
-      <div className="flex items-start gap-3">
-        <span className="text-2xl">{icon}</span>
-        <div className="flex-1 min-w-0">
-          <div className="font-display font-bold">{title}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">{subtitle}</div>
-          <div className="mt-3 h-1.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
+    <div className={`group rounded-3xl border p-7 transition-all duration-300 ${locked ? "border-border/40 bg-card/20 opacity-60" : "border-border/50 bg-card/40 backdrop-blur-xl hover:bg-card/60 hover:border-primary/50 hover:shadow-soft hover:-translate-y-2"}`}>
+      <div className="flex items-start gap-5">
+        <div className={`size-16 rounded-2xl flex items-center justify-center text-4xl shrink-0 shadow-inner ${locked ? "bg-muted" : "bg-primary/10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300"}`}>
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0 py-1">
+          <div className="font-display font-bold text-xl text-foreground truncate">{title}</div>
+          <div className="text-sm text-muted-foreground mt-1.5">{subtitle}</div>
+          <div className="mt-5 h-2.5 rounded-full bg-muted/50 overflow-hidden relative shadow-inner">
+            <div className="absolute top-0 bottom-0 left-0 bg-gradient-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%` }} />
           </div>
-          <div className="text-xs text-muted-foreground mt-1">{progress}/{total} bài hoàn thành</div>
-          <Link to={href} search={search} className={`inline-flex mt-3 text-sm font-medium ${locked ? "text-muted-foreground pointer-events-none" : "text-primary hover:underline"}`}>
-            {ctaLabel}
-          </Link>
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-sm font-medium text-muted-foreground">{progress}/{total} bài hoàn thành</span>
+            <Link to={href} search={search} className={`inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors ${locked ? "text-muted-foreground bg-muted pointer-events-none" : "text-primary-foreground bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md"}`}>
+              {ctaLabel}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
-}
-
-function QuickLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  return (
-    <Link to={href} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center hover:border-primary/40 hover:-translate-y-0.5 transition">
-      <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center">{icon}</div>
-      <span className="text-xs font-medium">{label}</span>
-    </Link>
-  );
-}
-
-function StatRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2 text-muted-foreground text-sm">
-        {icon} {label}
-      </div>
-      <div className="font-display font-bold">{value}</div>
-    </div>
-  );
-}
-
-function AchievementRow({ icon, label, unlocked }: { icon: string; label: string; unlocked: boolean }) {
-  return (
-    <div className={`flex items-center gap-2 text-sm ${unlocked ? "text-foreground" : "text-muted-foreground"}`}>
-      <span className={unlocked ? "" : "grayscale opacity-40"}>{icon}</span>
-      {label}
-      {unlocked && <span className="ml-auto text-xs text-primary font-medium">Đạt ✓</span>}
-    </div>
-  );
-}
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "Chào buổi sáng";
-  if (h < 18) return "Chào buổi chiều";
-  return "Chào buổi tối";
 }

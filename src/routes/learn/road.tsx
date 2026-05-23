@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { getLessonsByRoad, type Lesson } from "@/lib/lessons-data";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, CheckCircle2, Circle, Lock } from "lucide-react";
+import { CheckCircle2, Circle, Lock, X } from "lucide-react";
 
 const searchSchema = z.object({ roadId: z.coerce.number().int().min(1).max(2).catch(1) });
 
@@ -24,6 +24,7 @@ function RoadPage() {
   const id = (roadId === 2 ? 2 : 1) as 1 | 2;
   const meta = ROAD_META[id];
   const lessons = getLessonsByRoad(id);
+  const navigate = useNavigate();
 
   // Group by chapter
   const chapters = lessons.reduce<Record<string, Lesson[]>>((acc, l) => {
@@ -33,40 +34,45 @@ function RoadPage() {
   }, {});
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-3xl px-4 md:px-6 py-8">
-        {/* Back */}
-        <Link to="/learn" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition mb-6">
-          <ChevronLeft className="h-4 w-4" /> Lộ trình học
-        </Link>
+    <div className="dark min-h-screen bg-background text-foreground fixed inset-0 z-50 overflow-y-auto font-body">
+      {/* Background noise */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
+      
+      <div className="mx-auto max-w-3xl px-6 py-8 relative z-10">
+        {/* Header with Close Button */}
+        <div className="flex justify-end mb-6">
+          <Link to="/dashboard" className="size-12 rounded-full bg-card/40 border border-border/50 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all cursor-pointer">
+            <X className="size-6" />
+          </Link>
+        </div>
 
-        <div className="flex items-center gap-3 mb-8">
-          <span className="text-4xl">{meta.icon}</span>
+        <div className="flex items-center gap-5 mb-10">
+          <span className="text-5xl drop-shadow-md">{meta.icon}</span>
           <div>
-            <h1 className="text-2xl font-display font-bold">{meta.title}</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">{lessons.length} bài học</p>
+            <h1 className="text-3xl font-display font-bold">{meta.title}</h1>
+            <p className="text-muted-foreground mt-1 font-medium">{lessons.length} bài học</p>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="mb-8">
-          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-            <span>Tiến độ</span>
+        <div className="mb-10 p-6 rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl shadow-soft">
+          <div className="flex justify-between text-sm font-bold text-muted-foreground mb-4">
+            <span>Tiến độ hiện tại</span>
             <span>0 / {lessons.length} bài</span>
           </div>
-          <div className="h-2 rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary" style={{ width: "0%" }} />
+          <div className="h-3 rounded-full bg-muted/80 shadow-inner overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-primary w-[0%]" />
           </div>
         </div>
 
         {/* Chapters */}
-        <div className="space-y-6">
+        <div className="space-y-10">
           {Object.entries(chapters).map(([chapter, chLessons]) => (
             <div key={chapter}>
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-primary mb-4 ml-2">
                 {chapter}
               </h2>
-              <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border">
+              <div className="rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl overflow-hidden divide-y divide-border/50 shadow-soft">
                 {chLessons.map((lesson, i) => {
                   // TODO: thay thế bằng progress thật từ Supabase
                   const status: "done" | "active" | "locked" = i === 0 ? "active" : "locked";
@@ -79,11 +85,9 @@ function RoadPage() {
           ))}
         </div>
 
-        <div className="mt-8 pt-6 border-t border-border flex gap-3">
-          <Button asChild variant="outline" className="rounded-full flex-1">
-            <Link to="/learn">← Tất cả lộ trình</Link>
-          </Button>
-          <Button asChild className="rounded-full bg-gradient-primary flex-1">
+        {/* Bottom CTA */}
+        <div className="mt-12 pt-8 border-t border-border/50">
+          <Button asChild size="lg" className="w-full rounded-full bg-gradient-primary hover:shadow-glow transition-all h-14 font-bold text-primary-foreground border-0 text-lg">
             <Link to="/learn/lesson" search={{ lessonId: `road${id}-lesson1` }}>
               Bắt đầu bài 1 →
             </Link>
@@ -100,15 +104,15 @@ function LessonRow({
   lesson: Lesson; status: "done" | "active" | "locked"; roadId: 1 | 2;
 }) {
   return (
-    <div className={`flex items-center gap-4 px-4 py-3.5 transition ${status === "locked" ? "opacity-50 pointer-events-none" : "hover:bg-muted/30"}`}>
-      <div className="shrink-0">
-        {status === "done" && <CheckCircle2 className="h-5 w-5 text-primary" />}
-        {status === "active" && <Circle className="h-5 w-5 text-primary" />}
-        {status === "locked" && <Lock className="h-4 w-4 text-muted-foreground" />}
+    <div className={`flex items-center gap-5 px-6 py-5 transition-colors ${status === "locked" ? "opacity-40 grayscale pointer-events-none" : "hover:bg-card/60"}`}>
+      <div className="shrink-0 mt-0.5">
+        {status === "done" && <CheckCircle2 className="size-6 text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]" />}
+        {status === "active" && <Circle className="size-6 text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.5)] fill-primary/20" />}
+        {status === "locked" && <Lock className="size-5 text-muted-foreground" />}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-muted-foreground">{lesson.chapter.split(":")[0]?.trim()}</div>
-        <div className="font-medium text-sm truncate">
+        <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{lesson.chapter.split(":")[0]?.trim()}</div>
+        <div className="font-bold text-foreground text-[16px] truncate">
           Bài {lesson.order}: {lesson.title}
         </div>
       </div>
@@ -116,13 +120,13 @@ function LessonRow({
         <Link
           to="/learn/lesson"
           search={{ lessonId: lesson.id }}
-          className={`text-xs font-semibold px-3 py-1.5 rounded-full transition ${
+          className={`text-sm font-bold px-5 py-2.5 rounded-xl transition-all ${
             status === "done"
-              ? "text-muted-foreground border border-border hover:border-primary/40"
-              : "bg-primary text-primary-foreground"
+              ? "text-muted-foreground bg-muted/50 hover:bg-muted"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
           }`}
         >
-          {status === "done" ? "Xem lại" : "Học"}
+          {status === "done" ? "Ôn tập" : "Học ngay"}
         </Link>
       )}
     </div>
