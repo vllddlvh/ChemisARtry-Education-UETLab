@@ -55,30 +55,33 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     camera?: THREE.PerspectiveCamera;
     group?: THREE.Group;
     cleanup?: () => void;
+    setTargetRotation?: (dx: number, dy: number) => void;
+    setTargetZoom?: (factor: number) => void;
+    resetTargets?: () => void;
   }>({});
 
   useImperativeHandle(
     ref,
     () => ({
       rotate: (dx, dy) => {
-        const g = stateRef.current.group;
-        if (!g) return;
-        g.rotation.y += dx;
-        g.rotation.x += dy;
+        if (stateRef.current.setTargetRotation) {
+          stateRef.current.setTargetRotation(dx, dy);
+        } else {
+          const g = stateRef.current.group;
+          if (g) {
+            g.rotation.y += dx;
+            g.rotation.x += dy;
+          }
+        }
       },
       zoom: (factor) => {
-        const cam = stateRef.current.camera;
-        if (!cam) return;
-        cam.position.z = Math.max(4, Math.min(40, cam.position.z / factor));
-        cam.updateProjectionMatrix();
+        if (stateRef.current.setTargetZoom) {
+          stateRef.current.setTargetZoom(factor);
+        }
       },
       reset: () => {
-        const g = stateRef.current.group;
-        const cam = stateRef.current.camera;
-        if (g) g.rotation.set(0.25, 0, 0);
-        if (cam) {
-          cam.position.set(0, 0, 14);
-          cam.updateProjectionMatrix();
+        if (stateRef.current.resetTargets) {
+          stateRef.current.resetTargets();
         }
       },
       canvas: () => stateRef.current.renderer?.domElement ?? null,
@@ -253,9 +256,27 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
 
     // Auto-fit camera to outer shell
     const maxRadius = baseRadius + Math.max(0, shells.length - 1) * step + 1.2;
-    camera.position.z = Math.max(10, maxRadius * 2.4);
+    const defaultCameraZ = Math.max(10, maxRadius * 2.4);
+    camera.position.z = defaultCameraZ;
 
-    // ---- Interaction ----
+    // ---- Interaction & Damping ----
+    let targetRotX = 0.25;
+    let targetRotY = 0;
+    let targetZoom = defaultCameraZ;
+
+    stateRef.current.setTargetRotation = (dx, dy) => {
+      targetRotY += dx;
+      targetRotX += dy;
+    };
+    stateRef.current.setTargetZoom = (factor) => {
+      targetZoom = Math.max(4, Math.min(60, targetZoom / factor));
+    };
+    stateRef.current.resetTargets = () => {
+      targetRotX = 0.25;
+      targetRotY = 0;
+      targetZoom = defaultCameraZ;
+    };
+
     let raf = 0;
     let dragging = false;
     let lastX = 0,
@@ -273,8 +294,12 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     };
     const move = (e: PointerEvent) => {
       if (!dragging) return;
-      group.rotation.y += (e.clientX - lastX) * 0.008;
-      group.rotation.x += (e.clientY - lastY) * 0.008;
+      targetRotY += (e.clientX - lastX) * 0.008;
+      targetRotX += (e.clientY - lastY) * 0.008;
+      
+      // Clamp X rotation gently so the atom doesn't flip completely upside down
+      targetRotX = Math.max(-Math.PI / 1.5, Math.min(Math.PI / 1.5, targetRotX));
+
       lastX = e.clientX;
       lastY = e.clientY;
     };
@@ -291,7 +316,7 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
       if (!interactive) return;
       e.preventDefault();
       const f = e.deltaY > 0 ? 0.92 : 1.08;
-      camera.position.z = Math.max(4, Math.min(40, camera.position.z / f));
+      targetZoom = Math.max(4, Math.min(60, targetZoom / f));
     };
 
     if (interactive) {
@@ -303,19 +328,26 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     }
 
     // ---- Loop ----
-    const t0 = performance.now();
+    const clock = new THREE.Clock();
+    
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      const t = (performance.now() - t0) / 1000;
+      const delta = Math.min(clock.getDelta(), 0.1); // Clamp delta to prevent huge jumps
+      const t = clock.getElapsedTime();
 
-      // Auto-rotate group
+      // Auto-rotate target
       if (autoRotate && !dragging) {
-        group.rotation.y += 0.003;
+        targetRotY += 0.2 * delta; // 0.2 rad/s
       }
 
-      // Spin nucleus subtly
-      nucleusGroup.rotation.y += 0.01;
-      nucleusGroup.rotation.x += 0.006;
+      // Smooth damping for rotation and zoom
+      group.rotation.y = THREE.MathUtils.damp(group.rotation.y, targetRotY, 8, delta);
+      group.rotation.x = THREE.MathUtils.damp(group.rotation.x, targetRotX, 8, delta);
+      camera.position.z = THREE.MathUtils.damp(camera.position.z, targetZoom, 8, delta);
+
+      // Spin nucleus smoothly based on delta time
+      nucleusGroup.rotation.y += 0.8 * delta;
+      nucleusGroup.rotation.x += 0.5 * delta;
 
       // Animate electrons in their shells
       shellGroups.forEach(({ group: sg, speed }) => {

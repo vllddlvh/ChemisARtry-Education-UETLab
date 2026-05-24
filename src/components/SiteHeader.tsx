@@ -38,7 +38,7 @@ export default function SiteHeader() {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-1">
-          {showAppMenu ? (
+          {showAppMenu && (
             <>
               <NavLink to="/learn" label="Học" active={activePath.startsWith("/learn")} />
               <NavLink to="/lab/sim" label="Thực hành" active={activePath.startsWith("/lab")} />
@@ -69,11 +69,6 @@ export default function SiteHeader() {
               </DropdownMenu>
 
               <NavLink to="/progress" label="Tiến độ" active={activePath.startsWith("/progress")} />
-            </>
-          ) : (
-            <>
-              <NavLink to="/" label="Tính năng" active={activePath === "/"} />
-              <NavLink to="/learn" label="Lộ trình" active={activePath.startsWith("/learn")} />
             </>
           )}
         </nav>

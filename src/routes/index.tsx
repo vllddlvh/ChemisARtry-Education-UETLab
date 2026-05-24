@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { FlaskConical, BookOpen, Trophy, ArrowRight } from "lucide-react";
+import { FlaskConical, BookOpen, Trophy, ArrowRight, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import { cn } from "@/lib/utils";
 import AtomViewer3D from "@/components/AtomViewer3D";
@@ -32,41 +32,54 @@ function LandingPage() {
   if (loading || user) return null;
 
   return (
-    <div className="dark flex flex-col min-h-screen bg-background text-foreground">
+    <div className="dark flex flex-col h-[100dvh] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-pt-16 scroll-smooth bg-background text-foreground">
       <SiteHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative pt-24 pb-32 lg:pt-32 lg:pb-40 overflow-hidden">
+        <section className="relative min-h-[calc(100dvh-4rem)] flex items-center py-12 lg:py-0 overflow-hidden snap-start">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay -z-10" />
 
-          <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="w-full mx-auto max-w-7xl px-4 md:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
               {/* Left Column: Text & CTA */}
               <div className="text-center lg:text-left z-10">
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.3 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="text-5xl md:text-7xl font-display font-extrabold mb-8 text-balance"
+                  className="text-4xl md:text-5xl lg:text-6xl font-display font-extrabold mb-6 text-balance tracking-tight leading-tight lg:leading-[1.1]"
                 >
                   Học Hoá học bằng cách
                   <br className="hidden md:block" />
                   <span className="text-primary">chạm vào nguyên tử</span>
                 </motion.h1>
 
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.3 }}
                   transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-                  className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 mb-10 text-pretty"
+                  className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-10"
                 >
-                  Lộ trình bài học theo chương trình THPT · Mô hình 3D tương tác · Thí nghiệm AR
-                  bằng tay không
-                </motion.p>
+                  <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-border/40 bg-muted/30 backdrop-blur-md shadow-sm">
+                    <BookOpen className="size-4 text-primary" />
+                    <span className="text-sm md:text-base font-medium text-foreground">Bám sát SGK</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-border/40 bg-muted/30 backdrop-blur-md shadow-sm">
+                    <Sparkles className="size-4 text-primary" />
+                    <span className="text-sm md:text-base font-medium text-foreground">Tương tác 3D</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-border/40 bg-muted/30 backdrop-blur-md shadow-sm">
+                    <FlaskConical className="size-4 text-primary" />
+                    <span className="text-sm md:text-base font-medium text-foreground">Thí nghiệm AR</span>
+                  </div>
+                </motion.div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.3 }}
                   transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                   className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
                 >
@@ -93,9 +106,10 @@ function LandingPage() {
               {/* Right Column: Interactive 3D Atom */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
-                className="relative aspect-square lg:aspect-auto lg:h-[600px] w-full flex items-center justify-center group"
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+                className="relative aspect-square w-full max-w-[500px] mx-auto lg:max-w-none lg:aspect-auto lg:h-[500px] xl:h-[600px] flex items-center justify-center group"
               >
                 {/* Glow behind the atom */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#ffd700]/20 via-transparent to-primary/20 blur-3xl opacity-40 rounded-full mix-blend-screen pointer-events-none" />
@@ -122,103 +136,147 @@ function LandingPage() {
         </section>
 
         {/* Feature Highlights */}
-        <section className="py-24 bg-muted/30">
-          <div className="mx-auto max-w-6xl px-4 md:px-6">
-            <div className="text-center mb-16">
+        <section className="min-h-[calc(100dvh-4rem)] flex items-center py-24 bg-muted/30 snap-start">
+          <div className="w-full mx-auto max-w-6xl px-4 md:px-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-center mb-16"
+            >
               <h2 className="text-3xl font-display font-bold text-foreground text-balance">
                 Học để hiểu, không chỉ học thuộc
               </h2>
               <p className="text-muted-foreground mt-4 text-pretty">
                 Thay vì nhìn công thức 2D, hãy tương tác trực tiếp với phân tử.
               </p>
-            </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={<FlaskConical className="size-8" />}
-                title="Thí nghiệm AR bằng tay"
-                desc="Dùng tay điều khiển phân tử trong không gian thật. Phản ứng xảy ra ngay trước mắt bạn."
-              />
-              <FeatureCard
-                icon={<BookOpen className="size-8" />}
-                title="Bài học theo chương trình"
-                desc="Gắn chặt với SGK Hoá 10, 11, 12. Học đến đâu, thực hành 3D đến đó."
-              />
-              <FeatureCard
-                icon={<Trophy className="size-8" />}
-                title="Thành tích & Tiến độ"
-                desc="Theo dõi quá trình học, thu thập huy hiệu và mở khoá các thí nghiệm bí mật."
-              />
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+              >
+                <FeatureCard
+                  icon={<FlaskConical className="size-8" />}
+                  title="Thí nghiệm AR bằng tay"
+                  desc="Dùng tay điều khiển phân tử trong không gian thật. Phản ứng xảy ra ngay trước mắt bạn."
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              >
+                <FeatureCard
+                  icon={<BookOpen className="size-8" />}
+                  title="Bài học theo chương trình"
+                  desc="Gắn chặt với SGK Hoá 10, 11, 12. Học đến đâu, thực hành 3D đến đó."
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              >
+                <FeatureCard
+                  icon={<Trophy className="size-8" />}
+                  title="Thành tích & Tiến độ"
+                  desc="Theo dõi quá trình học, thu thập huy hiệu và mở khoá các thí nghiệm bí mật."
+                />
+              </motion.div>
             </div>
           </div>
         </section>
 
         {/* Path Preview */}
-        <section className="py-24 border-t border-border">
-          <div className="mx-auto max-w-4xl px-4 md:px-6">
-            <h2 className="text-3xl font-display font-bold text-center mb-12 text-foreground text-balance">
+        <section className="min-h-[calc(100dvh-4rem)] flex items-center py-24 border-t border-border snap-start">
+          <div className="w-full mx-auto max-w-4xl px-4 md:px-6">
+            <motion.h2 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-3xl font-display font-bold text-center mb-12 text-foreground text-balance"
+            >
               Lộ trình học rõ ràng
-            </h2>
+            </motion.h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-3xl border border-border bg-card/80 backdrop-blur p-8 hover:border-primary/50 transition-colors">
-                <div className="text-2xl mb-4">🧪</div>
-                <h3 className="font-bold text-xl mb-2 text-foreground text-balance">
-                  Road 1: Nguyên tố & Liên kết
-                </h3>
-                <p className="text-muted-foreground text-sm mb-6 text-pretty">
-                  Xây dựng nền tảng vững chắc về cấu tạo chất.
-                </p>
-                <ul className="space-y-3 text-sm font-medium mb-8 text-card-foreground">
-                  <li className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-primary" /> Cấu tạo nguyên tử
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-primary" /> Bảng tuần hoàn
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-primary" /> Liên kết hoá học
-                  </li>
-                </ul>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+              >
+                <div className="group rounded-3xl border border-border bg-card/80 backdrop-blur p-8 hover:border-primary/30 hover:bg-card hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-default h-full">
+                  <div className="text-2xl mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 w-fit">🧪</div>
+                  <h3 className="font-bold text-xl mb-2 text-foreground text-balance">
+                    Road 1: Nguyên tố & Liên kết
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-6 text-pretty">
+                    Xây dựng nền tảng vững chắc về cấu tạo chất.
+                  </p>
+                  <ul className="space-y-3 text-sm font-medium mb-8 text-card-foreground">
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-primary" /> Cấu tạo nguyên tử
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-primary" /> Bảng tuần hoàn
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-primary" /> Liên kết hoá học
+                    </li>
+                  </ul>
+                </div>
+              </motion.div>
 
-              <div className="rounded-3xl border border-border/50 bg-card/40 p-8 opacity-80 hover:opacity-100 transition-opacity">
-                <div className="text-2xl mb-4">⚗️</div>
-                <h3 className="font-bold text-xl mb-2 text-foreground text-balance">
-                  Road 2: Phản ứng Hoá học
-                </h3>
-                <p className="text-muted-foreground text-sm mb-6 text-pretty">
-                  Tìm hiểu cách các chất tương tác và biến đổi.
-                </p>
-                <ul className="space-y-3 text-sm font-medium text-muted-foreground mb-8">
-                  <li className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-muted" /> Phân loại phản ứng
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-muted" /> Nhiệt hoá học
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-muted" /> Tốc độ phản ứng
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="text-center mt-10">
-              <Button asChild variant="link" className="text-primary hover:text-primary/80 group">
-                <Link to="/learn">
-                  Xem toàn bộ lộ trình{" "}
-                  <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              >
+                <div className="group rounded-3xl border border-border/50 bg-card/40 p-8 opacity-80 hover:opacity-100 hover:border-border hover:bg-card/60 hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-default h-full">
+                  <div className="text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 w-fit">⚗️</div>
+                  <h3 className="font-bold text-xl mb-2 text-foreground text-balance">
+                    Road 2: Phản ứng Hoá học
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-6 text-pretty">
+                    Tìm hiểu cách các chất tương tác và biến đổi.
+                  </p>
+                  <ul className="space-y-3 text-sm font-medium text-muted-foreground mb-8">
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" /> Phân loại phản ứng
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" /> Nhiệt hoá học
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" /> Tốc độ phản ứng
+                    </li>
+                  </ul>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="py-32 text-center relative overflow-hidden bg-background">
+        <section className="min-h-[calc(100dvh-4rem)] flex items-center justify-center py-24 text-center relative overflow-hidden bg-background snap-start">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay -z-10" />
-          <div className="mx-auto max-w-2xl px-4 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-full mx-auto max-w-2xl px-4 relative z-10"
+          >
             <h2 className="text-4xl font-display font-bold mb-6 text-foreground text-balance">
               Sẵn sàng học Hoá theo cách mới?
             </h2>
@@ -234,7 +292,7 @@ function LandingPage() {
                 Tạo tài khoản miễn phí
               </Link>
             </Button>
-          </div>
+          </motion.div>
         </section>
       </main>
     </div>
@@ -251,8 +309,8 @@ function FeatureCard({
   desc: string;
 }) {
   return (
-    <div className="rounded-3xl border border-border bg-card/80 backdrop-blur p-8 hover:border-muted-foreground transition-colors group">
-      <div className="size-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 text-primary bg-primary/10">
+    <div className="group rounded-3xl border border-border bg-card/80 backdrop-blur p-8 hover:border-primary/30 hover:bg-card hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-default">
+      <div className="size-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 text-primary bg-primary/10 group-hover:bg-primary/20">
         {icon}
       </div>
       <h3 className="text-xl font-bold mb-3 text-foreground text-balance">{title}</h3>
