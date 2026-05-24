@@ -51,10 +51,14 @@ export class HandTrackingController {
         video.srcObject = this.stream;
         this.ownedStream = true;
       }
-      try { await video.play(); } catch { /* already playing */ }
+      try {
+        await video.play();
+      } catch {
+        /* already playing */
+      }
 
       const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm"
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm",
       );
       this.landmarker = await HandLandmarker.createFromOptions(vision, {
         baseOptions: {

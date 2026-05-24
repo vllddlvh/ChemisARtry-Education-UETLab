@@ -27,7 +27,7 @@ let landmarker: HandLandmarker | null = null;
 export async function initHandLandmarker(): Promise<HandLandmarker> {
   if (landmarker) return landmarker;
   const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm"
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm",
   );
   landmarker = await HandLandmarker.createFromOptions(vision, {
     baseOptions: {
@@ -42,7 +42,9 @@ export async function initHandLandmarker(): Promise<HandLandmarker> {
 }
 
 function dist(a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }) {
-  const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+  const dx = a.x - b.x,
+    dy = a.y - b.y,
+    dz = a.z - b.z;
   return Math.sqrt(dx * dx + dy * dy + dz * dz);
 }
 

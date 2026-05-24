@@ -7,7 +7,10 @@ export const Route = createFileRoute("/learn/")({
   head: () => ({
     meta: [
       { title: "Lộ trình học — ChemisARtry" },
-      { name: "description", content: "Học Hoá học theo lộ trình có cấu trúc: Nguyên tố → Liên kết → Phản ứng." },
+      {
+        name: "description",
+        content: "Học Hoá học theo lộ trình có cấu trúc: Nguyên tố → Liên kết → Phản ứng.",
+      },
     ],
   }),
   component: LearnPage,
@@ -33,7 +36,12 @@ function LearnPage() {
             subtitle="Nền tảng — bắt đầu từ đây"
             lessonsCount={ROAD1_LESSONS.length}
             weeks={4}
-            chapters={["Cấu tạo nguyên tử", "Bảng tuần hoàn", "Liên kết hoá học", "Phân tử & Hình dạng"]}
+            chapters={[
+              "Cấu tạo nguyên tử",
+              "Bảng tuần hoàn",
+              "Liên kết hoá học",
+              "Phân tử & Hình dạng",
+            ]}
             locked={false}
           />
 
@@ -56,9 +64,24 @@ function LearnPage() {
             Công cụ hỗ trợ học tập
           </h2>
           <div className="grid sm:grid-cols-3 gap-4">
-            <ToolCard href="/lab/sim" icon={<FlaskConical className="h-5 w-5" />} title="Phòng thí nghiệm" desc="Mô phỏng 3D không cần camera" />
-            <ToolCard href="/tools/periodic-table" icon={<BookOpen className="h-5 w-5" />} title="Bảng tuần hoàn" desc="Tra cứu 118 nguyên tố" />
-            <ToolCard href="/progress" icon={<Trophy className="h-5 w-5" />} title="Tiến độ" desc="Thành tích và lịch sử học" />
+            <ToolCard
+              href="/lab/sim"
+              icon={<FlaskConical className="h-5 w-5" />}
+              title="Phòng thí nghiệm"
+              desc="Mô phỏng 3D không cần camera"
+            />
+            <ToolCard
+              href="/tools/periodic-table"
+              icon={<BookOpen className="h-5 w-5" />}
+              title="Bảng tuần hoàn"
+              desc="Tra cứu 118 nguyên tố"
+            />
+            <ToolCard
+              href="/progress"
+              icon={<Trophy className="h-5 w-5" />}
+              title="Tiến độ"
+              desc="Thành tích và lịch sử học"
+            />
           </div>
         </div>
       </div>
@@ -67,13 +90,28 @@ function LearnPage() {
 }
 
 function RoadCard({
-  roadId, icon, title, subtitle, lessonsCount, weeks, chapters, locked,
+  roadId,
+  icon,
+  title,
+  subtitle,
+  lessonsCount,
+  weeks,
+  chapters,
+  locked,
 }: {
-  roadId: 1 | 2; icon: string; title: string; subtitle: string;
-  lessonsCount: number; weeks: number; chapters: string[]; locked: boolean;
+  roadId: 1 | 2;
+  icon: string;
+  title: string;
+  subtitle: string;
+  lessonsCount: number;
+  weeks: number;
+  chapters: string[];
+  locked: boolean;
 }) {
   return (
-    <div className={`rounded-3xl border p-6 transition ${locked ? "bg-muted/20 border-border opacity-70" : "bg-card border-border hover:shadow-soft"}`}>
+    <div
+      className={`rounded-3xl border p-6 transition ${locked ? "bg-muted/20 border-border opacity-70" : "bg-card border-border hover:shadow-soft"}`}
+    >
       <div className="flex items-start gap-4">
         <span className="text-4xl">{icon}</span>
         <div className="flex-1 min-w-0">
@@ -88,7 +126,9 @@ function RoadCard({
           <div className="mt-4 grid grid-cols-2 gap-2">
             {chapters.map((ch, i) => (
               <div key={i} className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <span className={`h-1.5 w-1.5 rounded-full ${locked ? "bg-muted-foreground/30" : "bg-primary"}`} />
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${locked ? "bg-muted-foreground/30" : "bg-primary"}`}
+                />
                 {ch}
               </div>
             ))}
@@ -98,7 +138,11 @@ function RoadCard({
             {locked ? (
               <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 🔒 Hoàn thành Road 1 để mở khoá
-                <Link to="/learn/road" search={{ roadId: 2 }} className="underline text-primary text-xs ml-1">
+                <Link
+                  to="/learn/road"
+                  search={{ roadId: 2 }}
+                  className="underline text-primary text-xs ml-1"
+                >
                   Bỏ qua và xem
                 </Link>
               </div>
@@ -116,10 +160,25 @@ function RoadCard({
   );
 }
 
-function ToolCard({ href, icon, title, desc }: { href: string; icon: React.ReactNode; title: string; desc: string }) {
+function ToolCard({
+  href,
+  icon,
+  title,
+  desc,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
   return (
-    <Link to={href} className="rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:-translate-y-0.5 transition flex items-start gap-3">
-      <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">{icon}</div>
+    <Link
+      to={href}
+      className="rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:-translate-y-0.5 transition flex items-start gap-3"
+    >
+      <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+        {icon}
+      </div>
       <div>
         <div className="font-medium text-sm">{title}</div>
         <div className="text-xs text-muted-foreground">{desc}</div>

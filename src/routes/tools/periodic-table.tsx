@@ -16,9 +16,17 @@ export const Route = createFileRoute("/tools/periodic-table")({
   head: () => ({
     meta: [
       { title: "Periodic Table 3D / AR — MoleLab" },
-      { name: "description", content: "Explore all 118 elements with an interactive 3D Bohr atom and AR webcam interaction." },
+      {
+        name: "description",
+        content:
+          "Explore all 118 elements with an interactive 3D Bohr atom and AR webcam interaction.",
+      },
       { property: "og:title", content: "Periodic Table 3D / AR — MoleLab" },
-      { property: "og:description", content: "Click any element to see its electrons orbit in 3D, then jump into AR to manipulate the atom with your hands." },
+      {
+        property: "og:description",
+        content:
+          "Click any element to see its electrons orbit in 3D, then jump into AR to manipulate the atom with your hands.",
+      },
     ],
   }),
   component: PeriodicTablePage,
@@ -40,7 +48,9 @@ function PeriodicTablePage() {
       setElements(els);
       setLoading(false);
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const categories = useMemo(() => {
@@ -57,9 +67,9 @@ function PeriodicTablePage() {
   return (
     <div className="dark h-dvh w-full flex bg-background text-foreground overflow-hidden font-body relative">
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
-      
+
       {/* Nút X đóng trang và trở về dashboard */}
-      <Link 
+      <Link
         to="/dashboard"
         className="absolute top-6 right-6 z-50 h-12 w-12 rounded-full bg-card/40 backdrop-blur-xl border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all hover:scale-110 hover:shadow-lg"
         aria-label="Đóng bảng tuần hoàn"
@@ -69,11 +79,13 @@ function PeriodicTablePage() {
 
       <main className="flex-1 relative z-10 flex flex-col min-h-0 w-full px-4 md:px-8 py-4">
         <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6 min-h-0">
-          
           {/* Left Column: Grid */}
           <section className="flex-[3] order-2 lg:order-1 min-h-0 rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl p-2 md:p-6 shadow-soft flex flex-col items-center justify-center overflow-hidden">
             {loading ? (
-              <div className="grid grid-cols-18 gap-1.5 animate-pulse w-full max-w-[1200px]" style={{ gridTemplateColumns: "repeat(18, minmax(0, 1fr))" }}>
+              <div
+                className="grid grid-cols-18 gap-1.5 animate-pulse w-full max-w-[1200px]"
+                style={{ gridTemplateColumns: "repeat(18, minmax(0, 1fr))" }}
+              >
                 {Array.from({ length: 18 * 7 }).map((_, i) => (
                   <div key={i} className="aspect-square rounded-md bg-muted" />
                 ))}
@@ -97,12 +109,15 @@ function PeriodicTablePage() {
               <div className="inline-flex items-center gap-2 text-xs text-primary mb-1">
                 <Atom className="h-3.5 w-3.5" /> Tương tác 3D · Hỗ trợ AR
               </div>
-              <h1 className="text-2xl md:text-3xl font-display font-bold text-balance">Bảng tuần hoàn</h1>
+              <h1 className="text-2xl md:text-3xl font-display font-bold text-balance">
+                Bảng tuần hoàn
+              </h1>
               <p className="text-muted-foreground mt-2 text-sm leading-relaxed hidden lg:block">
-                Nhấn vào ô nguyên tố để xem cấu hình electron 3D, hoặc dùng công cụ để tìm kiếm và lọc.
+                Nhấn vào ô nguyên tố để xem cấu hình electron 3D, hoặc dùng công cụ để tìm kiếm và
+                lọc.
               </p>
             </div>
-            
+
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -122,9 +137,15 @@ function PeriodicTablePage() {
             </div>
 
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-3 font-semibold">Nhóm chất</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-3 font-semibold">
+                Nhóm chất
+              </div>
               <div className="flex flex-wrap gap-2">
-                <CategoryChip active={filterCat === null} onClick={() => setFilterCat(null)} label="Tất cả" />
+                <CategoryChip
+                  active={filterCat === null}
+                  onClick={() => setFilterCat(null)}
+                  label="Tất cả"
+                />
                 {categories.map((c) => {
                   const s = categoryStyle(c);
                   return (
@@ -139,7 +160,6 @@ function PeriodicTablePage() {
               </div>
             </div>
           </aside>
-
         </div>
       </main>
 
@@ -164,7 +184,15 @@ function PeriodicTablePage() {
   );
 }
 
-function CategoryChip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+function CategoryChip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
   return (
     <button
       onClick={onClick}
@@ -175,4 +203,3 @@ function CategoryChip({ active, onClick, label }: { active: boolean; onClick: ()
     </button>
   );
 }
-

@@ -1,7 +1,11 @@
 // PubChem search panel — search any compound, preview 3D, and spawn into AR.
 // Used in ControlPanel sidebar (compact mode) and standalone.
 import { useState } from "react";
-import { usePubChemSearch, usePubChemMolecule, usePubChemDescription } from "@/hooks/use-pubchem-search";
+import {
+  usePubChemSearch,
+  usePubChemMolecule,
+  usePubChemDescription,
+} from "@/hooks/use-pubchem-search";
 import type { Molecule } from "@/lib/chemistry";
 import type { PubChemCompoundSummary } from "@/lib/pubchem-api";
 import { Input } from "@/components/ui/input";
@@ -64,13 +68,13 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
       </div>
 
       {/* Error */}
-      {search.error && (
-        <p className="text-xs text-destructive px-1">{search.error}</p>
-      )}
+      {search.error && <p className="text-xs text-destructive px-1">{search.error}</p>}
 
       {/* Results */}
       {search.results.length > 0 && (
-        <div className={`space-y-1.5 ${compact ? "max-h-[240px]" : "max-h-[360px]"} overflow-y-auto`}>
+        <div
+          className={`space-y-1.5 ${compact ? "max-h-[240px]" : "max-h-[360px]"} overflow-y-auto`}
+        >
           {compact && (
             <p className="text-[10px] text-muted-foreground px-1">
               {search.total} result{search.total !== 1 ? "s" : ""} from PubChem
@@ -93,11 +97,14 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
       )}
 
       {/* Empty state */}
-      {search.query.trim().length >= 2 && !search.loading && search.results.length === 0 && !search.error && (
-        <p className="text-xs text-muted-foreground text-center py-3">
-          No compounds found. Try a different name or formula.
-        </p>
-      )}
+      {search.query.trim().length >= 2 &&
+        !search.loading &&
+        search.results.length === 0 &&
+        !search.error && (
+          <p className="text-xs text-muted-foreground text-center py-3">
+            No compounds found. Try a different name or formula.
+          </p>
+        )}
 
       {/* Detail dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
@@ -119,9 +126,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
                 <Badge variant="outline">
                   MW: {Number(selectedCompound.molecularWeight).toFixed(2)} g/mol
                 </Badge>
-                <Badge variant="outline">
-                  CID: {selectedCompound.cid}
-                </Badge>
+                <Badge variant="outline">CID: {selectedCompound.cid}</Badge>
                 {Number(selectedCompound.hBondDonorCount) > 0 && (
                   <Badge variant="outline">HBD: {selectedCompound.hBondDonorCount}</Badge>
                 )}
@@ -174,12 +179,21 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
                     </div>
                     <div className="flex gap-2">
                       {onAddToLibrary && (
-                        <Button size="sm" variant="outline" className="rounded-full text-xs" onClick={handleAddToLibrary}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full text-xs"
+                          onClick={handleAddToLibrary}
+                        >
                           + Library
                         </Button>
                       )}
                       {onSpawn && (
-                        <Button size="sm" className="rounded-full bg-gradient-primary text-xs" onClick={handleSpawn}>
+                        <Button
+                          size="sm"
+                          className="rounded-full bg-gradient-primary text-xs"
+                          onClick={handleSpawn}
+                        >
                           <Sparkles className="mr-1 h-3 w-3" /> Spawn in AR
                         </Button>
                       )}

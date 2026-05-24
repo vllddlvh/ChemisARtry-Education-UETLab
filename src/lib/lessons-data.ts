@@ -30,9 +30,9 @@ export interface LessonPractice {
 }
 
 export interface Lesson {
-  id: string;          // VD: "road1-lesson3"
+  id: string; // VD: "road1-lesson3"
   roadId: 1 | 2;
-  order: number;       // 1-based
+  order: number; // 1-based
   chapter: string;
   title: string;
   /** Nội dung lý thuyết dạng markdown (điền sau) */
@@ -71,7 +71,12 @@ export const ROAD1_LESSONS: Lesson[] = [
       {
         id: "q1",
         question: "Nguyên tử gồm những hạt nào?",
-        options: ["Proton và electron", "Proton, neutron và electron", "Neutron và electron", "Chỉ có proton"],
+        options: [
+          "Proton và electron",
+          "Proton, neutron và electron",
+          "Neutron và electron",
+          "Chỉ có proton",
+        ],
         answer: 1,
       },
     ],
@@ -148,9 +153,24 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
       defaultMolecules: ["Na", "Cl2"],
     },
     quiz: [
-      { id: "q1", question: "Na có bao nhiêu lớp electron?", options: ["1", "2", "3", "4"], answer: 2 },
-      { id: "q2", question: "Lớp ngoài cùng của Na có mấy electron?", options: ["1", "2", "7", "8"], answer: 0 },
-      { id: "q3", question: "Cấu hình electron của Cl (Z=17)?", options: ["2,8,7", "2,8,8", "2,7", "2,8,2,5"], answer: 0 },
+      {
+        id: "q1",
+        question: "Na có bao nhiêu lớp electron?",
+        options: ["1", "2", "3", "4"],
+        answer: 2,
+      },
+      {
+        id: "q2",
+        question: "Lớp ngoài cùng của Na có mấy electron?",
+        options: ["1", "2", "7", "8"],
+        answer: 0,
+      },
+      {
+        id: "q3",
+        question: "Cấu hình electron của Cl (Z=17)?",
+        options: ["2,8,7", "2,8,8", "2,7", "2,8,2,5"],
+        answer: 0,
+      },
     ],
   },
   {
@@ -169,13 +189,27 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
     explore3D: { elements: ["H", "Na", "Fe"], molecules: [] },
     practice: {
       missions: [
-        { id: "m1", description: "Mở AR và quan sát nguyên tử phát sáng", completionKey: "ar:open" },
+        {
+          id: "m1",
+          description: "Mở AR và quan sát nguyên tử phát sáng",
+          completionKey: "ar:open",
+        },
       ],
       recommendedMode: "ar",
       defaultMolecules: [],
     },
     quiz: [
-      { id: "q1", question: "Mô hình Bohr mô tả gì?", options: ["Electron chuyển động hỗn loạn", "Electron chuyển động trên quỹ đạo tròn", "Neutron quay quanh proton", "Hạt nhân phát sáng"], answer: 1 },
+      {
+        id: "q1",
+        question: "Mô hình Bohr mô tả gì?",
+        options: [
+          "Electron chuyển động hỗn loạn",
+          "Electron chuyển động trên quỹ đạo tròn",
+          "Neutron quay quanh proton",
+          "Hạt nhân phát sáng",
+        ],
+        answer: 1,
+      },
     ],
   },
   {
@@ -200,13 +234,22 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
     explore3D: { elements: ["H", "Li", "Na", "K"], molecules: [] },
     practice: {
       missions: [
-        { id: "m1", description: "Khám phá bảng tuần hoàn 3D tương tác", completionKey: "tools:periodic-table" },
+        {
+          id: "m1",
+          description: "Khám phá bảng tuần hoàn 3D tương tác",
+          completionKey: "tools:periodic-table",
+        },
       ],
       recommendedMode: "sim",
       defaultMolecules: [],
     },
     quiz: [
-      { id: "q1", question: "Nhóm IA gồm các nguyên tố nào?", options: ["Kim loại kiềm", "Halogen", "Khí hiếm", "Kim loại kiềm thổ"], answer: 0 },
+      {
+        id: "q1",
+        question: "Nhóm IA gồm các nguyên tố nào?",
+        options: ["Kim loại kiềm", "Halogen", "Khí hiếm", "Kim loại kiềm thổ"],
+        answer: 0,
+      },
     ],
   },
   {
@@ -231,13 +274,22 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
     explore3D: { elements: ["Li", "Na", "K", "F", "Cl", "Br"], molecules: [] },
     practice: {
       missions: [
-        { id: "m1", description: "So sánh bán kính nguyên tử cùng nhóm", completionKey: "compare:Li,Na,K" },
+        {
+          id: "m1",
+          description: "So sánh bán kính nguyên tử cùng nhóm",
+          completionKey: "compare:Li,Na,K",
+        },
       ],
       recommendedMode: "sim",
       defaultMolecules: [],
     },
     quiz: [
-      { id: "q1", question: "Đi từ trên xuống trong cùng một nhóm, bán kính nguyên tử thay đổi thế nào?", options: ["Giảm dần", "Tăng dần", "Không đổi", "Không có quy luật"], answer: 1 },
+      {
+        id: "q1",
+        question: "Đi từ trên xuống trong cùng một nhóm, bán kính nguyên tử thay đổi thế nào?",
+        options: ["Giảm dần", "Tăng dần", "Không đổi", "Không có quy luật"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -264,7 +316,12 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
       defaultMolecules: ["Na", "Cl2"],
     },
     quiz: [
-      { id: "q1", question: "Liên kết ion được tạo thành do?", options: ["Dùng chung electron", "Cho và nhận electron", "Lực hút từ", "Phân cực phân tử"], answer: 1 },
+      {
+        id: "q1",
+        question: "Liên kết ion được tạo thành do?",
+        options: ["Dùng chung electron", "Cho và nhận electron", "Lực hút từ", "Phân cực phân tử"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -296,7 +353,12 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
       defaultMolecules: ["H2O", "NH3", "CO2"],
     },
     quiz: [
-      { id: "q1", question: "H₂O có bao nhiêu liên kết cộng hoá trị?", options: ["1", "2", "3", "4"], answer: 1 },
+      {
+        id: "q1",
+        question: "H₂O có bao nhiêu liên kết cộng hoá trị?",
+        options: ["1", "2", "3", "4"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -317,13 +379,22 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
     explore3D: { elements: ["Fe", "Cu", "Na"], molecules: [] },
     practice: {
       missions: [
-        { id: "m1", description: "Xem mô hình mạng tinh thể kim loại Fe", completionKey: "view:Fe" },
+        {
+          id: "m1",
+          description: "Xem mô hình mạng tinh thể kim loại Fe",
+          completionKey: "view:Fe",
+        },
       ],
       recommendedMode: "sim",
       defaultMolecules: [],
     },
     quiz: [
-      { id: "q1", question: "Liên kết kim loại là do?", options: ["Electron tự do", "Ion âm", "Proton chung", "Neutron"], answer: 0 },
+      {
+        id: "q1",
+        question: "Liên kết kim loại là do?",
+        options: ["Electron tự do", "Ion âm", "Proton chung", "Neutron"],
+        answer: 0,
+      },
     ],
   },
   {
@@ -354,7 +425,12 @@ Vậy cấu hình electron của Na là: <strong>2, 8, 1</strong>.<br/>
       defaultMolecules: ["H2O", "NH3", "CH4", "CO2"],
     },
     quiz: [
-      { id: "q1", question: "CH₄ có hình dạng gì?", options: ["Thẳng", "Tam giác phẳng", "Tứ diện", "Chữ V"], answer: 2 },
+      {
+        id: "q1",
+        question: "CH₄ có hình dạng gì?",
+        options: ["Thẳng", "Tam giác phẳng", "Tứ diện", "Chữ V"],
+        answer: 2,
+      },
     ],
   },
   {
@@ -385,7 +461,17 @@ Nhưng còn lực GIỮA các phân tử với nhau thì sao? Dù yếu hơn, ch
       defaultMolecules: ["H2O"],
     },
     quiz: [
-      { id: "q1", question: "Liên kết hydro xảy ra khi nào?", options: ["H liên kết với N, O hoặc F", "H liên kết với C", "H liên kết với kim loại", "Mọi trường hợp"], answer: 0 },
+      {
+        id: "q1",
+        question: "Liên kết hydro xảy ra khi nào?",
+        options: [
+          "H liên kết với N, O hoặc F",
+          "H liên kết với C",
+          "H liên kết với kim loại",
+          "Mọi trường hợp",
+        ],
+        answer: 0,
+      },
     ],
   },
   {
@@ -404,7 +490,10 @@ Nhưng còn lực GIỮA các phân tử với nhau thì sao? Dù yếu hơn, ch
 <li>Quan sát hình dạng 3D thực tế của các phân tử mà bạn vừa học trong Bài 10.</li>
 </ol>
 <p>Hãy thử kết hợp các chất với nhau xem điều gì sẽ xảy ra nhé! Chúc bạn có những khám phá thú vị!</p>`,
-    explore3D: { elements: ["H", "O", "N", "C", "Na", "Cl"], molecules: ["H2O", "NaCl", "CH4", "NH3", "CO2"] },
+    explore3D: {
+      elements: ["H", "O", "N", "C", "Na", "Cl"],
+      molecules: ["H2O", "NaCl", "CH4", "NH3", "CO2"],
+    },
     practice: {
       missions: [
         { id: "m1", description: "Spawn ít nhất 3 phân tử khác nhau", completionKey: "spawn:3" },
@@ -436,7 +525,17 @@ export const ROAD2_LESSONS: Lesson[] = [
       defaultMolecules: ["H2", "O2"],
     },
     quiz: [
-      { id: "q1", question: "Trong phản ứng hoá học, điều gì xảy ra?", options: ["Nguyên tử bị phá huỷ", "Liên kết cũ phá vỡ, liên kết mới hình thành", "Nguyên tố biến đổi", "Không có gì thay đổi"], answer: 1 },
+      {
+        id: "q1",
+        question: "Trong phản ứng hoá học, điều gì xảy ra?",
+        options: [
+          "Nguyên tử bị phá huỷ",
+          "Liên kết cũ phá vỡ, liên kết mới hình thành",
+          "Nguyên tố biến đổi",
+          "Không có gì thay đổi",
+        ],
+        answer: 1,
+      },
     ],
   },
   {
@@ -449,13 +548,22 @@ export const ROAD2_LESSONS: Lesson[] = [
     explore3D: { elements: [], molecules: ["H2", "O2", "H2O"] },
     practice: {
       missions: [
-        { id: "m1", description: "Cân bằng phương trình H₂ + O₂ → H₂O", completionKey: "balance:H2O" },
+        {
+          id: "m1",
+          description: "Cân bằng phương trình H₂ + O₂ → H₂O",
+          completionKey: "balance:H2O",
+        },
       ],
       recommendedMode: "sim",
       defaultMolecules: ["H2", "O2"],
     },
     quiz: [
-      { id: "q1", question: "Tại sao cần cân bằng phương trình?", options: ["Cho đẹp", "Bảo toàn nguyên tử", "Bảo toàn phân tử", "Tính toán cho dễ"], answer: 1 },
+      {
+        id: "q1",
+        question: "Tại sao cần cân bằng phương trình?",
+        options: ["Cho đẹp", "Bảo toàn nguyên tử", "Bảo toàn phân tử", "Tính toán cho dễ"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -475,7 +583,12 @@ export const ROAD2_LESSONS: Lesson[] = [
       defaultMolecules: ["CH4", "O2"],
     },
     quiz: [
-      { id: "q1", question: "Sản phẩm chung của phản ứng đốt cháy hoàn toàn hydrocarbon là?", options: ["CO và H₂", "CO₂ và H₂O", "CO₂ và H₂", "C và H₂O"], answer: 1 },
+      {
+        id: "q1",
+        question: "Sản phẩm chung của phản ứng đốt cháy hoàn toàn hydrocarbon là?",
+        options: ["CO và H₂", "CO₂ và H₂O", "CO₂ và H₂", "C và H₂O"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -488,14 +601,28 @@ export const ROAD2_LESSONS: Lesson[] = [
     explore3D: { elements: [], molecules: ["N2", "H2", "NH3", "SO2", "O2", "SO3"] },
     practice: {
       missions: [
-        { id: "m1", description: "Thực hiện N₂ + H₂ → NH₃ (Haber-Bosch)", completionKey: "react:N2+H2" },
+        {
+          id: "m1",
+          description: "Thực hiện N₂ + H₂ → NH₃ (Haber-Bosch)",
+          completionKey: "react:N2+H2",
+        },
         { id: "m2", description: "Thực hiện SO₂ + O₂ → SO₃", completionKey: "react:SO2+O2" },
       ],
       recommendedMode: "both",
       defaultMolecules: ["N2", "H2", "SO2", "O2"],
     },
     quiz: [
-      { id: "q1", question: "Phản ứng tổng hợp tạo ra?", options: ["Từ 1 chất thành nhiều", "Từ nhiều chất thành 1 chất", "Trao đổi ion", "Oxi hoá khử"], answer: 1 },
+      {
+        id: "q1",
+        question: "Phản ứng tổng hợp tạo ra?",
+        options: [
+          "Từ 1 chất thành nhiều",
+          "Từ nhiều chất thành 1 chất",
+          "Trao đổi ion",
+          "Oxi hoá khử",
+        ],
+        answer: 1,
+      },
     ],
   },
   {
@@ -515,7 +642,12 @@ export const ROAD2_LESSONS: Lesson[] = [
       defaultMolecules: ["H2O2", "CaCO3"],
     },
     quiz: [
-      { id: "q1", question: "H₂O₂ phân huỷ tạo ra?", options: ["H₂ và O", "H₂O và O₂", "H₂ và O₂", "HO và OH"], answer: 1 },
+      {
+        id: "q1",
+        question: "H₂O₂ phân huỷ tạo ra?",
+        options: ["H₂ và O", "H₂O và O₂", "H₂ và O₂", "HO và OH"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -528,13 +660,22 @@ export const ROAD2_LESSONS: Lesson[] = [
     explore3D: { elements: [], molecules: ["HCl", "NaOH", "NaCl", "H2O", "HF", "H2SO4"] },
     practice: {
       missions: [
-        { id: "m1", description: "Trung hoà HCl + NaOH → NaCl + H₂O", completionKey: "react:HCl+NaOH" },
+        {
+          id: "m1",
+          description: "Trung hoà HCl + NaOH → NaCl + H₂O",
+          completionKey: "react:HCl+NaOH",
+        },
       ],
       recommendedMode: "both",
       defaultMolecules: ["HCl", "NaOH"],
     },
     quiz: [
-      { id: "q1", question: "Sản phẩm của phản ứng acid-base là?", options: ["Chỉ muối", "Chỉ nước", "Muối và nước", "Oxide và nước"], answer: 2 },
+      {
+        id: "q1",
+        question: "Sản phẩm của phản ứng acid-base là?",
+        options: ["Chỉ muối", "Chỉ nước", "Muối và nước", "Oxide và nước"],
+        answer: 2,
+      },
     ],
   },
   {
@@ -548,13 +689,22 @@ export const ROAD2_LESSONS: Lesson[] = [
     practice: {
       missions: [
         { id: "m1", description: "Quan sát ΔH của H₂ + O₂ → H₂O", completionKey: "react:H2+O2" },
-        { id: "m2", description: "So sánh ΔH của các phản ứng trong danh sách", completionKey: "view:reactions" },
+        {
+          id: "m2",
+          description: "So sánh ΔH của các phản ứng trong danh sách",
+          completionKey: "view:reactions",
+        },
       ],
       recommendedMode: "both",
       defaultMolecules: ["H2", "O2", "CH4"],
     },
     quiz: [
-      { id: "q1", question: "Phản ứng toả nhiệt có ΔH?", options: ["ΔH > 0", "ΔH < 0", "ΔH = 0", "ΔH không xác định"], answer: 1 },
+      {
+        id: "q1",
+        question: "Phản ứng toả nhiệt có ΔH?",
+        options: ["ΔH > 0", "ΔH < 0", "ΔH = 0", "ΔH không xác định"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -567,13 +717,22 @@ export const ROAD2_LESSONS: Lesson[] = [
     explore3D: { elements: [], molecules: ["H2", "O2", "H2O"] },
     practice: {
       missions: [
-        { id: "m1", description: "Điều chỉnh điều kiện và quan sát tốc độ phản ứng", completionKey: "sim:speed" },
+        {
+          id: "m1",
+          description: "Điều chỉnh điều kiện và quan sát tốc độ phản ứng",
+          completionKey: "sim:speed",
+        },
       ],
       recommendedMode: "sim",
       defaultMolecules: ["H2", "O2"],
     },
     quiz: [
-      { id: "q1", question: "Tăng nhiệt độ ảnh hưởng tốc độ phản ứng thế nào?", options: ["Giảm", "Tăng", "Không đổi", "Tuỳ phản ứng"], answer: 1 },
+      {
+        id: "q1",
+        question: "Tăng nhiệt độ ảnh hưởng tốc độ phản ứng thế nào?",
+        options: ["Giảm", "Tăng", "Không đổi", "Tuỳ phản ứng"],
+        answer: 1,
+      },
     ],
   },
   {
@@ -586,13 +745,27 @@ export const ROAD2_LESSONS: Lesson[] = [
     explore3D: { elements: [], molecules: ["N2", "H2", "NH3"] },
     practice: {
       missions: [
-        { id: "m1", description: "Thay đổi điều kiện Haber-Bosch và quan sát cân bằng", completionKey: "sim:equilibrium" },
+        {
+          id: "m1",
+          description: "Thay đổi điều kiện Haber-Bosch và quan sát cân bằng",
+          completionKey: "sim:equilibrium",
+        },
       ],
       recommendedMode: "sim",
       defaultMolecules: ["N2", "H2", "NH3"],
     },
     quiz: [
-      { id: "q1", question: "Nguyên lý Le Chatelier phát biểu điều gì?", options: ["Phản ứng luôn hoàn toàn", "Hệ cân bằng chống lại sự thay đổi", "Nhiệt độ không ảnh hưởng cân bằng", "Áp suất không ảnh hưởng cân bằng"], answer: 1 },
+      {
+        id: "q1",
+        question: "Nguyên lý Le Chatelier phát biểu điều gì?",
+        options: [
+          "Phản ứng luôn hoàn toàn",
+          "Hệ cân bằng chống lại sự thay đổi",
+          "Nhiệt độ không ảnh hưởng cân bằng",
+          "Áp suất không ảnh hưởng cân bằng",
+        ],
+        answer: 1,
+      },
     ],
   },
   {
@@ -605,7 +778,11 @@ export const ROAD2_LESSONS: Lesson[] = [
     explore3D: { elements: [], molecules: ["H2", "O2", "CH4", "HCl", "NaOH", "NaCl", "H2O"] },
     practice: {
       missions: [
-        { id: "m1", description: "Grand experiment: Kích hoạt 5 phản ứng khác nhau", completionKey: "react:5" },
+        {
+          id: "m1",
+          description: "Grand experiment: Kích hoạt 5 phản ứng khác nhau",
+          completionKey: "react:5",
+        },
       ],
       recommendedMode: "ar",
       defaultMolecules: ["H2", "O2", "CH4", "HCl", "NaOH"],

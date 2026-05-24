@@ -52,7 +52,7 @@ export function useChemistryData() {
 
         const merged = mergeChemistryData(
           supabaseData ?? { molecules: [], reactions: [] },
-          apiData ?? { molecules: [], reactions: [] }
+          apiData ?? { molecules: [], reactions: [] },
         );
 
         setMolecules(merged.molecules);
@@ -64,7 +64,9 @@ export function useChemistryData() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { molecules, reactions, loading, error };
@@ -78,10 +80,12 @@ async function fetchSupabaseChemistry(): Promise<ChemistryData> {
   if (m.error) throw m.error;
   if (r.error) throw r.error;
 
-  const molecules = ((m.data ?? []) as unknown as Molecule[])
-    .map((item) => normalizeMolecule(item, "supabase"));
-  const reactions = ((r.data ?? []) as unknown as Reaction[])
-    .map((item) => normalizeReaction(item, "supabase"));
+  const molecules = ((m.data ?? []) as unknown as Molecule[]).map((item) =>
+    normalizeMolecule(item, "supabase"),
+  );
+  const reactions = ((r.data ?? []) as unknown as Reaction[]).map((item) =>
+    normalizeReaction(item, "supabase"),
+  );
 
   return { molecules, reactions };
 }

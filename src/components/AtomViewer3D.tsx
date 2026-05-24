@@ -57,30 +57,34 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     cleanup?: () => void;
   }>({});
 
-  useImperativeHandle(ref, () => ({
-    rotate: (dx, dy) => {
-      const g = stateRef.current.group;
-      if (!g) return;
-      g.rotation.y += dx;
-      g.rotation.x += dy;
-    },
-    zoom: (factor) => {
-      const cam = stateRef.current.camera;
-      if (!cam) return;
-      cam.position.z = Math.max(4, Math.min(40, cam.position.z / factor));
-      cam.updateProjectionMatrix();
-    },
-    reset: () => {
-      const g = stateRef.current.group;
-      const cam = stateRef.current.camera;
-      if (g) g.rotation.set(0.25, 0, 0);
-      if (cam) {
-        cam.position.set(0, 0, 14);
+  useImperativeHandle(
+    ref,
+    () => ({
+      rotate: (dx, dy) => {
+        const g = stateRef.current.group;
+        if (!g) return;
+        g.rotation.y += dx;
+        g.rotation.x += dy;
+      },
+      zoom: (factor) => {
+        const cam = stateRef.current.camera;
+        if (!cam) return;
+        cam.position.z = Math.max(4, Math.min(40, cam.position.z / factor));
         cam.updateProjectionMatrix();
-      }
-    },
-    canvas: () => stateRef.current.renderer?.domElement ?? null,
-  }), []);
+      },
+      reset: () => {
+        const g = stateRef.current.group;
+        const cam = stateRef.current.camera;
+        if (g) g.rotation.set(0.25, 0, 0);
+        if (cam) {
+          cam.position.set(0, 0, 14);
+          cam.updateProjectionMatrix();
+        }
+      },
+      canvas: () => stateRef.current.renderer?.domElement ?? null,
+    }),
+    [],
+  );
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -103,9 +107,11 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.85));
     const key = new THREE.DirectionalLight(0xffffff, 0.9);
-    key.position.set(5, 6, 5); scene.add(key);
+    key.position.set(5, 6, 5);
+    scene.add(key);
     const rim = new THREE.DirectionalLight(0x88ccff, 0.5);
-    rim.position.set(-5, -3, -3); scene.add(rim);
+    rim.position.set(-5, -3, -3);
+    scene.add(rim);
 
     const group = new THREE.Group();
     group.rotation.x = 0.25;
@@ -118,15 +124,25 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
 
     const nucleusRadius = 0.55 + Math.cbrt(Math.max(1, totalNucleons)) * 0.18;
     const nucleusGroup = new THREE.Group();
-    const protonMat = new THREE.MeshPhysicalMaterial({ color: "#ef4444", roughness: 0.35, metalness: 0.2, clearcoat: 0.5 });
-    const neutronMat = new THREE.MeshPhysicalMaterial({ color: "#94a3b8", roughness: 0.45, metalness: 0.15 });
+    const protonMat = new THREE.MeshPhysicalMaterial({
+      color: "#ef4444",
+      roughness: 0.35,
+      metalness: 0.2,
+      clearcoat: 0.5,
+    });
+    const neutronMat = new THREE.MeshPhysicalMaterial({
+      color: "#94a3b8",
+      roughness: 0.45,
+      metalness: 0.15,
+    });
     const nucleonGeo = new THREE.SphereGeometry(0.32, 18, 18);
 
     for (let i = 0; i < totalNucleons; i++) {
       const isProton = i < protonCount;
       const m = new THREE.Mesh(nucleonGeo, isProton ? protonMat : neutronMat);
       // Random distribution within sphere
-      const u = Math.random(), v = Math.random();
+      const u = Math.random(),
+        v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
       const r = nucleusRadius * Math.cbrt(Math.random());
@@ -142,13 +158,19 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     // Glow halo around nucleus
     const halo = new THREE.Mesh(
       new THREE.SphereGeometry(nucleusRadius * 1.4, 24, 24),
-      new THREE.MeshBasicMaterial({ color: "#fb7185", transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending }),
+      new THREE.MeshBasicMaterial({
+        color: "#fb7185",
+        transparent: true,
+        opacity: 0.12,
+        blending: THREE.AdditiveBlending,
+      }),
     );
     group.add(halo);
 
     // Symbol label sprite
     const labelCanvas = document.createElement("canvas");
-    labelCanvas.width = 256; labelCanvas.height = 256;
+    labelCanvas.width = 256;
+    labelCanvas.height = 256;
     const lctx = labelCanvas.getContext("2d")!;
     lctx.fillStyle = "rgba(255,255,255,0.95)";
     lctx.font = "bold 140px Inter, sans-serif";
@@ -159,15 +181,20 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     lctx.fillText(symbol, 128, 138);
     const labelTex = new THREE.CanvasTexture(labelCanvas);
     labelTex.colorSpace = THREE.SRGBColorSpace;
-    const labelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex, transparent: true, depthTest: false }));
+    const labelSprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: labelTex, transparent: true, depthTest: false }),
+    );
     labelSprite.scale.set(2.2, 2.2, 1);
     group.add(labelSprite);
 
     // ---- Electron shells ----
     const electronGeo = new THREE.SphereGeometry(0.18, 16, 16);
     const electronMat = new THREE.MeshPhysicalMaterial({
-      color, emissive: new THREE.Color(color), emissiveIntensity: 0.55,
-      roughness: 0.3, metalness: 0.4,
+      color,
+      emissive: new THREE.Color(color),
+      emissiveIntensity: 0.55,
+      roughness: 0.3,
+      metalness: 0.4,
     });
 
     const shellGroups: { group: THREE.Group; speed: number; tilt: THREE.Euler }[] = [];
@@ -178,11 +205,7 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
       const radius = baseRadius + i * step;
       const sg = new THREE.Group();
       // Tilt each shell on a different axis to give 3D depth
-      sg.rotation.set(
-        (i % 3) * 0.4 - 0.4,
-        (i % 4) * 0.3,
-        (i % 2) * 0.5,
-      );
+      sg.rotation.set((i % 3) * 0.4 - 0.4, (i % 4) * 0.3, (i % 2) * 0.5);
 
       // Ring
       const ring = new THREE.Mesh(
@@ -203,14 +226,18 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
       // Optional shell label sprite
       if (showShellLabels) {
         const sc = document.createElement("canvas");
-        sc.width = 96; sc.height = 96;
+        sc.width = 96;
+        sc.height = 96;
         const sx = sc.getContext("2d")!;
         sx.fillStyle = "rgba(255,255,255,0.9)";
         sx.font = "bold 48px Inter";
-        sx.textAlign = "center"; sx.textBaseline = "middle";
+        sx.textAlign = "center";
+        sx.textBaseline = "middle";
         sx.fillText(SHELL_NAMES[i] ?? `#${i + 1}`, 48, 48);
         const t = new THREE.CanvasTexture(sc);
-        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthTest: false }));
+        const sp = new THREE.Sprite(
+          new THREE.SpriteMaterial({ map: t, transparent: true, depthTest: false }),
+        );
         sp.position.set(radius + 0.25, 0, 0);
         sp.scale.set(0.7, 0.7, 1);
         sg.add(sp);
@@ -231,13 +258,16 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     // ---- Interaction ----
     let raf = 0;
     let dragging = false;
-    let lastX = 0, lastY = 0;
+    let lastX = 0,
+      lastY = 0;
     const el = renderer.domElement;
     if (interactive) el.style.cursor = "grab";
 
     const down = (e: PointerEvent) => {
       if (!interactive) return;
-      dragging = true; lastX = e.clientX; lastY = e.clientY;
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
       el.style.cursor = "grabbing";
       el.setPointerCapture(e.pointerId);
     };
@@ -245,12 +275,17 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
       if (!dragging) return;
       group.rotation.y += (e.clientX - lastX) * 0.008;
       group.rotation.x += (e.clientY - lastY) * 0.008;
-      lastX = e.clientX; lastY = e.clientY;
+      lastX = e.clientX;
+      lastY = e.clientY;
     };
     const up = (e: PointerEvent) => {
       dragging = false;
       el.style.cursor = interactive ? "grab" : "default";
-      try { el.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
     };
     const wheel = (e: WheelEvent) => {
       if (!interactive) return;
@@ -298,13 +333,15 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
     tick();
 
     const onResize = () => {
-      const W = w(), H = h();
+      const W = w(),
+        H = h();
       renderer.setSize(W, H);
       camera.aspect = W / Math.max(1, H);
       camera.updateProjectionMatrix();
     };
     window.addEventListener("resize", onResize);
-    const ro = new ResizeObserver(onResize); ro.observe(wrap);
+    const ro = new ResizeObserver(onResize);
+    ro.observe(wrap);
 
     const cleanup = () => {
       cancelAnimationFrame(raf);
@@ -316,13 +353,27 @@ const AtomViewer3D = forwardRef<AtomViewer3DHandle, Props>(function AtomViewer3D
       el.removeEventListener("pointercancel", up);
       el.removeEventListener("wheel", wheel);
       renderer.dispose();
-      try { wrap.removeChild(el); } catch { /* ignore */ }
+      try {
+        wrap.removeChild(el);
+      } catch {
+        /* ignore */
+      }
     };
 
     stateRef.current = { renderer, scene, camera, group, cleanup };
     return cleanup;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shells.join(","), protons, neutrons, symbol, color, autoRotate, interactive, transparent, showShellLabels]);
+  }, [
+    shells.join(","),
+    protons,
+    neutrons,
+    symbol,
+    color,
+    autoRotate,
+    interactive,
+    transparent,
+    showShellLabels,
+  ]);
 
   return (
     <div

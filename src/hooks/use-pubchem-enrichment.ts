@@ -1,7 +1,12 @@
 // Hook to enrich a local molecule with PubChem data (MW, SMILES, description, etc.)
 // Fetches lazily when a molecule is selected. Caches results in memory.
 import { useCallback, useRef, useState } from "react";
-import { searchPubChem, fetchCompoundDescription, type PubChemCompoundSummary, type PubChemDescription } from "@/lib/pubchem-api";
+import {
+  searchPubChem,
+  fetchCompoundDescription,
+  type PubChemCompoundSummary,
+  type PubChemDescription,
+} from "@/lib/pubchem-api";
 
 export type EnrichedData = {
   pubchem: PubChemCompoundSummary | null;
@@ -14,8 +19,14 @@ export type EnrichedData = {
  * Results are cached in memory so repeated lookups are instant.
  */
 export function usePubChemEnrichment() {
-  const [data, setData] = useState<EnrichedData>({ pubchem: null, description: null, loading: false });
-  const cacheRef = useRef<Map<string, { pubchem: PubChemCompoundSummary | null; description: PubChemDescription | null }>>(new Map());
+  const [data, setData] = useState<EnrichedData>({
+    pubchem: null,
+    description: null,
+    loading: false,
+  });
+  const cacheRef = useRef<
+    Map<string, { pubchem: PubChemCompoundSummary | null; description: PubChemDescription | null }>
+  >(new Map());
   const currentKeyRef = useRef<string>("");
 
   const enrich = useCallback(async (formula: string, name: string) => {

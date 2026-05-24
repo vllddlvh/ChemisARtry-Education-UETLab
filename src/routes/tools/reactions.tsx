@@ -15,9 +15,16 @@ export const Route = createFileRoute("/tools/reactions")({
   head: () => ({
     meta: [
       { title: "Reactions — MoleLab AR" },
-      { name: "description", content: "Browse the chemical reactions you can trigger in the AR lab, with equations and energy values." },
+      {
+        name: "description",
+        content:
+          "Browse the chemical reactions you can trigger in the AR lab, with equations and energy values.",
+      },
       { property: "og:title", content: "Reactions — MoleLab AR" },
-      { property: "og:description", content: "Balanced chemical equations for combustion, synthesis, and more." },
+      {
+        property: "og:description",
+        content: "Balanced chemical equations for combustion, synthesis, and more.",
+      },
     ],
   }),
   component: ReactionsPage,
@@ -43,7 +50,9 @@ function ReactionsPage() {
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-4xl font-display font-bold">Reactions</h1>
-            <p className="text-muted-foreground mt-1">Trigger these in the AR lab by bringing the reactants together.</p>
+            <p className="text-muted-foreground mt-1">
+              Trigger these in the AR lab by bringing the reactants together.
+            </p>
           </div>
           <Button asChild className="rounded-full bg-gradient-primary">
             <Link to="/lab">Open AR Lab</Link>
@@ -66,16 +75,29 @@ function ReactionsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-mono text-lg font-bold break-words">{r.equation}</div>
-                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.description}</p>
+                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                      {r.description}
+                    </p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
                       <Tag label={`Reactants: ${r.reactants.join(" + ")}`} />
                       <Tag label={`Products: ${r.products.join(" + ")}`} />
                       {r.energy_kj != null && (
-                        <Tag label={`ΔH ≈ ${r.energy_kj} kJ/mol`} accent={r.energy_kj < 0 ? "warm" : "cool"} />
+                        <Tag
+                          label={`ΔH ≈ ${r.energy_kj} kJ/mol`}
+                          accent={r.energy_kj < 0 ? "warm" : "cool"}
+                        />
                       )}
                       {(() => {
-                        const lesson = ALL_LESSONS.find(l => l.practice.missions.some(m => m.completionKey.includes("react:") && r.reactants.every(re => m.completionKey.includes(re))));
-                        return lesson ? <Tag label={`Bài học: ${lesson.title}`} accent="cool" /> : null;
+                        const lesson = ALL_LESSONS.find((l) =>
+                          l.practice.missions.some(
+                            (m) =>
+                              m.completionKey.includes("react:") &&
+                              r.reactants.every((re) => m.completionKey.includes(re)),
+                          ),
+                        );
+                        return lesson ? (
+                          <Tag label={`Bài học: ${lesson.title}`} accent="cool" />
+                        ) : null;
                       })()}
                     </div>
                   </div>
@@ -109,35 +131,47 @@ function ReactionsPage() {
 
               <div className="grid grid-cols-2 gap-3 mt-4">
                 <div className="rounded-xl border border-border p-3">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Reactants</div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                    Reactants
+                  </div>
                   <div className="space-y-1">
                     {detailReaction.reactants.map((r) => (
-                      <div key={r} className="font-mono text-sm font-semibold text-primary">{r}</div>
+                      <div key={r} className="font-mono text-sm font-semibold text-primary">
+                        {r}
+                      </div>
                     ))}
                   </div>
                 </div>
                 <div className="rounded-xl border border-border p-3">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Products</div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                    Products
+                  </div>
                   <div className="space-y-1">
                     {detailReaction.products.map((p) => (
-                      <div key={p} className="font-mono text-sm font-semibold text-primary">{p}</div>
+                      <div key={p} className="font-mono text-sm font-semibold text-primary">
+                        {p}
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
 
               {detailReaction.energy_kj != null && (
-                <div className={`mt-3 rounded-xl p-3 text-center ${
-                  detailReaction.energy_kj < 0
-                    ? "bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800"
-                    : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
-                }`}>
+                <div
+                  className={`mt-3 rounded-xl p-3 text-center ${
+                    detailReaction.energy_kj < 0
+                      ? "bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800"
+                      : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
+                  }`}
+                >
                   <div className="text-xs text-muted-foreground">Enthalpy change</div>
                   <div className="font-mono text-lg font-bold mt-0.5">
                     ΔH ≈ {detailReaction.energy_kj} kJ/mol
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {detailReaction.energy_kj < 0 ? "Exothermic (releases heat)" : "Endothermic (absorbs heat)"}
+                    {detailReaction.energy_kj < 0
+                      ? "Exothermic (releases heat)"
+                      : "Endothermic (absorbs heat)"}
                   </div>
                 </div>
               )}
@@ -175,7 +209,9 @@ function ReactionsPage() {
               )}
 
               <Button asChild className="w-full mt-4 rounded-full bg-gradient-primary">
-                <Link to="/lab/sim" search={{ spawn: detailReaction.reactants.join(",") }}>Thử trong Lab →</Link>
+                <Link to="/lab/sim" search={{ spawn: detailReaction.reactants.join(",") }}>
+                  Thử trong Lab →
+                </Link>
               </Button>
             </>
           )}
@@ -186,10 +222,11 @@ function ReactionsPage() {
 }
 
 function Tag({ label, accent }: { label: string; accent?: "warm" | "cool" }) {
-  const cls = accent === "warm"
-    ? "bg-accent/50 text-accent-foreground"
-    : accent === "cool"
-    ? "bg-secondary text-secondary-foreground"
-    : "bg-muted text-muted-foreground";
+  const cls =
+    accent === "warm"
+      ? "bg-accent/50 text-accent-foreground"
+      : accent === "cool"
+        ? "bg-secondary text-secondary-foreground"
+        : "bg-muted text-muted-foreground";
   return <span className={`rounded-full px-3 py-1 font-mono ${cls}`}>{label}</span>;
 }

@@ -35,7 +35,10 @@ type Props = {
 };
 
 // Build a ball-and-stick group for a molecule.
-function buildMoleculeGroup(m: Molecule, withLabels: boolean): { group: THREE.Group; labels: THREE.Sprite[] } {
+function buildMoleculeGroup(
+  m: Molecule,
+  withLabels: boolean,
+): { group: THREE.Group; labels: THREE.Sprite[] } {
   const group = new THREE.Group();
   group.userData.formula = m.formula;
   const labels: THREE.Sprite[] = [];
@@ -69,9 +72,10 @@ function buildMoleculeGroup(m: Molecule, withLabels: boolean): { group: THREE.Gr
     const pb = new THREE.Vector3(m.atoms[b.b].x, m.atoms[b.b].y, m.atoms[b.b].z);
     const count = Math.min(3, Math.max(1, b.order));
     const axis = new THREE.Vector3().subVectors(pb, pa).normalize();
-    const perp = Math.abs(axis.y) < 0.9
-      ? new THREE.Vector3().crossVectors(axis, new THREE.Vector3(0, 1, 0)).normalize()
-      : new THREE.Vector3().crossVectors(axis, new THREE.Vector3(1, 0, 0)).normalize();
+    const perp =
+      Math.abs(axis.y) < 0.9
+        ? new THREE.Vector3().crossVectors(axis, new THREE.Vector3(0, 1, 0)).normalize()
+        : new THREE.Vector3().crossVectors(axis, new THREE.Vector3(1, 0, 0)).normalize();
 
     for (let i = 0; i < count; i++) {
       const offset = (i - (count - 1) / 2) * 0.14;
@@ -96,14 +100,18 @@ function makeBond(a: THREE.Vector3, b: THREE.Vector3) {
 
 function makeTextSprite(text: string, color = "#0f1e3d") {
   const canvas = document.createElement("canvas");
-  canvas.width = 128; canvas.height = 128;
+  canvas.width = 128;
+  canvas.height = 128;
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, 128, 128);
   ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.beginPath(); ctx.arc(64, 64, 48, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath();
+  ctx.arc(64, 64, 48, 0, Math.PI * 2);
+  ctx.fill();
   ctx.fillStyle = color;
   ctx.font = "bold 56px Inter, sans-serif";
-  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   ctx.fillText(text, 64, 68);
   const tex = new THREE.CanvasTexture(canvas);
   const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
@@ -122,11 +130,13 @@ function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string) 
     pos[i * 3] = position.x;
     pos[i * 3 + 1] = position.y;
     pos[i * 3 + 2] = position.z;
-    vel.push(new THREE.Vector3(
-      (Math.random() - 0.5) * 4,
-      (Math.random() - 0.5) * 4,
-      (Math.random() - 0.5) * 4,
-    ));
+    vel.push(
+      new THREE.Vector3(
+        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * 4,
+      ),
+    );
   }
   geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   const mat = new THREE.PointsMaterial({ color, size: 0.18, transparent: true, opacity: 1 });
@@ -145,13 +155,24 @@ function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string) 
     geom.attributes.position.needsUpdate = true;
     mat.opacity = Math.max(0, 1 - t / 1.2);
     if (t < 1.2) requestAnimationFrame(tick);
-    else { scene.remove(points); geom.dispose(); mat.dispose(); }
+    else {
+      scene.remove(points);
+      geom.dispose();
+      mat.dispose();
+    }
   };
   requestAnimationFrame(tick);
 }
 
 export default function ARScene({
-  molecules, reactions, toSpawn, onSpawned, resetSignal, educationMode, onReaction, arOn,
+  molecules,
+  reactions,
+  toSpawn,
+  onSpawned,
+  resetSignal,
+  educationMode,
+  onReaction,
+  arOn,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -210,7 +231,9 @@ export default function ARScene({
     const loop = async () => {
       rafId = requestAnimationFrame(loop);
       const video = videoRef.current;
-      const landmarker = (window as unknown as { __hl?: Awaited<ReturnType<typeof initHandLandmarker>> }).__hl;
+      const landmarker = (
+        window as unknown as { __hl?: Awaited<ReturnType<typeof initHandLandmarker>> }
+      ).__hl;
       if (video && video.readyState >= 2 && landmarker) {
         const ts = performance.now();
         if (ts !== lastHandTs) {
@@ -219,7 +242,9 @@ export default function ARScene({
             handFrameRef.current = processResult(result, ts);
             setHandCount(handFrameRef.current.hands.length);
             lastHandTs = ts;
-          } catch { /* MediaPipe occasionally throws on odd timestamps */ }
+          } catch {
+            /* MediaPipe occasionally throws on odd timestamps */
+          }
         }
       }
 
@@ -259,7 +284,10 @@ export default function ARScene({
           video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
-        if (cancelled) { stream.getTracks().forEach((t) => t.stop()); return; }
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
         const v = videoRef.current!;
         v.srcObject = stream;
         await v.play();
@@ -272,7 +300,9 @@ export default function ARScene({
         setStatus("Camera: " + msg);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [arOn]);
 
   // Spawn molecule when parent asks.
@@ -280,11 +310,7 @@ export default function ARScene({
     if (!toSpawn || !sceneRef.current) return;
     const { group, labels } = buildMoleculeGroup(toSpawn, educationRef.current);
     // Spawn near center, slight random offset
-    group.position.set(
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 1,
-      0,
-    );
+    group.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1, 0);
     sceneRef.current.add(group);
     spawnedRef.current.push({
       id: crypto.randomUUID(),
@@ -302,7 +328,8 @@ export default function ARScene({
   // Reset signal clears scene.
   useEffect(() => {
     if (resetSignal === 0) return;
-    const s = sceneRef.current; if (!s) return;
+    const s = sceneRef.current;
+    if (!s) return;
     spawnedRef.current.forEach((m) => s.remove(m.group));
     spawnedRef.current = [];
   }, [resetSignal]);
@@ -315,7 +342,8 @@ export default function ARScene({
   }, [educationMode]);
 
   function updateMolecules() {
-    const scene = sceneRef.current; if (!scene) return;
+    const scene = sceneRef.current;
+    if (!scene) return;
     const frame = handFrameRef.current;
     const now = performance.now();
 
@@ -341,7 +369,10 @@ export default function ARScene({
       let nearestDist = Infinity;
       handsWorld.forEach((h, i) => {
         const d = h.world.distanceTo(m.group.position);
-        if (d < nearestDist) { nearestDist = d; nearestIdx = i; }
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearestIdx = i;
+        }
       });
 
       const nearest = nearestIdx >= 0 ? handsWorld[nearestIdx] : null;
@@ -373,16 +404,15 @@ export default function ARScene({
       if (anyGrabbed && handsWorld[0].pinch > 0.5 && handsWorld[1].pinch > 0.5) {
         const d = handsWorld[0].world.distanceTo(handsWorld[1].world);
         const targetScale = Math.max(0.5, Math.min(2.5, d / 4));
-        anyGrabbed.group.scale.lerp(
-          new THREE.Vector3(targetScale, targetScale, targetScale), 0.15
-        );
+        anyGrabbed.group.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.15);
       }
     }
 
     // Reaction check: any two molecules within threshold
     for (let i = 0; i < spawnedRef.current.length; i++) {
       for (let j = i + 1; j < spawnedRef.current.length; j++) {
-        const a = spawnedRef.current[i], b = spawnedRef.current[j];
+        const a = spawnedRef.current[i],
+          b = spawnedRef.current[j];
         if (now - a.spawnedAt < 400 || now - b.spawnedAt < 400) continue;
         const d = a.group.position.distanceTo(b.group.position);
         if (d < PROXIMITY_THRESHOLD) {
@@ -397,11 +427,13 @@ export default function ARScene({
   }
 
   function triggerReaction(a: SpawnedMol, b: SpawnedMol, rx: Reaction) {
-    const scene = sceneRef.current; if (!scene) return;
+    const scene = sceneRef.current;
+    if (!scene) return;
     const center = a.group.position.clone().add(b.group.position).multiplyScalar(0.5);
 
     // Remove reactants
-    scene.remove(a.group); scene.remove(b.group);
+    scene.remove(a.group);
+    scene.remove(b.group);
     spawnedRef.current = spawnedRef.current.filter((m) => m !== a && m !== b);
 
     spawnBurst(scene, center, "#ffb86b");

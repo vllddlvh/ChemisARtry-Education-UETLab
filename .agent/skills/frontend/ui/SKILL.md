@@ -4,6 +4,7 @@ description: Opinionated constraints for building better interfaces with agents.
 metadata:
   mcpmarket-version: 1.0.0
 ---
+
 # UI Skills
 
 When invoked, apply these opinionated constraints for building better interfaces.

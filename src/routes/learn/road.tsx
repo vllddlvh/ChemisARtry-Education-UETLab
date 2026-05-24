@@ -15,8 +15,16 @@ export const Route = createFileRoute("/learn/road")({
 });
 
 const ROAD_META = {
-  1: { icon: "🧪", title: "Road 1: Nguyên tố & Liên kết Hoá học", color: "text-blue-600 dark:text-blue-400" },
-  2: { icon: "⚗️", title: "Road 2: Phản ứng Hoá học", color: "text-purple-600 dark:text-purple-400" },
+  1: {
+    icon: "🧪",
+    title: "Road 1: Nguyên tố & Liên kết Hoá học",
+    color: "text-blue-600 dark:text-blue-400",
+  },
+  2: {
+    icon: "⚗️",
+    title: "Road 2: Phản ứng Hoá học",
+    color: "text-purple-600 dark:text-purple-400",
+  },
 } as const;
 
 function RoadPage() {
@@ -37,11 +45,14 @@ function RoadPage() {
     <div className="dark min-h-screen bg-background text-foreground fixed inset-0 z-50 overflow-y-auto font-body">
       {/* Background noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
-      
+
       <div className="mx-auto max-w-3xl px-6 py-8 relative z-10">
         {/* Header with Close Button */}
         <div className="flex justify-end mb-6">
-          <Link to="/dashboard" className="size-12 rounded-full bg-card/40 border border-border/50 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all cursor-pointer">
+          <Link
+            to="/dashboard"
+            className="size-12 rounded-full bg-card/40 border border-border/50 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all cursor-pointer"
+          >
             <X className="size-6" />
           </Link>
         </div>
@@ -76,9 +87,7 @@ function RoadPage() {
                 {chLessons.map((lesson, i) => {
                   // TODO: thay thế bằng progress thật từ Supabase
                   const status: "done" | "active" | "locked" = i === 0 ? "active" : "locked";
-                  return (
-                    <LessonRow key={lesson.id} lesson={lesson} status={status} roadId={id} />
-                  );
+                  return <LessonRow key={lesson.id} lesson={lesson} status={status} roadId={id} />;
                 })}
               </div>
             </div>
@@ -87,7 +96,11 @@ function RoadPage() {
 
         {/* Bottom CTA */}
         <div className="mt-12 pt-8 border-t border-border/50">
-          <Button asChild size="lg" className="w-full rounded-full bg-gradient-primary hover:shadow-glow transition-all h-14 font-bold text-primary-foreground border-0 text-lg">
+          <Button
+            asChild
+            size="lg"
+            className="w-full rounded-full bg-gradient-primary hover:shadow-glow transition-all h-14 font-bold text-primary-foreground border-0 text-lg"
+          >
             <Link to="/learn/lesson" search={{ lessonId: `road${id}-lesson1` }}>
               Bắt đầu bài 1 →
             </Link>
@@ -99,19 +112,31 @@ function RoadPage() {
 }
 
 function LessonRow({
-  lesson, status, roadId,
+  lesson,
+  status,
+  roadId,
 }: {
-  lesson: Lesson; status: "done" | "active" | "locked"; roadId: 1 | 2;
+  lesson: Lesson;
+  status: "done" | "active" | "locked";
+  roadId: 1 | 2;
 }) {
   return (
-    <div className={`flex items-center gap-5 px-6 py-5 transition-colors ${status === "locked" ? "opacity-40 grayscale pointer-events-none" : "hover:bg-card/60"}`}>
+    <div
+      className={`flex items-center gap-5 px-6 py-5 transition-colors ${status === "locked" ? "opacity-40 grayscale pointer-events-none" : "hover:bg-card/60"}`}
+    >
       <div className="shrink-0 mt-0.5">
-        {status === "done" && <CheckCircle2 className="size-6 text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]" />}
-        {status === "active" && <Circle className="size-6 text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.5)] fill-primary/20" />}
+        {status === "done" && (
+          <CheckCircle2 className="size-6 text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.5)]" />
+        )}
+        {status === "active" && (
+          <Circle className="size-6 text-primary drop-shadow-[0_0_8px_rgba(45,212,191,0.5)] fill-primary/20" />
+        )}
         {status === "locked" && <Lock className="size-5 text-muted-foreground" />}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{lesson.chapter.split(":")[0]?.trim()}</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+          {lesson.chapter.split(":")[0]?.trim()}
+        </div>
         <div className="font-bold text-foreground text-[16px] truncate">
           Bài {lesson.order}: {lesson.title}
         </div>

@@ -26,10 +26,14 @@ const WebcamPassthrough = forwardRef<WebcamPassthroughHandle, Props>(function We
   const [status, setStatus] = useState<"idle" | "starting" | "ready" | "error">("idle");
   const [err, setErr] = useState<string | null>(null);
 
-  useImperativeHandle(ref, () => ({
-    videoEl: () => videoRef.current,
-    stream: () => (videoRef.current?.srcObject as MediaStream | null) ?? null,
-  }), []);
+  useImperativeHandle(
+    ref,
+    () => ({
+      videoEl: () => videoRef.current,
+      stream: () => (videoRef.current?.srcObject as MediaStream | null) ?? null,
+    }),
+    [],
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -49,7 +53,10 @@ const WebcamPassthrough = forwardRef<WebcamPassthroughHandle, Props>(function We
           video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
-        if (cancelled) { stream.getTracks().forEach((t) => t.stop()); return; }
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
         const v = videoRef.current!;
         v.srcObject = stream;
         await v.play();
@@ -59,7 +66,9 @@ const WebcamPassthrough = forwardRef<WebcamPassthroughHandle, Props>(function We
         setStatus("error");
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [enabled]);
 
   if (!enabled) return null;
@@ -75,7 +84,9 @@ const WebcamPassthrough = forwardRef<WebcamPassthroughHandle, Props>(function We
       />
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: `radial-gradient(ellipse at center, rgba(0,0,0,${dim * 0.4}) 0%, rgba(0,0,0,${dim}) 80%)` }}
+        style={{
+          background: `radial-gradient(ellipse at center, rgba(0,0,0,${dim * 0.4}) 0%, rgba(0,0,0,${dim}) 80%)`,
+        }}
       />
       {status !== "ready" && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 text-white text-[11px] px-3 py-1 backdrop-blur">

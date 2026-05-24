@@ -4,7 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Camera, CameraOff, RotateCcw, GraduationCap, Search, Loader2, ExternalLink } from "lucide-react";
+import {
+  Camera,
+  CameraOff,
+  RotateCcw,
+  GraduationCap,
+  Search,
+  Loader2,
+  ExternalLink,
+} from "lucide-react";
 import PubChemSearch from "@/components/PubChemSearch";
 import { usePubChemEnrichment } from "@/hooks/use-pubchem-enrichment";
 
@@ -24,8 +32,18 @@ type Props = {
 };
 
 export default function ControlPanel({
-  molecules, reactions, selected, onSelect, onSpawn, onSpawnMolecule, onReset,
-  arOn, onToggleAr, education, onToggleEducation, lastReaction,
+  molecules,
+  reactions,
+  selected,
+  onSelect,
+  onSpawn,
+  onSpawnMolecule,
+  onReset,
+  arOn,
+  onToggleAr,
+  education,
+  onToggleEducation,
+  lastReaction,
 }: Props) {
   const [activeTab, setActiveTab] = useState("library");
   const enrichment = usePubChemEnrichment();
@@ -52,11 +70,20 @@ export default function ControlPanel({
       </div>
 
       <div className="flex gap-2">
-        <Button onClick={onToggleAr} variant={arOn ? "default" : "secondary"} className="flex-1 rounded-full">
+        <Button
+          onClick={onToggleAr}
+          variant={arOn ? "default" : "secondary"}
+          className="flex-1 rounded-full"
+        >
           {arOn ? <CameraOff className="mr-2 h-4 w-4" /> : <Camera className="mr-2 h-4 w-4" />}
           {arOn ? "AR On" : "Start AR"}
         </Button>
-        <Button onClick={onReset} variant="outline" className="rounded-full" aria-label="Reset scene">
+        <Button
+          onClick={onReset}
+          variant="outline"
+          className="rounded-full"
+          aria-label="Reset scene"
+        >
           <RotateCcw className="h-4 w-4" />
         </Button>
       </div>
@@ -71,7 +98,9 @@ export default function ControlPanel({
       {/* Tabs: Library vs PubChem Search */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
         <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="library" className="text-xs">Library</TabsTrigger>
+          <TabsTrigger value="library" className="text-xs">
+            Library
+          </TabsTrigger>
           <TabsTrigger value="pubchem" className="text-xs">
             <Search className="h-3 w-3 mr-1" /> PubChem
           </TabsTrigger>
@@ -96,7 +125,9 @@ export default function ControlPanel({
                     }`}
                   >
                     <div className="font-mono text-sm font-bold">{m.formula}</div>
-                    <div className={`text-xs mt-0.5 ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                    <div
+                      className={`text-xs mt-0.5 ${active ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+                    >
                       {m.name}
                     </div>
                   </button>
@@ -114,7 +145,9 @@ export default function ControlPanel({
 
           {selected && (
             <div className="rounded-2xl border border-border bg-card p-4">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">About</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                About
+              </div>
               <div className="font-display text-lg font-bold">{selected.name}</div>
               <div className="font-mono text-sm text-primary">{selected.formula}</div>
               <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
@@ -135,7 +168,9 @@ export default function ControlPanel({
                   <div className="grid grid-cols-2 gap-1.5 text-xs">
                     <div className="rounded-lg bg-muted/60 px-2 py-1">
                       <span className="text-muted-foreground">MW: </span>
-                      <span className="font-mono">{Number(enrichment.pubchem.molecularWeight).toFixed(2)}</span>
+                      <span className="font-mono">
+                        {Number(enrichment.pubchem.molecularWeight).toFixed(2)}
+                      </span>
                     </div>
                     <div className="rounded-lg bg-muted/60 px-2 py-1">
                       <span className="text-muted-foreground">CID: </span>
@@ -157,7 +192,8 @@ export default function ControlPanel({
 
               {education && (
                 <div className="mt-3 text-xs text-muted-foreground">
-                  <span className="font-semibold">Atoms:</span> {selected.atoms.length} &nbsp;·&nbsp;
+                  <span className="font-semibold">Atoms:</span> {selected.atoms.length}{" "}
+                  &nbsp;·&nbsp;
                   <span className="font-semibold">Bonds:</span> {selected.bonds.length}
                 </div>
               )}
@@ -181,7 +217,9 @@ export default function ControlPanel({
                   <div className="font-mono font-semibold">{r.equation}</div>
                   <div className="text-xs text-muted-foreground mt-1">{r.description}</div>
                   {education && r.energy_kj != null && (
-                    <div className="text-xs font-mono text-primary mt-1">ΔH ≈ {r.energy_kj} kJ/mol</div>
+                    <div className="text-xs font-mono text-primary mt-1">
+                      ΔH ≈ {r.energy_kj} kJ/mol
+                    </div>
                   )}
                 </div>
               ))}
@@ -192,13 +230,11 @@ export default function ControlPanel({
         <TabsContent value="pubchem" className="flex-1 overflow-y-auto mt-3">
           <div className="mb-2">
             <p className="text-xs text-muted-foreground">
-              Search 100M+ compounds from PubChem. Load 3D structures and spawn them into your AR scene.
+              Search 100M+ compounds from PubChem. Load 3D structures and spawn them into your AR
+              scene.
             </p>
           </div>
-          <PubChemSearch
-            compact
-            onSpawn={onSpawnMolecule}
-          />
+          <PubChemSearch compact onSpawn={onSpawnMolecule} />
         </TabsContent>
       </Tabs>
 

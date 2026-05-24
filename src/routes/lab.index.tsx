@@ -17,9 +17,16 @@ export const Route = createFileRoute("/lab/")({
   head: () => ({
     meta: [
       { title: "AR Lab — MoleLab AR" },
-      { name: "description", content: "Interactive AR chemistry lab. Spawn 3D molecules with hand gestures and trigger reactions." },
+      {
+        name: "description",
+        content:
+          "Interactive AR chemistry lab. Spawn 3D molecules with hand gestures and trigger reactions.",
+      },
       { property: "og:title", content: "AR Lab — MoleLab AR" },
-      { property: "og:description", content: "Spawn 3D molecules, pinch to grab, combine to react." },
+      {
+        property: "og:description",
+        content: "Spawn 3D molecules, pinch to grab, combine to react.",
+      },
     ],
   }),
   component: LabPage,
@@ -37,13 +44,16 @@ function LabPage() {
 
   const onSpawned = useCallback(() => setToSpawn(null), []);
 
-  const handleSpawn = useCallback((m?: Molecule) => {
-    const target = m ?? selected;
-    if (!target) return;
-    setToSpawn(target);
-    toast.success(`Spawned ${target.formula}`, { description: target.name });
-    recordProgress(target.formula, "spawn");
-  }, [selected]);
+  const handleSpawn = useCallback(
+    (m?: Molecule) => {
+      const target = m ?? selected;
+      if (!target) return;
+      setToSpawn(target);
+      toast.success(`Spawned ${target.formula}`, { description: target.name });
+      recordProgress(target.formula, "spawn");
+    },
+    [selected],
+  );
 
   const handleReaction = useCallback((r: Reaction) => {
     setLastReaction(r);
@@ -52,30 +62,53 @@ function LabPage() {
   }, []);
 
   // Voice commands
-  const onVoice = useCallback((text: string) => {
-    const t = text.toLowerCase();
-    // "show <molecule name>"
-    const show = t.match(/(?:show|spawn|create|make)\s+(.+)/);
-    if (show) {
-      const query = show[1].trim();
-      const m = molecules.find((x) =>
-        x.name.toLowerCase() === query ||
-        x.formula.toLowerCase() === query.replace(/\s/g, "") ||
-        x.name.toLowerCase().includes(query)
-      );
-      if (m) { setSelected(m); handleSpawn(m); toast.info(`🎙️ "${text}"`); return; }
-      // If not found locally, notify user to check PubChem
-      toast.info(`🎙️ "${query}" not in local library — try PubChem tab`);
-      return;
-    }
-    if (/reset|clear|remove/.test(t)) {
-      setResetSignal((v) => v + 1); setLastReaction(null);
-      toast.info(`🎙️ Reset scene`); return;
-    }
-    if (/start ar|turn on|camera on/.test(t)) { setArOn(true); toast.info(`🎙️ AR on`); return; }
-    if (/stop ar|turn off|camera off/.test(t)) { setArOn(false); toast.info(`🎙️ AR off`); return; }
-    if (/education|labels/.test(t)) { setEducation((v) => !v); toast.info(`🎙️ Education toggled`); return; }
-  }, [molecules, handleSpawn]);
+  const onVoice = useCallback(
+    (text: string) => {
+      const t = text.toLowerCase();
+      // "show <molecule name>"
+      const show = t.match(/(?:show|spawn|create|make)\s+(.+)/);
+      if (show) {
+        const query = show[1].trim();
+        const m = molecules.find(
+          (x) =>
+            x.name.toLowerCase() === query ||
+            x.formula.toLowerCase() === query.replace(/\s/g, "") ||
+            x.name.toLowerCase().includes(query),
+        );
+        if (m) {
+          setSelected(m);
+          handleSpawn(m);
+          toast.info(`🎙️ "${text}"`);
+          return;
+        }
+        // If not found locally, notify user to check PubChem
+        toast.info(`🎙️ "${query}" not in local library — try PubChem tab`);
+        return;
+      }
+      if (/reset|clear|remove/.test(t)) {
+        setResetSignal((v) => v + 1);
+        setLastReaction(null);
+        toast.info(`🎙️ Reset scene`);
+        return;
+      }
+      if (/start ar|turn on|camera on/.test(t)) {
+        setArOn(true);
+        toast.info(`🎙️ AR on`);
+        return;
+      }
+      if (/stop ar|turn off|camera off/.test(t)) {
+        setArOn(false);
+        toast.info(`🎙️ AR off`);
+        return;
+      }
+      if (/education|labels/.test(t)) {
+        setEducation((v) => !v);
+        toast.info(`🎙️ Education toggled`);
+        return;
+      }
+    },
+    [molecules, handleSpawn],
+  );
 
   const voice = useVoiceCommands(onVoice);
 
@@ -83,14 +116,20 @@ function LabPage() {
     if (!user) return;
     try {
       const { data: existing } = await supabase
-        .from("user_progress").select("*").eq("user_id", user.id).maybeSingle();
+        .from("user_progress")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
       if (existing) {
-        await supabase.from("user_progress").update({
-          molecules_spawned: existing.molecules_spawned + (kind === "spawn" ? 1 : 0),
-          reactions_triggered: existing.reactions_triggered + (kind === "reaction" ? 1 : 0),
-          last_molecule: formula ?? existing.last_molecule,
-          updated_at: new Date().toISOString(),
-        }).eq("user_id", user.id);
+        await supabase
+          .from("user_progress")
+          .update({
+            molecules_spawned: existing.molecules_spawned + (kind === "spawn" ? 1 : 0),
+            reactions_triggered: existing.reactions_triggered + (kind === "reaction" ? 1 : 0),
+            last_molecule: formula ?? existing.last_molecule,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", user.id);
       } else {
         await supabase.from("user_progress").insert({
           user_id: user.id,
@@ -99,15 +138,23 @@ function LabPage() {
           last_molecule: formula,
         });
       }
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
   }
 
   // Keyboard shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
-      if (e.key === " " && selected) { e.preventDefault(); handleSpawn(); }
-      if (e.key === "r" || e.key === "R") { setResetSignal((v) => v + 1); setLastReaction(null); }
+      if (e.key === " " && selected) {
+        e.preventDefault();
+        handleSpawn();
+      }
+      if (e.key === "r" || e.key === "R") {
+        setResetSignal((v) => v + 1);
+        setLastReaction(null);
+      }
       if (e.key === "e" || e.key === "E") setEducation((v) => !v);
       if (e.key === "a" || e.key === "A") setArOn((v) => !v);
     };
@@ -148,7 +195,10 @@ function LabPage() {
             onSelect={setSelected}
             onSpawn={() => handleSpawn()}
             onSpawnMolecule={(m) => handleSpawn(m)}
-            onReset={() => { setResetSignal((v) => v + 1); setLastReaction(null); }}
+            onReset={() => {
+              setResetSignal((v) => v + 1);
+              setLastReaction(null);
+            }}
             arOn={arOn}
             onToggleAr={() => setArOn((v) => !v)}
             education={education}
@@ -174,13 +224,18 @@ function LabPage() {
                 onClick={voice.toggle}
                 className={`absolute top-3 right-3 rounded-full ${voice.listening ? "bg-primary animate-pulse-glow" : "bg-card/80 backdrop-blur"}`}
               >
-                {voice.listening ? <Mic className="h-4 w-4 mr-1" /> : <MicOff className="h-4 w-4 mr-1" />}
+                {voice.listening ? (
+                  <Mic className="h-4 w-4 mr-1" />
+                ) : (
+                  <MicOff className="h-4 w-4 mr-1" />
+                )}
                 {voice.listening ? "Listening" : "Voice"}
               </Button>
             )}
             {/* Keyboard hint */}
             <div className="absolute bottom-3 left-3 text-[11px] text-card-foreground/70 bg-card/70 backdrop-blur rounded-full px-3 py-1.5 border border-border hidden md:block">
-              <kbd className="font-mono">Space</kbd> spawn · <kbd className="font-mono">R</kbd> reset · <kbd className="font-mono">E</kbd> edu · <kbd className="font-mono">A</kbd> AR
+              <kbd className="font-mono">Space</kbd> spawn · <kbd className="font-mono">R</kbd>{" "}
+              reset · <kbd className="font-mono">E</kbd> edu · <kbd className="font-mono">A</kbd> AR
             </div>
           </main>
         </div>

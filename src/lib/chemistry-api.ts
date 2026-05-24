@@ -37,7 +37,11 @@ function joinUrl(baseUrl: string, path: string): string {
   return `${base}${suffix}`;
 }
 
-async function fetchJson(url: string, headers: Record<string, string>, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<unknown> {
+async function fetchJson(
+  url: string,
+  headers: Record<string, string>,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<unknown> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -166,7 +170,10 @@ function buildEquation(reactants: string[], products: string[]): string {
 
 function makeStableId(source: string, ...parts: string[]): string {
   const seed = parts.filter(Boolean).join("-") || "item";
-  const slug = seed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const slug = seed
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
   return `${source}-${slug || "item"}`;
 }
 
@@ -184,15 +191,32 @@ function parseAtom(raw: unknown): Atom | null {
 }
 
 function parseAtoms(raw: Record<string, unknown>): Atom[] {
-  const atomsRaw = readArrayField(raw, ["atoms", "structure.atoms", "geometry.atoms", "model.atoms"]);
+  const atomsRaw = readArrayField(raw, [
+    "atoms",
+    "structure.atoms",
+    "geometry.atoms",
+    "model.atoms",
+  ]);
   return atomsRaw.map(parseAtom).filter(Boolean) as Atom[];
 }
 
 function parseBond(raw: unknown): Bond | null {
   if (!raw || typeof raw !== "object") return null;
   const obj = raw as Record<string, unknown>;
-  const a = toNumber(obj.a) ?? toNumber(obj.from) ?? toNumber(obj.source) ?? toNumber(obj.start) ?? toNumber(obj.i) ?? toNumber(obj.atom1);
-  const b = toNumber(obj.b) ?? toNumber(obj.to) ?? toNumber(obj.target) ?? toNumber(obj.end) ?? toNumber(obj.j) ?? toNumber(obj.atom2);
+  const a =
+    toNumber(obj.a) ??
+    toNumber(obj.from) ??
+    toNumber(obj.source) ??
+    toNumber(obj.start) ??
+    toNumber(obj.i) ??
+    toNumber(obj.atom1);
+  const b =
+    toNumber(obj.b) ??
+    toNumber(obj.to) ??
+    toNumber(obj.target) ??
+    toNumber(obj.end) ??
+    toNumber(obj.j) ??
+    toNumber(obj.atom2);
   if (a === null || b === null) return null;
   const order = toNumber(obj.order) ?? toNumber(obj.bondOrder) ?? 1;
   return { a: Math.floor(a), b: Math.floor(b), order: Math.max(1, Math.round(order)) };
@@ -212,7 +236,10 @@ function parseFormulaList(value: unknown): string[] {
   }
   if (typeof value === "string") {
     return normalizeFormulaList(
-      value.split("+").map((s) => s.replace(/^\s*\d+\s*/, "").trim()).filter(Boolean)
+      value
+        .split("+")
+        .map((s) => s.replace(/^\s*\d+\s*/, "").trim())
+        .filter(Boolean),
     );
   }
   return [];
@@ -238,7 +265,9 @@ function coerceMolecule(raw: unknown, source: "api", fallbackIndex: number): Mol
   const atoms = parseAtoms(obj);
   if (atoms.length === 0) return null;
   const bonds = parseBonds(obj, atoms.length);
-  const id = readString(obj, ["id", "_id", "uuid", "uid"]) ?? makeStableId(source, formula, name, String(fallbackIndex));
+  const id =
+    readString(obj, ["id", "_id", "uuid", "uid"]) ??
+    makeStableId(source, formula, name, String(fallbackIndex));
   return normalizeMolecule({ id, formula, name, description, category, atoms, bonds }, source);
 }
 
@@ -256,15 +285,24 @@ function coerceReaction(raw: unknown, source: "api", fallbackIndex: number): Rea
   if (reactants.length === 0 || products.length === 0) return null;
   const description = readString(obj, ["description", "summary", "desc", "notes"]) ?? "";
   const energy = toNumber(obj.energy_kj) ?? toNumber(obj.energyKj) ?? toNumber(obj.deltaH) ?? null;
-  const id = readString(obj, ["id", "_id", "uuid", "uid"]) ?? makeStableId(source, equation || reactants.join("+") + products.join("+"), String(fallbackIndex));
-  return normalizeReaction({
-    id,
-    reactants,
-    products,
-    equation: equation || buildEquation(reactants, products),
-    description,
-    energy_kj: energy,
-  }, source);
+  const id =
+    readString(obj, ["id", "_id", "uuid", "uid"]) ??
+    makeStableId(
+      source,
+      equation || reactants.join("+") + products.join("+"),
+      String(fallbackIndex),
+    );
+  return normalizeReaction(
+    {
+      id,
+      reactants,
+      products,
+      equation: equation || buildEquation(reactants, products),
+      description,
+      energy_kj: energy,
+    },
+    source,
+  );
 }
 
 export async function fetchExternalChemistryData(): Promise<ChemistryData> {
@@ -273,9 +311,10 @@ export async function fetchExternalChemistryData(): Promise<ChemistryData> {
 
   const headers: Record<string, string> = { Accept: "application/json" };
   if (config.authToken) {
-    headers[config.authHeader] = config.authHeader.toLowerCase() === "authorization"
-      ? `Bearer ${config.authToken}`
-      : config.authToken;
+    headers[config.authHeader] =
+      config.authHeader.toLowerCase() === "authorization"
+        ? `Bearer ${config.authToken}`
+        : config.authToken;
   }
 
   const [moleculesPayload, reactionsPayload] = await Promise.all([
@@ -296,7 +335,10 @@ export async function fetchExternalChemistryData(): Promise<ChemistryData> {
   return { molecules, reactions };
 }
 
-export function mergeChemistryData(primary: ChemistryData, secondary: ChemistryData): ChemistryData {
+export function mergeChemistryData(
+  primary: ChemistryData,
+  secondary: ChemistryData,
+): ChemistryData {
   const moleculeMap = new Map<string, Molecule>();
   const reactionMap = new Map<string, Reaction>();
 
@@ -308,10 +350,10 @@ export function mergeChemistryData(primary: ChemistryData, secondary: ChemistryD
   }
 
   const molecules = Array.from(moleculeMap.values()).sort((a, b) =>
-    a.formula.localeCompare(b.formula, "en", { numeric: true, sensitivity: "base" })
+    a.formula.localeCompare(b.formula, "en", { numeric: true, sensitivity: "base" }),
   );
   const reactions = Array.from(reactionMap.values()).sort((a, b) =>
-    a.equation.localeCompare(b.equation, "en", { numeric: true, sensitivity: "base" })
+    a.equation.localeCompare(b.equation, "en", { numeric: true, sensitivity: "base" }),
   );
 
   return { molecules, reactions };

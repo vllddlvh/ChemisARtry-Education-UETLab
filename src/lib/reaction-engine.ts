@@ -8,7 +8,7 @@ export const PROXIMITY_THRESHOLD = 1.8; // world units
 
 export function findMatchingReaction(
   formulasPresent: string[],
-  reactions: Reaction[]
+  reactions: Reaction[],
 ): Reaction | null {
   for (const r of reactions) {
     const needed = [...r.reactants];
@@ -16,7 +16,10 @@ export function findMatchingReaction(
     let ok = true;
     for (const n of needed) {
       const i = pool.indexOf(n);
-      if (i === -1) { ok = false; break; }
+      if (i === -1) {
+        ok = false;
+        break;
+      }
       pool.splice(i, 1);
     }
     if (ok) return r;

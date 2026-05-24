@@ -37,34 +37,42 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
     setRelatedCompounds([]);
 
     // Fetch element data + related compounds in parallel
-    Promise.all([
-      searchPubChem(element.name, 1),
-      searchPubChem(`${element.name} compound`, 5),
-    ])
+    Promise.all([searchPubChem(element.name, 1), searchPubChem(`${element.name} compound`, 5)])
       .then(([elementResult, compoundsResult]) => {
         if (cancelled) return;
         setPubchemData(elementResult.compounds[0] ?? null);
         // Filter out the element itself from related compounds
         const related = compoundsResult.compounds.filter(
-          (c) => c.cid !== elementResult.compounds[0]?.cid
+          (c) => c.cid !== elementResult.compounds[0]?.cid,
         );
         setRelatedCompounds(related.slice(0, 4));
       })
-      .catch(() => { /* best-effort */ })
-      .finally(() => { if (!cancelled) setPubchemLoading(false); });
-    return () => { cancelled = true; };
+      .catch(() => {
+        /* best-effort */
+      })
+      .finally(() => {
+        if (!cancelled) setPubchemLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [open, element]);
 
-  const relatedLessons = element 
-    ? ALL_LESSONS.filter(l => l.explore3D.elements.includes(element.symbol))
+  const relatedLessons = element
+    ? ALL_LESSONS.filter((l) => l.explore3D.elements.includes(element.symbol))
     : [];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto p-0 border-l border-border/50 bg-background/80 backdrop-blur-xl">
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-xl overflow-y-auto p-0 border-l border-border/50 bg-background/80 backdrop-blur-xl"
+      >
         <SheetHeader className="px-5 pt-5 pb-2">
           <div className="flex items-start gap-4">
-            <div className={`h-16 w-16 shrink-0 rounded-2xl grid place-items-center ${s.bg} ${s.text} ring-1 ${s.ring} shadow-sm`}>
+            <div
+              className={`h-16 w-16 shrink-0 rounded-2xl grid place-items-center ${s.bg} ${s.text} ring-1 ${s.ring} shadow-sm`}
+            >
               <span className="text-2xl font-bold font-display">{element.symbol}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -75,7 +83,9 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                 <Badge variant="secondary">{s.label}</Badge>
                 {element.phase && <Badge variant="outline">{element.phase}</Badge>}
-                <span className="text-muted-foreground font-mono">M = {element.atomic_mass.toFixed(3)} u</span>
+                <span className="text-muted-foreground font-mono">
+                  M = {element.atomic_mass.toFixed(3)} u
+                </span>
               </div>
             </div>
           </div>
@@ -129,7 +139,10 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                 <Row label="Mật độ" value={element.density ? `${element.density} g/L` : "—"} />
                 <Row label="Điểm nóng chảy" value={element.melt ? `${element.melt} K` : "—"} />
                 <Row label="Điểm sôi" value={element.boil ? `${element.boil} K` : "—"} />
-                <Row label="Nhóm / Chu kỳ" value={`${element.group ?? "—"} / ${element.period ?? "—"}`} />
+                <Row
+                  label="Nhóm / Chu kỳ"
+                  value={`${element.group ?? "—"} / ${element.period ?? "—"}`}
+                />
                 <Row label="Được phát hiện bởi" value={element.discovered_by ?? "—"} />
                 <Row label="Proton / Nơtron" value={`${protons} / ${neutrons}`} />
               </dl>
@@ -141,7 +154,8 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
               </div>
               {element.electron_configuration_semantic && (
                 <div className="text-xs text-muted-foreground">
-                  Rút gọn: <span className="font-mono">{element.electron_configuration_semantic}</span>
+                  Rút gọn:{" "}
+                  <span className="font-mono">{element.electron_configuration_semantic}</span>
                 </div>
               )}
             </TabsContent>
@@ -149,8 +163,13 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
             <TabsContent value="shells" className="mt-4">
               <div className="grid grid-cols-4 gap-2">
                 {element.shells.map((n, i) => (
-                  <div key={i} className="rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 text-center shadow-soft">
-                    <div className="text-xs text-muted-foreground font-mono">Vỏ {SHELL_NAMES[i] ?? i + 1}</div>
+                  <div
+                    key={i}
+                    className="rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 text-center shadow-soft"
+                  >
+                    <div className="text-xs text-muted-foreground font-mono">
+                      Vỏ {SHELL_NAMES[i] ?? i + 1}
+                    </div>
                     <div className="text-2xl font-bold font-display mt-1">{n}</div>
                     <div className="text-[10px] text-muted-foreground">electron</div>
                   </div>
@@ -169,8 +188,22 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                     <Row label="IUPAC Name" value={pubchemData.iupacName || "—"} />
                     <Row label="Molecular Formula" value={pubchemData.molecularFormula || "—"} />
-                    <Row label="Molecular Weight" value={pubchemData.molecularWeight ? `${Number(pubchemData.molecularWeight).toFixed(3)} g/mol` : "—"} />
-                    <Row label="Complexity" value={pubchemData.complexity ? String(Number(pubchemData.complexity).toFixed(1)) : "—"} />
+                    <Row
+                      label="Molecular Weight"
+                      value={
+                        pubchemData.molecularWeight
+                          ? `${Number(pubchemData.molecularWeight).toFixed(3)} g/mol`
+                          : "—"
+                      }
+                    />
+                    <Row
+                      label="Complexity"
+                      value={
+                        pubchemData.complexity
+                          ? String(Number(pubchemData.complexity).toFixed(1))
+                          : "—"
+                      }
+                    />
                     <Row label="H-Bond Donors" value={String(pubchemData.hBondDonorCount)} />
                     <Row label="H-Bond Acceptors" value={String(pubchemData.hBondAcceptorCount)} />
                     <Row label="Charge" value={String(pubchemData.charge)} />
@@ -199,7 +232,9 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                 </div>
               )}
               {!pubchemLoading && !pubchemData && (
-                <p className="text-xs text-muted-foreground">Không tìm thấy dữ liệu PubChem cho nguyên tố này.</p>
+                <p className="text-xs text-muted-foreground">
+                  Không tìm thấy dữ liệu PubChem cho nguyên tố này.
+                </p>
               )}
 
               {/* Related compounds */}
@@ -217,7 +252,9 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                         rel="noopener noreferrer"
                         className="rounded-lg border border-border bg-muted/40 p-2 hover:border-primary/40 transition text-xs"
                       >
-                        <div className="font-mono font-bold text-primary truncate">{c.molecularFormula}</div>
+                        <div className="font-mono font-bold text-primary truncate">
+                          {c.molecularFormula}
+                        </div>
                         <div className="text-[10px] text-muted-foreground truncate mt-0.5">
                           {c.iupacName || "—"}
                         </div>
@@ -234,11 +271,18 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
             <TabsContent value="lessons" className="mt-4 space-y-3">
               {relatedLessons.length > 0 ? (
                 <div className="space-y-3">
-                  {relatedLessons.map(l => (
-                    <Link key={l.id} to="/learn/lesson" search={{ lessonId: l.id }} className="block p-3 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm shadow-soft hover:border-primary/50 transition-all hover:-translate-y-0.5">
+                  {relatedLessons.map((l) => (
+                    <Link
+                      key={l.id}
+                      to="/learn/lesson"
+                      search={{ lessonId: l.id }}
+                      className="block p-3 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm shadow-soft hover:border-primary/50 transition-all hover:-translate-y-0.5"
+                    >
                       <div className="text-xs font-semibold text-primary">{l.chapter}</div>
                       <div className="font-bold">{l.title}</div>
-                      <div className="text-xs text-muted-foreground mt-1 line-clamp-1">Khám phá nguyên tố {element.name} trong bài học này.</div>
+                      <div className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                        Khám phá nguyên tố {element.name} trong bài học này.
+                      </div>
                     </Link>
                   ))}
                 </div>

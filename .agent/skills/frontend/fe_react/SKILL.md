@@ -8,30 +8,32 @@ description: |
 metadata:
   mcpmarket-version: 1.0.0
 ---
+
 # React Frontend Stack
 
 > **Live docs:** Add `use context7` to prompt for up-to-date React, TanStack Query, Tailwind documentation.
 
 ## Quick Reference
 
-| Topic | Reference |
-|-------|-----------|
+| Topic      | Reference                                                                  |
+| ---------- | -------------------------------------------------------------------------- |
 | Components | [components.md](references/components.md) — Button, Input, Modal, patterns |
-| State | [state.md](references/state.md) — useState, Zustand, Context, URL state |
+| State      | [state.md](references/state.md) — useState, Zustand, Context, URL state    |
 
 ## Tooling (2025)
 
-| Tool | Purpose | Why |
-|------|---------|-----|
-| **Vite** | Build tool | Fast HMR, ESM native |
-| **React 19** | UI library | RSC, Actions, use() |
-| **TypeScript** | Type safety | Strict mode |
-| **Tailwind v4** | Styling | Utility-first, Vite plugin |
-| **TanStack Query** | Data fetching | Caching, mutations |
-| **Zustand** | State | Simple, no boilerplate |
-| **React Router 7** | Routing | Data loading, actions |
+| Tool               | Purpose       | Why                        |
+| ------------------ | ------------- | -------------------------- |
+| **Vite**           | Build tool    | Fast HMR, ESM native       |
+| **React 19**       | UI library    | RSC, Actions, use()        |
+| **TypeScript**     | Type safety   | Strict mode                |
+| **Tailwind v4**    | Styling       | Utility-first, Vite plugin |
+| **TanStack Query** | Data fetching | Caching, mutations         |
+| **Zustand**        | State         | Simple, no boilerplate     |
+| **React Router 7** | Routing       | Data loading, actions      |
 
 **Notes:**
+
 - Tailwind v4: new config via Vite plugin, no `tailwind.config.js`
 - TanStack Router may require React 18.3.1 (use `--legacy-peer-deps` if needed)
 
@@ -48,14 +50,14 @@ pnpm add -D tailwindcss @tailwindcss/vite
 
 ```typescript
 // vite.config.ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { '@': '/src' },
+    alias: { "@": "/src" },
   },
 });
 ```
@@ -101,10 +103,7 @@ export function UserCard({ user, onEdit }: UserCardProps) {
       <h3 className="font-semibold">{user.name}</h3>
       <p className="text-sm text-gray-600">{user.email}</p>
       {onEdit && (
-        <button
-          onClick={() => onEdit(user.id)}
-          className="mt-2 text-blue-600 hover:underline"
-        >
+        <button onClick={() => onEdit(user.id)} className="mt-2 text-blue-600 hover:underline">
           Edit
         </button>
       )}
@@ -209,7 +208,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 ```tsx
 // main.tsx
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -222,26 +221,26 @@ const queryClient = new QueryClient({
 
 <QueryClientProvider client={queryClient}>
   <App />
-</QueryClientProvider>
+</QueryClientProvider>;
 ```
 
 ### Query Hook
 
 ```tsx
 // api/users.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useUsers() {
   return useQuery({
-    queryKey: ['users'],
-    queryFn: () => fetch('/api/users').then(r => r.json()),
+    queryKey: ["users"],
+    queryFn: () => fetch("/api/users").then((r) => r.json()),
   });
 }
 
 export function useUser(id: string) {
   return useQuery({
-    queryKey: ['users', id],
-    queryFn: () => fetch(`/api/users/${id}`).then(r => r.json()),
+    queryKey: ["users", id],
+    queryFn: () => fetch(`/api/users/${id}`).then((r) => r.json()),
     enabled: !!id,
   });
 }
@@ -251,13 +250,13 @@ export function useCreateUser() {
 
   return useMutation({
     mutationFn: (data: CreateUser) =>
-      fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }).then(r => r.json()),
+      }).then((r) => r.json()),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 }
@@ -275,10 +274,10 @@ function UserList() {
 
   return (
     <div>
-      {users.map(user => <UserCard key={user.id} user={user} />)}
-      <button onClick={() => createUser.mutate({ name: 'New' })}>
-        Add User
-      </button>
+      {users.map((user) => (
+        <UserCard key={user.id} user={user} />
+      ))}
+      <button onClick={() => createUser.mutate({ name: "New" })}>Add User</button>
     </div>
   );
 }
@@ -288,8 +287,8 @@ function UserList() {
 
 ```tsx
 // stores/auth.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface AuthState {
   user: User | null;
@@ -306,8 +305,8 @@ export const useAuthStore = create<AuthState>()(
       login: (user, token) => set({ user, token }),
       logout: () => set({ user: null, token: null }),
     }),
-    { name: 'auth-storage' }
-  )
+    { name: "auth-storage" },
+  ),
 );
 
 // Usage
@@ -317,11 +316,11 @@ const { user, login, logout } = useAuthStore();
 ## Forms
 
 ```tsx
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent } from "react";
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: FormEvent) => {
@@ -329,7 +328,7 @@ function LoginForm() {
     setErrors({});
 
     if (!email) {
-      setErrors(prev => ({ ...prev, email: 'Required' }));
+      setErrors((prev) => ({ ...prev, email: "Required" }));
       return;
     }
 
@@ -342,7 +341,7 @@ function LoginForm() {
         <input
           type="email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded border px-3 py-2"
           placeholder="Email"
         />
@@ -358,13 +357,13 @@ function LoginForm() {
 
 ## Anti-patterns
 
-| Don't | Do Instead |
-|-------|------------|
-| CRA (Create React App) | Vite |
-| CSS Modules / styled-components | Tailwind |
-| Redux (complex) | Zustand (simple) |
-| useEffect for data fetching | TanStack Query |
-| Prop drilling | Context or Zustand |
-| `any` types | Proper TypeScript types |
-| Index as key | Unique ID as key |
-| Inline object props | useMemo or extract |
+| Don't                           | Do Instead              |
+| ------------------------------- | ----------------------- |
+| CRA (Create React App)          | Vite                    |
+| CSS Modules / styled-components | Tailwind                |
+| Redux (complex)                 | Zustand (simple)        |
+| useEffect for data fetching     | TanStack Query          |
+| Prop drilling                   | Context or Zustand      |
+| `any` types                     | Proper TypeScript types |
+| Index as key                    | Unique ID as key        |
+| Inline object props             | useMemo or extract      |

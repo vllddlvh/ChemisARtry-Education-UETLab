@@ -26,7 +26,7 @@ function AuthPage() {
   const { mode: initialMode } = Route.useSearch();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  
+
   const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,9 +55,11 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        
+
         if (!data.session) {
-          toast.success("Tạo tài khoản thành công!", { description: "Vui lòng kiểm tra email để xác nhận." });
+          toast.success("Tạo tài khoản thành công!", {
+            description: "Vui lòng kiểm tra email để xác nhận.",
+          });
           setMode("signin");
         } else {
           toast.success("Tạo tài khoản thành công!");
@@ -97,7 +99,7 @@ function AuthPage() {
       {/* Left Column: Visual/Marketing (Hidden on mobile) */}
       <div className="hidden lg:flex flex-1 relative bg-gradient-hero items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay -z-10" />
-        
+
         <div className="relative z-10 w-full max-w-lg">
           <div className="aspect-square rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
             <FlaskConical className="h-24 w-24 text-primary opacity-80 mb-8" />
@@ -113,7 +115,10 @@ function AuthPage() {
 
       {/* Right Column: Form */}
       <div className="w-full lg:w-[500px] flex flex-col justify-center px-8 sm:px-12 py-12 relative">
-        <Link to="/" className="absolute top-8 left-8 text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors">
+        <Link
+          to="/"
+          className="absolute top-8 left-8 text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors"
+        >
           ← Quay lại trang chủ
         </Link>
 
@@ -129,38 +134,78 @@ function AuthPage() {
             </p>
           </div>
 
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="w-full mb-6 rounded-xl h-11" 
-            onClick={handleGoogle} 
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full mb-6 rounded-xl h-11"
+            onClick={handleGoogle}
             disabled={busy}
           >
             <svg viewBox="0 0 24 24" className="mr-2 h-4 w-4" aria-hidden="true">
-              <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335" />
-              <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4" />
-              <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05" />
-              <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26537 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853" />
+              <path
+                d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
+                fill="#EA4335"
+              />
+              <path
+                d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z"
+                fill="#4285F4"
+              />
+              <path
+                d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z"
+                fill="#FBBC05"
+              />
+              <path
+                d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26537 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
+                fill="#34A853"
+              />
             </svg>
             Tiếp tục với Google
           </Button>
 
           <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Hoặc tiếp tục với email</span></div>
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Hoặc tiếp tục với email
+              </span>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="rounded-xl" disabled={busy} />
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="rounded-xl"
+                disabled={busy}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Mật khẩu</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="rounded-xl" minLength={6} disabled={busy} />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="rounded-xl"
+                minLength={6}
+                disabled={busy}
+              />
             </div>
 
-            <Button type="submit" className="w-full rounded-xl h-11 bg-gradient-primary mt-2" disabled={busy}>
+            <Button
+              type="submit"
+              className="w-full rounded-xl h-11 bg-gradient-primary mt-2"
+              disabled={busy}
+            >
               {busy ? "Đang xử lý..." : mode === "signin" ? "Đăng nhập" : "Đăng ký"}
             </Button>
           </form>
@@ -169,20 +214,31 @@ function AuthPage() {
             {mode === "signin" ? (
               <span className="text-muted-foreground">
                 Chưa có tài khoản?{" "}
-                <Link to="/auth" search={{ mode: "signup" }} className="text-primary hover:underline font-medium">
+                <Link
+                  to="/auth"
+                  search={{ mode: "signup" }}
+                  className="text-primary hover:underline font-medium"
+                >
                   Đăng ký ngay
                 </Link>
               </span>
             ) : (
               <span className="text-muted-foreground">
                 Đã có tài khoản?{" "}
-                <Link to="/auth" search={{ mode: "signin" }} className="text-primary hover:underline font-medium">
+                <Link
+                  to="/auth"
+                  search={{ mode: "signin" }}
+                  className="text-primary hover:underline font-medium"
+                >
                   Đăng nhập
                 </Link>
               </span>
             )}
             <div className="mt-4">
-              <Link to="/lab/sim" className="text-muted-foreground hover:text-foreground underline underline-offset-4">
+              <Link
+                to="/lab/sim"
+                className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+              >
                 Tiếp tục không cần đăng nhập
               </Link>
             </div>

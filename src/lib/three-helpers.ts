@@ -30,10 +30,7 @@ export function makeBond(a: THREE.Vector3, b: THREE.Vector3): THREE.Mesh {
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.copy(a).add(dir.multiplyScalar(0.5));
-  mesh.quaternion.setFromUnitVectors(
-    new THREE.Vector3(0, 1, 0),
-    dir.clone().normalize()
-  );
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
   return mesh;
 }
 
@@ -66,7 +63,7 @@ export function makeTextSprite(text: string, color = "#0f1e3d"): THREE.Sprite {
 /** Build a ball-and-stick THREE.Group for a molecule. */
 export function buildMoleculeGroup(
   m: Molecule,
-  withLabels: boolean
+  withLabels: boolean,
 ): { group: THREE.Group; labels: THREE.Sprite[] } {
   const group = new THREE.Group();
   group.userData.formula = m.formula;
@@ -116,11 +113,7 @@ export function buildMoleculeGroup(
 }
 
 /** Spawn a sparkly particle burst at a world position. */
-export function spawnBurst(
-  scene: THREE.Scene,
-  position: THREE.Vector3,
-  color: string
-): void {
+export function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string): void {
   const count = 60;
   const geom = new THREE.BufferGeometry();
   const pos = new Float32Array(count * 3);
@@ -134,8 +127,8 @@ export function spawnBurst(
       new THREE.Vector3(
         (Math.random() - 0.5) * 4,
         (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4
-      )
+        (Math.random() - 0.5) * 4,
+      ),
     );
   }
 

@@ -33,7 +33,9 @@ export default function AtomARScene({ element, onClose }: Props) {
   useEffect(() => {
     let cancelled = false;
     const video = document.createElement("video");
-    video.autoplay = true; video.playsInline = true; video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true;
     video.style.display = "none";
     document.body.appendChild(video);
 
@@ -85,7 +87,11 @@ export default function AtomARScene({ element, onClose }: Props) {
     return () => {
       cancelled = true;
       ctrl.stop();
-      try { document.body.removeChild(video); } catch { /* ignore */ }
+      try {
+        document.body.removeChild(video);
+      } catch {
+        /* ignore */
+      }
     };
   }, []);
 
@@ -124,28 +130,47 @@ export default function AtomARScene({ element, onClose }: Props) {
       {/* HUD top-left: element info */}
       <div className="absolute top-4 left-4 z-20 rounded-2xl bg-black/55 backdrop-blur px-4 py-3 text-white max-w-xs">
         <div className="flex items-center gap-3">
-          <div className={`h-12 w-12 rounded-xl grid place-items-center ${s.bg} ${s.text} ring-1 ${s.ring}`}>
+          <div
+            className={`h-12 w-12 rounded-xl grid place-items-center ${s.bg} ${s.text} ring-1 ${s.ring}`}
+          >
             <span className="text-lg font-bold font-display">{element.symbol}</span>
           </div>
           <div>
             <div className="text-base font-semibold font-display leading-tight">{element.name}</div>
             <div className="text-[11px] text-white/70 font-mono">
-              Z = {element.number} · {element.shells.reduce((a, b) => a + b, 0)}e⁻ · {element.shells.length} shells
+              Z = {element.number} · {element.shells.reduce((a, b) => a + b, 0)}e⁻ ·{" "}
+              {element.shells.length} shells
             </div>
           </div>
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5 text-[10px]">
-          <Badge variant="secondary" className="bg-white/15 text-white border-0">{s.label}</Badge>
-          {element.phase && <Badge variant="secondary" className="bg-white/15 text-white border-0">{element.phase}</Badge>}
+          <Badge variant="secondary" className="bg-white/15 text-white border-0">
+            {s.label}
+          </Badge>
+          {element.phase && (
+            <Badge variant="secondary" className="bg-white/15 text-white border-0">
+              {element.phase}
+            </Badge>
+          )}
         </div>
       </div>
 
       {/* HUD top-right: controls */}
       <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-        <Button size="sm" variant="secondary" className="rounded-full bg-black/55 text-white hover:bg-black/70 border-0" onClick={onClose}>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="rounded-full bg-black/55 text-white hover:bg-black/70 border-0"
+          onClick={onClose}
+        >
           <X className="mr-1.5 h-3.5 w-3.5" /> Exit AR
         </Button>
-        <Button size="sm" variant="secondary" className="rounded-full bg-black/55 text-white hover:bg-black/70 border-0" onClick={() => atomRef.current?.reset()}>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="rounded-full bg-black/55 text-white hover:bg-black/70 border-0"
+          onClick={() => atomRef.current?.reset()}
+        >
           <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
         </Button>
         <Button
@@ -154,7 +179,11 @@ export default function AtomARScene({ element, onClose }: Props) {
           className="rounded-full bg-black/55 text-white hover:bg-black/70 border-0"
           onClick={() => setShowLabels((v) => !v)}
         >
-          {showLabels ? <EyeOff className="mr-1.5 h-3.5 w-3.5" /> : <Eye className="mr-1.5 h-3.5 w-3.5" />}
+          {showLabels ? (
+            <EyeOff className="mr-1.5 h-3.5 w-3.5" />
+          ) : (
+            <Eye className="mr-1.5 h-3.5 w-3.5" />
+          )}
           Shell labels
         </Button>
       </div>
@@ -163,12 +192,16 @@ export default function AtomARScene({ element, onClose }: Props) {
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 rounded-full bg-black/55 backdrop-blur px-4 py-2 text-white text-xs flex items-center gap-3">
         {handStatus === "ready" ? (
           <>
-            <span className="inline-flex items-center gap-1.5"><Hand className="h-3.5 w-3.5" /> Pinch + move = rotate · two hands = zoom</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Hand className="h-3.5 w-3.5" /> Pinch + move = rotate · two hands = zoom
+            </span>
           </>
         ) : handStatus === "starting" ? (
           <span>Starting hand tracking…</span>
         ) : (
-          <span className="inline-flex items-center gap-1.5"><MousePointer2 className="h-3.5 w-3.5" /> Drag to rotate · scroll to zoom</span>
+          <span className="inline-flex items-center gap-1.5">
+            <MousePointer2 className="h-3.5 w-3.5" /> Drag to rotate · scroll to zoom
+          </span>
         )}
         <span className="opacity-50">·</span>
         <span className="opacity-70 font-mono">R reset · L labels · Esc exit</span>

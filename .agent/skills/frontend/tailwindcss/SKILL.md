@@ -6,6 +6,7 @@ description: |
 metadata:
   mcpmarket-version: 1.0.0
 ---
+
 # Tailwind CSS Utility Styling
 
 ## Core Utility Classes
@@ -14,12 +15,15 @@ metadata:
 
 \`\`\`tsx
 // Flexbox
+
 <div className="flex justify-center items-center gap-4">
 
 // Grid
+
 <div className="grid grid-cols-3 gap-6">
 
 // Positioning
+
 <div className="relative">
   <div className="absolute top-0 right-0">
 \`\`\`
@@ -28,10 +32,12 @@ metadata:
 
 \`\`\`tsx
 // Padding: p-{size}
+
 <div className="p-4">           // 1rem (16px)
 <div className="px-6 py-4">    // Horizontal/vertical
 
 // Margin: m-{size}
+
 <div className="mt-8 mb-4">    // Top/bottom
 <div className="mx-auto">      // Center horizontally
 \`\`\`
@@ -39,6 +45,7 @@ metadata:
 ### Typography
 
 \`\`\`tsx
+
 <h1 className="text-3xl font-bold leading-tight">
 <p className="text-base text-muted-foreground">
 \`\`\`
@@ -48,6 +55,7 @@ metadata:
 Start with mobile (unprefixed), add breakpoints:
 
 \`\`\`tsx
+
 <div className="
   flex flex-col         // Mobile: stack
   md:flex-row           // Medium+: horizontal
@@ -62,6 +70,7 @@ Breakpoints: \`sm:\` (640px), \`md:\` (768px), \`lg:\` (1024px), \`xl:\` (1280px
 Use \`dark:\` prefix:
 
 \`\`\`tsx
+
 <div className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
 \`\`\`
 
@@ -79,6 +88,7 @@ Use semantic variables, never hardcoded colors:
 \`\`\`
 
 Available variables:
+
 - \`background\`, \`foreground\`
 - \`card\`, \`card-foreground\`
 - \`primary\`, \`primary-foreground\`
@@ -91,23 +101,23 @@ Available variables:
 import { cva } from 'class-variance-authority';
 
 const buttonVariants = cva(
-  "base classes here",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground",
-        destructive: "bg-destructive",
-      },
-      size: {
-        default: "h-10 px-4",
-        sm: "h-9 px-3",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
+"base classes here",
+{
+variants: {
+variant: {
+default: "bg-primary text-primary-foreground",
+destructive: "bg-destructive",
+},
+size: {
+default: "h-10 px-4",
+sm: "h-9 px-3",
+},
+},
+defaultVariants: {
+variant: "default",
+size: "default",
+},
+}
 );
 \`\`\`
 

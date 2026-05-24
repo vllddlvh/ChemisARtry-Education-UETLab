@@ -39,16 +39,28 @@ export function useVoiceCommands(onCommand: (cmd: string) => void) {
       const text = last[0].transcript.trim().toLowerCase();
       onCmdRef.current(text);
     };
-    rec.onerror = () => { /* ignore */ };
+    rec.onerror = () => {
+      /* ignore */
+    };
     rec.onend = () => setListening(false);
     recRef.current = rec;
     setSupported(true);
   }, []);
 
   const toggle = useCallback(() => {
-    const rec = recRef.current; if (!rec) return;
-    if (listening) { rec.stop(); setListening(false); }
-    else { try { rec.start(); setListening(true); } catch { /* already started */ } }
+    const rec = recRef.current;
+    if (!rec) return;
+    if (listening) {
+      rec.stop();
+      setListening(false);
+    } else {
+      try {
+        rec.start();
+        setListening(true);
+      } catch {
+        /* already started */
+      }
+    }
   }, [listening]);
 
   return { supported, listening, toggle };

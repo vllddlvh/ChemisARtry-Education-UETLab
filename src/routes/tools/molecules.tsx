@@ -4,7 +4,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import MoleculePreview from "@/components/MoleculePreview";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
-import { usePubChemSearch, usePubChemMolecule, usePubChemDescription } from "@/hooks/use-pubchem-search";
+import {
+  usePubChemSearch,
+  usePubChemMolecule,
+  usePubChemDescription,
+} from "@/hooks/use-pubchem-search";
 import type { PubChemCompoundSummary } from "@/lib/pubchem-api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,9 +23,15 @@ export const Route = createFileRoute("/tools/molecules")({
   head: () => ({
     meta: [
       { title: "Molecules — MoleLab AR" },
-      { name: "description", content: "Browse the 3D molecule library and search 100M+ compounds from PubChem." },
+      {
+        name: "description",
+        content: "Browse the 3D molecule library and search 100M+ compounds from PubChem.",
+      },
       { property: "og:title", content: "Molecule Library — MoleLab AR" },
-      { property: "og:description", content: "Interactive 3D library of common molecules with PubChem integration." },
+      {
+        property: "og:description",
+        content: "Interactive 3D library of common molecules with PubChem integration.",
+      },
     ],
   }),
   component: MoleculesPage,
@@ -54,7 +64,8 @@ function MoleculesPage() {
       .map((c) => c.trim().toLowerCase())
       .filter((c) => c && c !== "all");
     const unique = Array.from(new Set(fromData));
-    const extras = unique.filter((c) => !BASE_CATEGORIES.includes(c as (typeof BASE_CATEGORIES)[number]))
+    const extras = unique
+      .filter((c) => !BASE_CATEGORIES.includes(c as (typeof BASE_CATEGORIES)[number]))
       .sort((a, b) => a.localeCompare(b));
     return ["all", ...BASE_CATEGORIES, ...extras];
   }, [molecules]);
@@ -63,12 +74,17 @@ function MoleculesPage() {
     if (!categories.includes(cat)) setCat("all");
   }, [categories, cat]);
 
-  const filtered = useMemo(() => molecules.filter((m) => {
-    const matchesCat = cat === "all" || m.category === cat;
-    const qLow = q.trim().toLowerCase();
-    const matchesQ = !qLow || m.name.toLowerCase().includes(qLow) || m.formula.toLowerCase().includes(qLow);
-    return matchesCat && matchesQ;
-  }), [molecules, q, cat]);
+  const filtered = useMemo(
+    () =>
+      molecules.filter((m) => {
+        const matchesCat = cat === "all" || m.category === cat;
+        const qLow = q.trim().toLowerCase();
+        const matchesQ =
+          !qLow || m.name.toLowerCase().includes(qLow) || m.formula.toLowerCase().includes(qLow);
+        return matchesCat && matchesQ;
+      }),
+    [molecules, q, cat],
+  );
 
   // Show PubChem section when searching and local results are few
   const showPubChem = q.trim().length >= 2;
@@ -108,7 +124,9 @@ function MoleculesPage() {
                 key={c}
                 onClick={() => setCat(c)}
                 className={`text-xs px-3 py-1.5 rounded-full border transition capitalize ${
-                  cat === c ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
+                  cat === c
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {c}
@@ -142,8 +160,12 @@ function MoleculesPage() {
                           <div className="font-display font-bold text-lg">{m.name}</div>
                           <div className="font-mono text-primary font-bold">{m.formula}</div>
                         </div>
-                        <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">{m.category}</div>
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{m.description}</p>
+                        <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
+                          {m.category}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                          {m.description}
+                        </p>
                       </div>
                     </button>
                   ))}
@@ -165,9 +187,7 @@ function MoleculesPage() {
                   )}
                 </div>
 
-                {pubchem.error && (
-                  <p className="text-xs text-destructive">{pubchem.error}</p>
-                )}
+                {pubchem.error && <p className="text-xs text-destructive">{pubchem.error}</p>}
 
                 {pubchem.results.length > 0 && (
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -240,16 +260,25 @@ function MoleculesPage() {
               </div>
 
               {(() => {
-                const relatedLessons = ALL_LESSONS.filter(l => 
-                  l.explore3D.molecules.includes(open.formula) || l.practice.defaultMolecules.includes(open.formula)
+                const relatedLessons = ALL_LESSONS.filter(
+                  (l) =>
+                    l.explore3D.molecules.includes(open.formula) ||
+                    l.practice.defaultMolecules.includes(open.formula),
                 );
                 if (relatedLessons.length === 0) return null;
                 return (
                   <div className="mt-4 pt-4 border-t border-border">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Xuất hiện trong bài học</div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                      Xuất hiện trong bài học
+                    </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {relatedLessons.map(l => (
-                        <Link key={l.id} to="/learn/lesson" search={{ lessonId: l.id }} className="block p-3 rounded-xl border border-border bg-muted/40 hover:border-primary/50 transition">
+                      {relatedLessons.map((l) => (
+                        <Link
+                          key={l.id}
+                          to="/learn/lesson"
+                          search={{ lessonId: l.id }}
+                          className="block p-3 rounded-xl border border-border bg-muted/40 hover:border-primary/50 transition"
+                        >
                           <div className="text-[10px] font-semibold text-primary">{l.chapter}</div>
                           <div className="font-bold text-sm">{l.title}</div>
                         </Link>
@@ -313,7 +342,9 @@ function MoleculesPage() {
               {desc.description && (
                 <div className="mt-3 rounded-xl border border-border bg-card p-4">
                   <p className="text-sm leading-relaxed">{desc.description.description}</p>
-                  <p className="text-[10px] text-muted-foreground mt-2">Source: {desc.description.source}</p>
+                  <p className="text-[10px] text-muted-foreground mt-2">
+                    Source: {desc.description.source}
+                  </p>
                 </div>
               )}
 

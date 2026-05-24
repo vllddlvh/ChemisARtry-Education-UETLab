@@ -4,23 +4,40 @@ import { useState } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import MoleculePreview from "@/components/MoleculePreview";
-import { usePubChemSearch, usePubChemMolecule, usePubChemDescription } from "@/hooks/use-pubchem-search";
+import {
+  usePubChemSearch,
+  usePubChemMolecule,
+  usePubChemDescription,
+} from "@/hooks/use-pubchem-search";
 import type { PubChemCompoundSummary } from "@/lib/pubchem-api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Search, Loader2, Globe, Atom, ExternalLink, Sparkles,
-  FlaskConical, Beaker, BookOpen,
+  Search,
+  Loader2,
+  Globe,
+  Atom,
+  ExternalLink,
+  Sparkles,
+  FlaskConical,
+  Beaker,
+  BookOpen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/tools/explorer")({
   head: () => ({
     meta: [
       { title: "Compound Explorer — MoleLab AR" },
-      { name: "description", content: "Explore 100M+ chemical compounds from PubChem with interactive 3D structures." },
+      {
+        name: "description",
+        content: "Explore 100M+ chemical compounds from PubChem with interactive 3D structures.",
+      },
       { property: "og:title", content: "Compound Explorer — MoleLab AR" },
-      { property: "og:description", content: "Search, visualize, and learn about any chemical compound." },
+      {
+        property: "og:description",
+        content: "Search, visualize, and learn about any chemical compound.",
+      },
     ],
   }),
   component: SearchPage,
@@ -61,7 +78,8 @@ function SearchPage() {
             </div>
             <h1 className="text-3xl md:text-4xl font-display font-bold">Compound Explorer</h1>
             <p className="text-muted-foreground mt-1 max-w-2xl text-sm md:text-base">
-              Search any chemical compound. View 3D molecular structures, properties, and descriptions from the world's largest free chemistry database.
+              Search any chemical compound. View 3D molecular structures, properties, and
+              descriptions from the world's largest free chemistry database.
             </p>
           </div>
           <Button asChild className="rounded-full bg-gradient-primary">
@@ -105,9 +123,7 @@ function SearchPage() {
         <div className="mt-8 grid lg:grid-cols-[1fr_420px] gap-6 min-h-[500px]">
           {/* Left: results list */}
           <div>
-            {search.error && (
-              <p className="text-sm text-destructive mb-3">{search.error}</p>
-            )}
+            {search.error && <p className="text-sm text-destructive mb-3">{search.error}</p>}
 
             {search.results.length > 0 && (
               <div className="space-y-2">
@@ -130,8 +146,12 @@ function SearchPage() {
                           {c.iupacName || c.molecularFormula}
                         </div>
                         <div className="flex items-center gap-3 mt-1 text-xs">
-                          <span className="font-mono text-primary font-bold">{c.molecularFormula}</span>
-                          <span className="text-muted-foreground">MW: {Number(c.molecularWeight).toFixed(2)}</span>
+                          <span className="font-mono text-primary font-bold">
+                            {c.molecularFormula}
+                          </span>
+                          <span className="text-muted-foreground">
+                            MW: {Number(c.molecularWeight).toFixed(2)}
+                          </span>
                           <span className="text-muted-foreground">CID: {c.cid}</span>
                         </div>
                       </div>
@@ -144,19 +164,24 @@ function SearchPage() {
               </div>
             )}
 
-            {search.query.trim().length >= 2 && !search.loading && search.results.length === 0 && !search.error && (
-              <div className="text-center py-12 text-muted-foreground">
-                <Beaker className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p>No compounds found for "{search.query}".</p>
-                <p className="text-xs mt-1">Try a different name, formula, or SMILES string.</p>
-              </div>
-            )}
+            {search.query.trim().length >= 2 &&
+              !search.loading &&
+              search.results.length === 0 &&
+              !search.error && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Beaker className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                  <p>No compounds found for "{search.query}".</p>
+                  <p className="text-xs mt-1">Try a different name, formula, or SMILES string.</p>
+                </div>
+              )}
 
             {search.query.trim().length < 2 && !selected && (
               <div className="text-center py-16 text-muted-foreground">
                 <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="text-lg font-medium">Start typing to explore</p>
-                <p className="text-sm mt-1">Search by compound name, molecular formula, or click a suggestion above.</p>
+                <p className="text-sm mt-1">
+                  Search by compound name, molecular formula, or click a suggestion above.
+                </p>
               </div>
             )}
           </div>
@@ -179,9 +204,7 @@ function SearchPage() {
                     <p className="text-sm text-destructive text-center">{mol3d.error}</p>
                   </div>
                 )}
-                {mol3d.molecule && (
-                  <MoleculePreview molecule={mol3d.molecule} height={250} />
-                )}
+                {mol3d.molecule && <MoleculePreview molecule={mol3d.molecule} height={250} />}
 
                 {/* Info */}
                 <div className="p-5 space-y-3">
@@ -201,7 +224,10 @@ function SearchPage() {
                   {/* Properties grid */}
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <PropCell label="H-Bond Donors" value={String(selected.hBondDonorCount)} />
-                    <PropCell label="H-Bond Acceptors" value={String(selected.hBondAcceptorCount)} />
+                    <PropCell
+                      label="H-Bond Acceptors"
+                      value={String(selected.hBondAcceptorCount)}
+                    />
                     <PropCell label="Complexity" value={Number(selected.complexity).toFixed(0)} />
                     <PropCell label="Charge" value={String(selected.charge)} />
                   </div>
@@ -259,7 +285,12 @@ function SearchPage() {
         {/* Attribution */}
         <div className="mt-10 text-[11px] text-muted-foreground border-t border-border pt-4">
           Data from{" "}
-          <a href="https://pubchem.ncbi.nlm.nih.gov/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+          <a
+            href="https://pubchem.ncbi.nlm.nih.gov/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
             PubChem
           </a>
           , National Center for Biotechnology Information, U.S. National Library of Medicine.

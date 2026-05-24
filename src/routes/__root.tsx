@@ -31,22 +31,45 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Lovable App" },
-      { name: "description", content: "An interactive AR Chemistry Lab for visualizing and simulating molecular reactions using hand gestures." },
+      {
+        name: "description",
+        content:
+          "An interactive AR Chemistry Lab for visualizing and simulating molecular reactions using hand gestures.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "An interactive AR Chemistry Lab for visualizing and simulating molecular reactions using hand gestures." },
+      {
+        property: "og:description",
+        content:
+          "An interactive AR Chemistry Lab for visualizing and simulating molecular reactions using hand gestures.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "An interactive AR Chemistry Lab for visualizing and simulating molecular reactions using hand gestures." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e5848448-fcc5-4762-bbba-010a459dd0b2/id-preview-51d8725e--4bbf21ba-8155-4a95-a0e4-a00e4d136ba6.lovable.app-1777383245408.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e5848448-fcc5-4762-bbba-010a459dd0b2/id-preview-51d8725e--4bbf21ba-8155-4a95-a0e4-a00e4d136ba6.lovable.app-1777383245408.png" },
+      {
+        name: "twitter:description",
+        content:
+          "An interactive AR Chemistry Lab for visualizing and simulating molecular reactions using hand gestures.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e5848448-fcc5-4762-bbba-010a459dd0b2/id-preview-51d8725e--4bbf21ba-8155-4a95-a0e4-a00e4d136ba6.lovable.app-1777383245408.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e5848448-fcc5-4762-bbba-010a459dd0b2/id-preview-51d8725e--4bbf21ba-8155-4a95-a0e4-a00e4d136ba6.lovable.app-1777383245408.png",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
     ],
   }),

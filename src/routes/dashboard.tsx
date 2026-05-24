@@ -10,7 +10,10 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — ChemisARtry" },
-      { name: "description", content: "Trang chính sau đăng nhập — theo dõi lộ trình học và tiến độ." },
+      {
+        name: "description",
+        content: "Trang chính sau đăng nhập — theo dõi lộ trình học và tiến độ.",
+      },
     ],
   }),
   component: DashboardPage,
@@ -67,7 +70,6 @@ function DashboardPage() {
       {/* MIDDLE CONTENT */}
       <main className="flex-1 overflow-y-auto relative z-10 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="max-w-2xl mx-auto px-6 py-12 min-h-full flex flex-col items-center">
-          
           <div className="w-full space-y-8 pb-24">
             <RoadCard
               icon="🧪"
@@ -79,7 +81,7 @@ function DashboardPage() {
               search={{ roadId: 1 }}
               ctaLabel="Bắt đầu Road 1 →"
             />
-            
+
             <RoadCard
               icon="⚗️"
               title="Road 2: Phản ứng Hoá học"
@@ -96,7 +98,6 @@ function DashboardPage() {
 
       {/* RIGHT SIDEBAR */}
       <aside className="w-[340px] border-l border-border/50 bg-background/50 backdrop-blur-xl flex flex-col z-10 shrink-0 p-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        
         {/* Top Header Row */}
         <div className="flex items-center justify-between mb-10 mt-2 px-2">
           <div className="flex items-center gap-2 font-display font-bold text-lab-coral cursor-pointer hover:scale-110 transition-transform">
@@ -105,7 +106,10 @@ function DashboardPage() {
           <div className="flex items-center gap-2 font-display font-bold text-lab-sun cursor-pointer hover:scale-110 transition-transform">
             <span className="text-2xl drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">⭐</span> 0
           </div>
-          <Link to="/progress" className="size-10 rounded-full bg-primary/20 text-primary grid place-items-center font-display font-bold border-2 border-primary/50 cursor-pointer hover:scale-110 hover:shadow-glow transition-all">
+          <Link
+            to="/progress"
+            className="size-10 rounded-full bg-primary/20 text-primary grid place-items-center font-display font-bold border-2 border-primary/50 cursor-pointer hover:scale-110 hover:shadow-glow transition-all"
+          >
             {userInitial}
           </Link>
         </div>
@@ -114,26 +118,48 @@ function DashboardPage() {
         <div className="mb-10">
           <div className="flex items-center justify-between mb-5 px-1">
             <h3 className="font-display font-bold text-lg text-foreground">Nhiệm vụ hôm nay</h3>
-            <Link to="/progress" className="text-xs text-primary font-bold hover:underline uppercase tracking-wider">Xem tất cả</Link>
+            <Link
+              to="/progress"
+              className="text-xs text-primary font-bold hover:underline uppercase tracking-wider"
+            >
+              Xem tất cả
+            </Link>
           </div>
-          
+
           <div className="rounded-3xl border border-border/50 bg-card/40 backdrop-blur-xl p-5 space-y-6 shadow-soft">
-            <TaskRow icon={<Zap className="size-6 text-lab-sun" />} title="Phản ứng thực hiện" progress={p.reactions_triggered} max={5} />
-            <TaskRow icon={<Atom className="size-6 text-primary" />} title="Phân tử đã tạo" progress={p.molecules_spawned} max={10} />
+            <TaskRow
+              icon={<Zap className="size-6 text-lab-sun" />}
+              title="Phản ứng thực hiện"
+              progress={p.reactions_triggered}
+              max={5}
+            />
+            <TaskRow
+              icon={<Atom className="size-6 text-primary" />}
+              title="Phân tử đã tạo"
+              progress={p.molecules_spawned}
+              max={10}
+            />
           </div>
         </div>
 
         {/* Promo / Thành tích */}
         <div>
           <div className="rounded-3xl border border-border/50 bg-gradient-to-b from-card/80 to-card/20 backdrop-blur-xl p-6 shadow-soft text-center group">
-            <h3 className="font-display font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors">Xem báo cáo chi tiết?</h3>
-            <p className="text-sm text-muted-foreground mb-6">Theo dõi toàn bộ tiến trình học, điểm số và thành tích của bạn.</p>
-            <Button asChild size="lg" className="w-full rounded-full bg-foreground hover:bg-primary text-background hover:text-primary-foreground font-bold h-12 transition-colors border-0">
+            <h3 className="font-display font-bold text-lg mb-2 text-foreground group-hover:text-primary transition-colors">
+              Xem báo cáo chi tiết?
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Theo dõi toàn bộ tiến trình học, điểm số và thành tích của bạn.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              className="w-full rounded-full bg-foreground hover:bg-primary text-background hover:text-primary-foreground font-bold h-12 transition-colors border-0"
+            >
               <Link to="/progress">Xem toàn bộ báo cáo</Link>
             </Button>
           </div>
         </div>
-
       </aside>
     </div>
   );
@@ -141,7 +167,17 @@ function DashboardPage() {
 
 // ── Sub-components ────────────────────────────────────────────────────────
 
-function TaskRow({ icon, title, progress, max }: { icon: React.ReactNode, title: string, progress: number, max: number }) {
+function TaskRow({
+  icon,
+  title,
+  progress,
+  max,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  progress: number;
+  max: number;
+}) {
   const pct = Math.min(100, Math.round((progress / max) * 100));
   const done = progress >= max;
   return (
@@ -150,10 +186,16 @@ function TaskRow({ icon, title, progress, max }: { icon: React.ReactNode, title:
       <div className="flex-1">
         <div className="flex items-center justify-between mb-2.5">
           <div className="text-[15px] font-bold text-foreground">{title}</div>
-          <div className="text-sm font-bold text-muted-foreground">{progress}<span className="opacity-50">/{max}</span></div>
+          <div className="text-sm font-bold text-muted-foreground">
+            {progress}
+            <span className="opacity-50">/{max}</span>
+          </div>
         </div>
         <div className="h-3 rounded-full bg-muted/80 overflow-hidden relative shadow-inner">
-          <div className={`absolute top-0 bottom-0 left-0 rounded-full transition-all duration-700 ${done ? "bg-primary" : "bg-lab-sun"}`} style={{ width: `${pct}%` }} />
+          <div
+            className={`absolute top-0 bottom-0 left-0 rounded-full transition-all duration-700 ${done ? "bg-primary" : "bg-lab-sun"}`}
+            style={{ width: `${pct}%` }}
+          />
         </div>
       </div>
     </div>
@@ -161,28 +203,55 @@ function TaskRow({ icon, title, progress, max }: { icon: React.ReactNode, title:
 }
 
 function RoadCard({
-  icon, title, subtitle, progress, total, href, search, ctaLabel, locked = false,
+  icon,
+  title,
+  subtitle,
+  progress,
+  total,
+  href,
+  search,
+  ctaLabel,
+  locked = false,
 }: {
-  icon: string; title: string; subtitle: string;
-  progress: number; total: number; href: any; search?: any;
-  ctaLabel: string; locked?: boolean;
+  icon: string;
+  title: string;
+  subtitle: string;
+  progress: number;
+  total: number;
+  href: any;
+  search?: any;
+  ctaLabel: string;
+  locked?: boolean;
 }) {
   const pct = Math.round((progress / total) * 100);
   return (
-    <div className={`group rounded-3xl border p-7 transition-all duration-300 ${locked ? "border-border/40 bg-card/20 opacity-60" : "border-border/50 bg-card/40 backdrop-blur-xl hover:bg-card/60 hover:border-primary/50 hover:shadow-soft hover:-translate-y-2"}`}>
+    <div
+      className={`group rounded-3xl border p-7 transition-all duration-300 ${locked ? "border-border/40 bg-card/20 opacity-60" : "border-border/50 bg-card/40 backdrop-blur-xl hover:bg-card/60 hover:border-primary/50 hover:shadow-soft hover:-translate-y-2"}`}
+    >
       <div className="flex items-start gap-5">
-        <div className={`size-16 rounded-2xl flex items-center justify-center text-4xl shrink-0 shadow-inner ${locked ? "bg-muted" : "bg-primary/10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300"}`}>
+        <div
+          className={`size-16 rounded-2xl flex items-center justify-center text-4xl shrink-0 shadow-inner ${locked ? "bg-muted" : "bg-primary/10 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300"}`}
+        >
           {icon}
         </div>
         <div className="flex-1 min-w-0 py-1">
           <div className="font-display font-bold text-xl text-foreground truncate">{title}</div>
           <div className="text-sm text-muted-foreground mt-1.5">{subtitle}</div>
           <div className="mt-5 h-2.5 rounded-full bg-muted/50 overflow-hidden relative shadow-inner">
-            <div className="absolute top-0 bottom-0 left-0 bg-gradient-primary rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%` }} />
+            <div
+              className="absolute top-0 bottom-0 left-0 bg-gradient-primary rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${pct}%` }}
+            />
           </div>
           <div className="flex items-center justify-between mt-3">
-            <span className="text-sm font-medium text-muted-foreground">{progress}/{total} bài hoàn thành</span>
-            <Link to={href} search={search} className={`inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors ${locked ? "text-muted-foreground bg-muted pointer-events-none" : "text-primary-foreground bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md"}`}>
+            <span className="text-sm font-medium text-muted-foreground">
+              {progress}/{total} bài hoàn thành
+            </span>
+            <Link
+              to={href}
+              search={search}
+              className={`inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors ${locked ? "text-muted-foreground bg-muted pointer-events-none" : "text-primary-foreground bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md"}`}
+            >
               {ctaLabel}
             </Link>
           </div>

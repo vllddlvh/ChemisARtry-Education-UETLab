@@ -44,10 +44,12 @@ function OnboardingPage() {
         localStorage.setItem("chemisartry.grade", grade);
         localStorage.setItem("chemisartry.startRoad", road);
         // Tạo row user_progress nếu chưa có
-        await supabase.from("user_progress").upsert(
-          { user_id: user.id, molecules_spawned: 0, reactions_triggered: 0 },
-          { onConflict: "user_id" }
-        );
+        await supabase
+          .from("user_progress")
+          .upsert(
+            { user_id: user.id, molecules_spawned: 0, reactions_triggered: 0 },
+            { onConflict: "user_id" },
+          );
       }
       navigate({ to: "/dashboard" });
     } catch {
@@ -100,9 +102,24 @@ function OnboardingPage() {
           {step === 1 && (
             <div className="space-y-3">
               {[
-                { id: "1", icon: "🧪", label: "Nguyên tử & Nguyên tố", sub: "Bắt đầu từ cơ bản nhất" },
-                { id: "2", icon: "⚗️", label: "Phản ứng Hoá học", sub: "Đã biết nguyên tố, muốn học phản ứng" },
-                { id: "free", icon: "🔭", label: "Tự chọn — cho tôi xem hết", sub: "Tôi muốn khám phá tự do" },
+                {
+                  id: "1",
+                  icon: "🧪",
+                  label: "Nguyên tử & Nguyên tố",
+                  sub: "Bắt đầu từ cơ bản nhất",
+                },
+                {
+                  id: "2",
+                  icon: "⚗️",
+                  label: "Phản ứng Hoá học",
+                  sub: "Đã biết nguyên tố, muốn học phản ứng",
+                },
+                {
+                  id: "free",
+                  icon: "🔭",
+                  label: "Tự chọn — cho tôi xem hết",
+                  sub: "Tôi muốn khám phá tự do",
+                },
               ].map((r) => (
                 <button
                   key={r.id}
@@ -143,7 +160,11 @@ function OnboardingPage() {
           {/* Navigation */}
           <div className="flex gap-3 mt-8">
             {step > 0 && (
-              <Button variant="outline" className="flex-1 rounded-full" onClick={() => setStep((s) => s - 1)}>
+              <Button
+                variant="outline"
+                className="flex-1 rounded-full"
+                onClick={() => setStep((s) => s - 1)}
+              >
                 ← Quay lại
               </Button>
             )}

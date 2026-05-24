@@ -74,10 +74,7 @@ export class PubChemNotFoundError extends Error {
 /**
  * Search PubChem by name or formula. Returns up to `limit` compound summaries.
  */
-export async function searchPubChem(
-  query: string,
-  limit = 8,
-): Promise<PubChemSearchResult> {
+export async function searchPubChem(query: string, limit = 8): Promise<PubChemSearchResult> {
   const q = query.trim();
   if (!q) return { compounds: [], total: 0 };
 
@@ -102,10 +99,7 @@ export async function searchPubChem(
   }
 }
 
-async function searchByFormula(
-  formula: string,
-  limit: number,
-): Promise<PubChemSearchResult> {
+async function searchByFormula(formula: string, limit: number): Promise<PubChemSearchResult> {
   const url = `${BASE}/compound/formula/${encodeURIComponent(formula)}/property/IUPACName,MolecularFormula,MolecularWeight,CanonicalSMILES,InChI,Charge,Complexity,HBondDonorCount,HBondAcceptorCount/JSON`;
   try {
     const data = await fetchJson<{
@@ -182,10 +176,7 @@ export async function fetchMolecule3D(cid: number): Promise<PubChemMolecule3D | 
 
   if (atoms.length === 0) return null;
 
-  const prop =
-    propData.status === "fulfilled"
-      ? propData.value.PropertyTable.Properties[0]
-      : null;
+  const prop = propData.status === "fulfilled" ? propData.value.PropertyTable.Properties[0] : null;
 
   const formula = normalizeFormula(prop?.MolecularFormula ?? `CID${cid}`);
   const name = prop?.IUPACName ?? formula;
@@ -225,9 +216,7 @@ async function fetch2DFallback(
     if (atoms.length === 0) return null;
 
     const prop =
-      propResult.status === "fulfilled"
-        ? propResult.value.PropertyTable.Properties[0]
-        : null;
+      propResult.status === "fulfilled" ? propResult.value.PropertyTable.Properties[0] : null;
 
     const formula = normalizeFormula(prop?.MolecularFormula ?? `CID${cid}`);
     const name = prop?.IUPACName ?? formula;
@@ -311,12 +300,46 @@ type PubChemConformer = {
 
 // Atomic number -> element symbol
 const ATOMIC_SYMBOLS: Record<number, string> = {
-  1: "H", 2: "He", 3: "Li", 4: "Be", 5: "B", 6: "C", 7: "N", 8: "O",
-  9: "F", 10: "Ne", 11: "Na", 12: "Mg", 13: "Al", 14: "Si", 15: "P",
-  16: "S", 17: "Cl", 18: "Ar", 19: "K", 20: "Ca", 24: "Cr", 25: "Mn",
-  26: "Fe", 27: "Co", 28: "Ni", 29: "Cu", 30: "Zn", 33: "As", 34: "Se",
-  35: "Br", 36: "Kr", 47: "Ag", 50: "Sn", 53: "I", 54: "Xe", 56: "Ba",
-  78: "Pt", 79: "Au", 80: "Hg", 82: "Pb",
+  1: "H",
+  2: "He",
+  3: "Li",
+  4: "Be",
+  5: "B",
+  6: "C",
+  7: "N",
+  8: "O",
+  9: "F",
+  10: "Ne",
+  11: "Na",
+  12: "Mg",
+  13: "Al",
+  14: "Si",
+  15: "P",
+  16: "S",
+  17: "Cl",
+  18: "Ar",
+  19: "K",
+  20: "Ca",
+  24: "Cr",
+  25: "Mn",
+  26: "Fe",
+  27: "Co",
+  28: "Ni",
+  29: "Cu",
+  30: "Zn",
+  33: "As",
+  34: "Se",
+  35: "Br",
+  36: "Kr",
+  47: "Ag",
+  50: "Sn",
+  53: "I",
+  54: "Xe",
+  56: "Ba",
+  78: "Pt",
+  79: "Au",
+  80: "Hg",
+  82: "Pb",
 };
 
 function getSymbol(atomicNumber: number): string {
@@ -361,10 +384,22 @@ function parseConformerBonds(c: PubChemConformer): Bond[] {
 
 function centerAtoms(atoms: Atom[]): void {
   if (atoms.length === 0) return;
-  let cx = 0, cy = 0, cz = 0;
-  for (const a of atoms) { cx += a.x; cy += a.y; cz += a.z; }
-  cx /= atoms.length; cy /= atoms.length; cz /= atoms.length;
-  for (const a of atoms) { a.x -= cx; a.y -= cy; a.z -= cz; }
+  let cx = 0,
+    cy = 0,
+    cz = 0;
+  for (const a of atoms) {
+    cx += a.x;
+    cy += a.y;
+    cz += a.z;
+  }
+  cx /= atoms.length;
+  cy /= atoms.length;
+  cz /= atoms.length;
+  for (const a of atoms) {
+    a.x -= cx;
+    a.y -= cy;
+    a.z -= cz;
+  }
 }
 
 function scaleAtoms(atoms: Atom[], targetSize: number): void {
@@ -376,7 +411,11 @@ function scaleAtoms(atoms: Atom[], targetSize: number): void {
   }
   if (maxDist < 0.01) return;
   const scale = targetSize / maxDist;
-  for (const a of atoms) { a.x *= scale; a.y *= scale; a.z *= scale; }
+  for (const a of atoms) {
+    a.x *= scale;
+    a.y *= scale;
+    a.z *= scale;
+  }
 }
 
 // ---------- PUG-View types ----------
