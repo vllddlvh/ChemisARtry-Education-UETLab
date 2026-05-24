@@ -100,16 +100,16 @@ export async function loadPeriodicTable(): Promise<PTElement[]> {
 // transition metal, post-transition metal, metalloid, diatomic nonmetal,
 // polyatomic nonmetal, noble gas, lanthanide, actinide, unknown.
 export const CATEGORY_STYLE: Record<string, { bg: string; text: string; ring: string; label: string }> = {
-  "alkali metal":            { bg: "bg-red-100 dark:bg-red-950/50",       text: "text-red-900 dark:text-red-100",       ring: "ring-red-300/50",       label: "Alkali metal" },
-  "alkaline earth metal":    { bg: "bg-orange-100 dark:bg-orange-950/50", text: "text-orange-900 dark:text-orange-100", ring: "ring-orange-300/50",    label: "Alkaline earth" },
-  "transition metal":        { bg: "bg-amber-100 dark:bg-amber-950/50",   text: "text-amber-900 dark:text-amber-100",   ring: "ring-amber-300/50",     label: "Transition metal" },
-  "post-transition metal":   { bg: "bg-lime-100 dark:bg-lime-950/50",     text: "text-lime-900 dark:text-lime-100",     ring: "ring-lime-300/50",      label: "Post-transition" },
-  "metalloid":               { bg: "bg-emerald-100 dark:bg-emerald-950/50", text: "text-emerald-900 dark:text-emerald-100", ring: "ring-emerald-300/50", label: "Metalloid" },
-  "diatomic nonmetal":       { bg: "bg-sky-100 dark:bg-sky-950/50",       text: "text-sky-900 dark:text-sky-100",       ring: "ring-sky-300/50",       label: "Diatomic nonmetal" },
-  "polyatomic nonmetal":     { bg: "bg-cyan-100 dark:bg-cyan-950/50",     text: "text-cyan-900 dark:text-cyan-100",     ring: "ring-cyan-300/50",      label: "Polyatomic nonmetal" },
-  "noble gas":               { bg: "bg-violet-100 dark:bg-violet-950/50", text: "text-violet-900 dark:text-violet-100", ring: "ring-violet-300/50",    label: "Noble gas" },
-  "lanthanide":              { bg: "bg-pink-100 dark:bg-pink-950/50",     text: "text-pink-900 dark:text-pink-100",     ring: "ring-pink-300/50",      label: "Lanthanide" },
-  "actinide":                { bg: "bg-fuchsia-100 dark:bg-fuchsia-950/50", text: "text-fuchsia-900 dark:text-fuchsia-100", ring: "ring-fuchsia-300/50", label: "Actinide" },
+  "alkali metal":            { bg: "bg-red-100 dark:bg-red-500/10",       text: "text-red-900 dark:text-red-300",       ring: "ring-red-300/50 dark:ring-red-500/20",       label: "Kim loại kiềm" },
+  "alkaline earth metal":    { bg: "bg-orange-100 dark:bg-orange-500/10", text: "text-orange-900 dark:text-orange-300", ring: "ring-orange-300/50 dark:ring-orange-500/20",    label: "Kim loại kiềm thổ" },
+  "transition metal":        { bg: "bg-amber-100 dark:bg-amber-500/10",   text: "text-amber-900 dark:text-amber-300",   ring: "ring-amber-300/50 dark:ring-amber-500/20",     label: "Kim loại chuyển tiếp" },
+  "post-transition metal":   { bg: "bg-lime-100 dark:bg-lime-500/10",     text: "text-lime-900 dark:text-lime-300",     ring: "ring-lime-300/50 dark:ring-lime-500/20",      label: "Kim loại yếu" },
+  "metalloid":               { bg: "bg-emerald-100 dark:bg-emerald-500/10", text: "text-emerald-900 dark:text-emerald-300", ring: "ring-emerald-300/50 dark:ring-emerald-500/20", label: "Á kim" },
+  "diatomic nonmetal":       { bg: "bg-sky-100 dark:bg-sky-500/10",       text: "text-sky-900 dark:text-sky-300",       ring: "ring-sky-300/50 dark:ring-sky-500/20",       label: "Phi kim hai nguyên tử" },
+  "polyatomic nonmetal":     { bg: "bg-cyan-100 dark:bg-cyan-500/10",     text: "text-cyan-900 dark:text-cyan-300",     ring: "ring-cyan-300/50 dark:ring-cyan-500/20",      label: "Phi kim đa nguyên tử" },
+  "noble gas":               { bg: "bg-violet-100 dark:bg-violet-500/10", text: "text-violet-900 dark:text-violet-300", ring: "ring-violet-300/50 dark:ring-violet-500/20",    label: "Khí hiếm" },
+  "lanthanide":              { bg: "bg-pink-100 dark:bg-pink-500/10",     text: "text-pink-900 dark:text-pink-300",     ring: "ring-pink-300/50 dark:ring-pink-500/20",      label: "Họ Lantan" },
+  "actinide":                { bg: "bg-fuchsia-100 dark:bg-fuchsia-500/10", text: "text-fuchsia-900 dark:text-fuchsia-300", ring: "ring-fuchsia-300/50 dark:ring-fuchsia-500/20", label: "Họ Actini" },
 };
 
 export function categoryStyle(category: string) {

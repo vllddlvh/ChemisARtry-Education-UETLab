@@ -61,7 +61,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto p-0">
+      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto p-0 border-l border-border/50 bg-background/80 backdrop-blur-xl">
         <SheetHeader className="px-5 pt-5 pb-2">
           <div className="flex items-start gap-4">
             <div className={`h-16 w-16 shrink-0 rounded-2xl grid place-items-center ${s.bg} ${s.text} ring-1 ${s.ring} shadow-sm`}>
@@ -94,7 +94,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
             interactive
           />
           <div className="absolute top-2 left-3 text-[11px] text-white/70 font-mono">
-            Bohr model · drag to rotate · scroll to zoom
+            Mô hình Bohr · kéo để xoay · cuộn để phóng to
           </div>
           <Button
             size="sm"
@@ -102,7 +102,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
             onClick={() => onLaunchAR(element)}
           >
             <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-            Open in AR
+            Mở bằng AR
           </Button>
         </div>
 
@@ -110,9 +110,9 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
         <div className="px-5 py-4">
           <Tabs defaultValue="overview">
             <TabsList className="w-full grid grid-cols-5 text-xs">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="config">Config</TabsTrigger>
-              <TabsTrigger value="shells">Shells</TabsTrigger>
+              <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+              <TabsTrigger value="config">Cấu hình</TabsTrigger>
+              <TabsTrigger value="shells">Lớp vỏ</TabsTrigger>
               <TabsTrigger value="pubchem">PubChem</TabsTrigger>
               <TabsTrigger value="lessons">Bài học</TabsTrigger>
             </TabsList>
@@ -122,26 +122,26 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                 <p className="text-foreground/90 leading-relaxed">{element.summary}</p>
               )}
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                <Row label="Atomic number" value={String(element.number)} />
-                <Row label="Atomic mass" value={`${element.atomic_mass} u`} />
-                <Row label="Category" value={s.label} />
-                <Row label="Phase (STP)" value={element.phase ?? "—"} />
-                <Row label="Density" value={element.density ? `${element.density} g/L` : "—"} />
-                <Row label="Melting" value={element.melt ? `${element.melt} K` : "—"} />
-                <Row label="Boiling" value={element.boil ? `${element.boil} K` : "—"} />
-                <Row label="Group / Period" value={`${element.group ?? "—"} / ${element.period ?? "—"}`} />
-                <Row label="Discovered by" value={element.discovered_by ?? "—"} />
-                <Row label="Protons / Neutrons" value={`${protons} / ${neutrons}`} />
+                <Row label="Số hiệu nguyên tử" value={String(element.number)} />
+                <Row label="Nguyên tử khối" value={`${element.atomic_mass} u`} />
+                <Row label="Nhóm chất" value={s.label} />
+                <Row label="Trạng thái (STP)" value={element.phase ?? "—"} />
+                <Row label="Mật độ" value={element.density ? `${element.density} g/L` : "—"} />
+                <Row label="Điểm nóng chảy" value={element.melt ? `${element.melt} K` : "—"} />
+                <Row label="Điểm sôi" value={element.boil ? `${element.boil} K` : "—"} />
+                <Row label="Nhóm / Chu kỳ" value={`${element.group ?? "—"} / ${element.period ?? "—"}`} />
+                <Row label="Được phát hiện bởi" value={element.discovered_by ?? "—"} />
+                <Row label="Proton / Nơtron" value={`${protons} / ${neutrons}`} />
               </dl>
             </TabsContent>
 
             <TabsContent value="config" className="mt-4 space-y-3">
-              <div className="rounded-lg bg-muted p-3 font-mono text-sm break-all">
+              <div className="rounded-lg bg-muted/50 p-3 font-mono text-sm break-all">
                 {element.electron_configuration ?? element.electron_configuration_semantic ?? "—"}
               </div>
               {element.electron_configuration_semantic && (
                 <div className="text-xs text-muted-foreground">
-                  Semantic: <span className="font-mono">{element.electron_configuration_semantic}</span>
+                  Rút gọn: <span className="font-mono">{element.electron_configuration_semantic}</span>
                 </div>
               )}
             </TabsContent>
@@ -149,10 +149,10 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
             <TabsContent value="shells" className="mt-4">
               <div className="grid grid-cols-4 gap-2">
                 {element.shells.map((n, i) => (
-                  <div key={i} className="rounded-lg border border-border bg-card p-3 text-center">
-                    <div className="text-xs text-muted-foreground font-mono">Shell {SHELL_NAMES[i] ?? i + 1}</div>
+                  <div key={i} className="rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 text-center shadow-soft">
+                    <div className="text-xs text-muted-foreground font-mono">Vỏ {SHELL_NAMES[i] ?? i + 1}</div>
                     <div className="text-2xl font-bold font-display mt-1">{n}</div>
-                    <div className="text-[10px] text-muted-foreground">electrons</div>
+                    <div className="text-[10px] text-muted-foreground">electron</div>
                   </div>
                 ))}
               </div>
@@ -161,7 +161,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
             <TabsContent value="pubchem" className="mt-4 space-y-3">
               {pubchemLoading && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Loading from PubChem...
+                  <Loader2 className="h-4 w-4 animate-spin" /> Đang tải từ PubChem...
                 </div>
               )}
               {pubchemData && (
@@ -194,19 +194,19 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
                   >
-                    <ExternalLink className="h-3 w-3" /> View full data on PubChem
+                    <ExternalLink className="h-3 w-3" /> Xem dữ liệu đầy đủ trên PubChem
                   </a>
                 </div>
               )}
               {!pubchemLoading && !pubchemData && (
-                <p className="text-xs text-muted-foreground">No PubChem data found for this element.</p>
+                <p className="text-xs text-muted-foreground">Không tìm thấy dữ liệu PubChem cho nguyên tố này.</p>
               )}
 
               {/* Related compounds */}
               {relatedCompounds.length > 0 && (
                 <div className="mt-4 pt-3 border-t border-border">
                   <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
-                    Related compounds
+                    Các hợp chất liên quan
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {relatedCompounds.map((c) => (
@@ -235,7 +235,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
               {relatedLessons.length > 0 ? (
                 <div className="space-y-3">
                   {relatedLessons.map(l => (
-                    <Link key={l.id} to="/learn/lesson" search={{ lessonId: l.id }} className="block p-3 rounded-xl border border-border bg-card hover:border-primary/50 transition">
+                    <Link key={l.id} to="/learn/lesson" search={{ lessonId: l.id }} className="block p-3 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm shadow-soft hover:border-primary/50 transition-all hover:-translate-y-0.5">
                       <div className="text-xs font-semibold text-primary">{l.chapter}</div>
                       <div className="font-bold">{l.title}</div>
                       <div className="text-xs text-muted-foreground mt-1 line-clamp-1">Khám phá nguyên tố {element.name} trong bài học này.</div>
@@ -262,7 +262,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
               onClick={() => onLaunchAR(element)}
             >
               <Sparkles className="mr-2 h-4 w-4" />
-              Interact in AR
+              Tương tác trong AR
             </Button>
           </div>
         </div>
