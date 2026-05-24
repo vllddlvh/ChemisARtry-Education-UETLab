@@ -32,7 +32,7 @@ function LandingPage() {
   if (loading || user) return null;
 
   return (
-    <div className="dark flex flex-col h-[100dvh] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-pt-16 scroll-smooth bg-background text-foreground">
+    <div className="dark flex flex-col h-[100dvh] overflow-y-auto no-scrollbar overflow-x-hidden snap-y snap-mandatory scroll-pt-16 scroll-smooth bg-background text-foreground">
       <SiteHeader />
       <main className="flex-1">
         {/* Hero Section */}

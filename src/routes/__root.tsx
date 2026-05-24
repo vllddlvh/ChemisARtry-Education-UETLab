@@ -1,4 +1,5 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
@@ -80,11 +81,11 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="bg-background text-foreground antialiased h-[100dvh] overflow-hidden">
         {children}
         <Scripts />
       </body>
@@ -93,9 +94,23 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
+
   return (
     <>
-      <Outlet />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="flex flex-col h-[100dvh] w-full"
+        >
+          <Outlet />
+        </motion.div>
+      </AnimatePresence>
       <Toaster position="top-center" richColors />
     </>
   );
