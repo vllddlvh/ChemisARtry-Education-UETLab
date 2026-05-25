@@ -3,10 +3,17 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { FlaskConical, Sparkles, Atom, Zap, LogOut, Home, BarChart2 } from "lucide-react";
+import { FlaskConical, Sparkles, Atom, Zap, LogOut, Home, BarChart2, Camera, Monitor } from "lucide-react";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import { z } from "zod";
+import { motion } from "motion/react";
+
+const searchSchema = z.object({
+  tab: z.enum(["learning", "lab"]).optional().default("learning"),
+});
 
 export const Route = createFileRoute("/dashboard")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Dashboard — ChemisARtry" },
@@ -30,6 +37,7 @@ function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { tab } = Route.useSearch();
   const [progress, setProgress] = useState<ProgressRow | null>(null);
 
   useEffect(() => {
@@ -71,27 +79,85 @@ function DashboardPage() {
       <main className="flex-1 overflow-y-auto relative z-10 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="max-w-2xl mx-auto px-6 py-12 min-h-full flex flex-col items-center">
           <div className="w-full space-y-8 pb-24">
-            <RoadCard
-              icon="🧪"
-              title="Road 1: Nguyên tố & Liên kết Hoá học"
-              subtitle="Nền tảng · 12 bài học"
-              progress={0}
-              total={12}
-              href="/learn/road"
-              search={{ roadId: 1 }}
-              ctaLabel="Bắt đầu Road 1 →"
-            />
+            {tab === "learning" ? (
+              <>
+                <RoadCard
+                  icon="🧪"
+                  title="Road 1: Nguyên tố & Liên kết Hoá học"
+                  subtitle="Nền tảng · 12 bài học"
+                  progress={0}
+                  total={12}
+                  href="/learn/road"
+                  search={{ roadId: 1 }}
+                  ctaLabel="Bắt đầu Road 1 →"
+                />
 
-            <RoadCard
-              icon="⚗️"
-              title="Road 2: Phản ứng Hoá học"
-              subtitle="Nâng cao · 10 bài học"
-              progress={0}
-              total={10}
-              href="/learn/road"
-              search={{ roadId: 2 }}
-              ctaLabel="Bắt đầu Road 2 →"
-            />
+                <RoadCard
+                  icon="⚗️"
+                  title="Road 2: Phản ứng Hoá học"
+                  subtitle="Nâng cao · 10 bài học"
+                  progress={0}
+                  total={10}
+                  href="/learn/road"
+                  search={{ roadId: 2 }}
+                  ctaLabel="Bắt đầu Road 2 →"
+                />
+              </>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6 w-full">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <Link
+                    to="/lab/ar"
+                    className="group relative flex flex-col h-full p-8 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/50 hover:border-primary/50 hover:bg-card/60 transition-all duration-500 overflow-hidden shadow-soft hover:-translate-y-2"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="bg-primary/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner text-primary group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                      <Camera className="w-8 h-8" />
+                    </div>
+                    
+                    <h2 className="text-2xl font-bold mb-3 font-display">Thí nghiệm AR</h2>
+                    <p className="text-muted-foreground leading-relaxed flex-1 text-sm">
+                      Sử dụng Camera nhận diện cử chỉ. Gắp thả phân tử và ghép chúng lại trong không gian thực.
+                    </p>
+                    
+                    <div className="mt-8 inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors text-primary-foreground bg-primary hover:bg-primary/90 shadow-sm w-max">
+                      Truy cập ngay →
+                    </div>
+                  </Link>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Link
+                    to="/lab/sim"
+                    className="group relative flex flex-col h-full p-8 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/50 hover:border-teal-500/50 hover:bg-card/60 transition-all duration-500 overflow-hidden shadow-soft hover:-translate-y-2"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="bg-teal-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner text-teal-500 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                      <Monitor className="w-8 h-8" />
+                    </div>
+                    
+                    <h2 className="text-2xl font-bold mb-3 font-display">Phòng thí nghiệm 3D</h2>
+                    <p className="text-muted-foreground leading-relaxed flex-1 text-sm">
+                      Mô phỏng 3D tương tác. Kéo thả phân tử bằng chuột, không yêu cầu thiết bị Camera.
+                    </p>
+                    
+                    <div className="mt-8 inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors text-white bg-teal-500 hover:bg-teal-600 shadow-sm w-max">
+                      Truy cập ngay →
+                    </div>
+                  </Link>
+                </motion.div>
+              </div>
+            )}
           </div>
         </div>
       </main>

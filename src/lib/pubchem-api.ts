@@ -7,6 +7,7 @@
 
 import type { Atom, Bond, Molecule } from "@/lib/chemistry";
 import { normalizeFormula } from "@/lib/chemistry-api";
+import { translateToVietnamese } from "@/lib/translate";
 
 const BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug";
 const VIEW_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view";
@@ -258,9 +259,12 @@ export async function fetchCompoundDescription(cid: number): Promise<PubChemDesc
         const strings = info?.Information ?? [];
         for (const s of strings) {
           if (s.Value?.StringWithMarkup?.[0]?.String) {
+            const rawDescription = s.Value.StringWithMarkup[0].String;
+            // Translate the description to Vietnamese
+            const translatedDesc = await translateToVietnamese(rawDescription);
             return {
               title: info.TOCHeading ?? "Description",
-              description: s.Value.StringWithMarkup[0].String,
+              description: translatedDesc,
               source: s.Reference?.[0] ?? "PubChem",
             };
           }

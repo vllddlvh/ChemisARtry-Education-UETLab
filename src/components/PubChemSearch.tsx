@@ -59,7 +59,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
         <Input
           value={search.query}
           onChange={(e) => search.setQuery(e.target.value)}
-          placeholder="Search PubChem (e.g. caffeine, C6H12O6)..."
+          placeholder="Tìm kiếm PubChem (vd: caffeine, C6H12O6)..."
           className={`pl-9 ${compact ? "h-9 text-sm rounded-xl" : "rounded-full"}`}
         />
         {search.loading && (
@@ -73,16 +73,16 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
       {/* Results */}
       {search.results.length > 0 && (
         <div
-          className={`space-y-1.5 ${compact ? "max-h-[240px]" : "max-h-[360px]"} overflow-y-auto`}
+          className={`space-y-1.5 ${compact ? "max-h-[240px]" : "max-h-[360px]"} overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}
         >
           {compact && (
             <p className="text-[10px] text-muted-foreground px-1">
-              {search.total} result{search.total !== 1 ? "s" : ""} from PubChem
+              {search.total} kết quả từ PubChem
             </p>
           )}
           {!compact && search.total > 0 && (
             <p className="text-xs text-muted-foreground px-1">
-              Showing {search.results.length} of {search.total} results from PubChem
+              Hiển thị {search.results.length} trên {search.total} kết quả từ PubChem
             </p>
           )}
           {search.results.map((c) => (
@@ -102,13 +102,13 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
         search.results.length === 0 &&
         !search.error && (
           <p className="text-xs text-muted-foreground text-center py-3">
-            No compounds found. Try a different name or formula.
+            Không tìm thấy chất nào. Hãy thử tên hoặc công thức khác.
           </p>
         )}
 
       {/* Detail dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {selectedCompound && (
             <>
               <DialogHeader>
@@ -146,14 +146,14 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
               {/* Description from PUG-View */}
               {desc.loading && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-3">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading description...
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang tải mô tả...
                 </div>
               )}
               {desc.description && (
                 <div className="mt-3 rounded-xl border border-border bg-card p-4">
                   <p className="text-sm leading-relaxed">{desc.description.description}</p>
                   <p className="text-[10px] text-muted-foreground mt-2">
-                    Source: {desc.description.source}
+                    Nguồn: {desc.description.source}
                   </p>
                 </div>
               )}
@@ -162,7 +162,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
               {mol3d.loading && (
                 <div className="flex items-center justify-center py-10 gap-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Loading 3D structure...</span>
+                  <span>Đang tải cấu trúc 3D...</span>
                 </div>
               )}
               {mol3d.error && (
@@ -175,7 +175,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
                   <MoleculePreview molecule={mol3d.molecule} height={280} />
                   <div className="p-3 bg-card flex items-center justify-between">
                     <div className="text-xs text-muted-foreground">
-                      {mol3d.molecule.atoms.length} atoms · {mol3d.molecule.bonds.length} bonds
+                      {mol3d.molecule.atoms.length} nguyên tử · {mol3d.molecule.bonds.length} liên kết
                     </div>
                     <div className="flex gap-2">
                       {onAddToLibrary && (
@@ -185,7 +185,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
                           className="rounded-full text-xs"
                           onClick={handleAddToLibrary}
                         >
-                          + Library
+                          + Thư viện
                         </Button>
                       )}
                       {onSpawn && (
@@ -194,7 +194,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
                           className="rounded-full bg-gradient-primary text-xs"
                           onClick={handleSpawn}
                         >
-                          <Sparkles className="mr-1 h-3 w-3" /> Spawn in AR
+                          <Sparkles className="mr-1 h-3 w-3" /> Đưa vào không gian XR
                         </Button>
                       )}
                     </div>
@@ -209,7 +209,7 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline mt-3"
               >
-                <ExternalLink className="h-3 w-3" /> View on PubChem
+                <ExternalLink className="h-3 w-3" /> Xem trên PubChem
               </a>
             </>
           )}
@@ -231,25 +231,25 @@ function CompoundCard({
   return (
     <button
       onClick={onSelect}
-      className={`w-full text-left rounded-xl border border-border bg-card hover:border-primary/40 hover:-translate-y-0.5 transition-all ${
-        compact ? "p-2.5" : "p-3"
+      className={`w-full text-left rounded-xl border border-white/5 bg-background/40 hover:bg-background/60 hover:border-primary/40 hover:-translate-y-0.5 transition-all ${
+        compact ? "p-3" : "p-4"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className={`font-semibold truncate ${compact ? "text-xs" : "text-sm"}`}>
+          <div className={`font-semibold truncate tracking-wide ${compact ? "text-sm" : "text-base text-primary-foreground"}`}>
             {compound.iupacName || compound.molecularFormula}
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="font-mono text-primary text-xs font-bold">
+          <div className="flex items-center gap-3 mt-1">
+            <span className="font-mono text-primary text-xs font-bold bg-primary/10 px-1.5 py-0.5 rounded">
               {compound.molecularFormula}
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground font-medium tabular-nums">
               MW: {Number(compound.molecularWeight).toFixed(1)}
             </span>
           </div>
         </div>
-        <div className="shrink-0">
+        <div className="shrink-0 bg-white/5 p-2 rounded-full">
           <Atom className="h-4 w-4 text-muted-foreground" />
         </div>
       </div>

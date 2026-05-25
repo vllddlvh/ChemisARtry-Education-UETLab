@@ -11,6 +11,9 @@ export default function DashboardSidebar() {
     navigate({ to: "/" });
   };
 
+  const isLearning = location.pathname === "/dashboard" && (!location.search || !(location.search as any).tab || (location.search as any).tab === "learning");
+  const isLab = location.pathname === "/dashboard" && (location.search as any).tab === "lab";
+
   return (
     <aside className="w-[260px] border-r border-border/50 bg-background/50 backdrop-blur-xl flex flex-col z-10 shrink-0">
       <div className="p-6 pb-8">
@@ -27,14 +30,16 @@ export default function DashboardSidebar() {
         <SidebarItem
           icon={<Home className="size-6" />}
           label="Học tập"
-          active={location.pathname === "/dashboard"}
+          active={isLearning}
           to="/dashboard"
+          search={{ tab: "learning" }}
         />
         <SidebarItem
           icon={<FlaskConical className="size-6" />}
           label="Phòng thí nghiệm"
-          active={location.pathname.includes("/lab")}
-          to="/lab/sim"
+          active={isLab}
+          to="/dashboard"
+          search={{ tab: "lab" }}
         />
         <SidebarItem
           icon={<Atom className="size-6" />}
@@ -74,15 +79,18 @@ function SidebarItem({
   label,
   active,
   to,
+  search,
 }: {
   icon: React.ReactNode;
   label: string;
   active: boolean;
   to: string;
+  search?: any;
 }) {
   return (
     <Link
       to={to}
+      search={search}
       className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold transition-all ${active ? "bg-primary/10 text-primary border border-primary/20 shadow-[inset_0_0_20px_rgba(45,212,191,0.1)]" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
     >
       {icon}

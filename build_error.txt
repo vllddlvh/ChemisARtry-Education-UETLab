@@ -1,0 +1,29 @@
+
+> build
+> vite build
+
+vite v7.3.2 building client environment for production...
+transforming...
+✓ 2204 modules transformed.
+✗ Build failed in 4.68s
+error during build:
+[vite:esbuild] Transform failed with 1 error:
+/home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/src/lib/pubchem-api.ts:444:0: ERROR: Unexpected end of file
+file: /home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/src/lib/pubchem-api.ts:444:0
+
+Unexpected end of file
+442 |    }>;
+443 |  };
+444 |  
+    |  ^
+
+    at failureErrorWithLog (/home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/node_modules/vite/node_modules/esbuild/lib/main.js:1748:15)
+    at /home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/node_modules/vite/node_modules/esbuild/lib/main.js:1017:50
+    at responseCallbacks.<computed> (/home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/node_modules/vite/node_modules/esbuild/lib/main.js:884:9)
+    at handleIncomingPacket (/home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/node_modules/vite/node_modules/esbuild/lib/main.js:939:12)
+    at Socket.readFromStdout (/home/xtan/Documents/AR-chuyendeKHMT/ChemisARtry-Education-UETLab/node_modules/vite/node_modules/esbuild/lib/main.js:862:7)
+    at Socket.emit (node:events:509:28)
+    at Socket.emit (node:domain:489:12)
+    at addChunk (node:internal/streams/readable:563:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+    at Readable.push (node:internal/streams/readable:394:5)

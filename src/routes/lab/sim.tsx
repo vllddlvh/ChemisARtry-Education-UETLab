@@ -4,7 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Camera } from "lucide-react";
+import { X } from "lucide-react";
 import ARScene from "@/components/ARScene";
 import ControlPanel from "@/components/ControlPanel";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
@@ -80,34 +80,62 @@ function LabSimPage() {
   }, [selected]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
-      {/* Sub-header */}
-      <div className="border-b border-border bg-card/60 backdrop-blur h-11 flex items-center px-4 gap-4 shrink-0">
-        {lesson && (
-          <Link
-            to="/learn/lesson"
-            search={{ lessonId: lesson }}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition"
-          >
-            <ChevronLeft className="h-4 w-4" /> Quay lại bài học
-          </Link>
+    <div className="relative w-full h-dvh overflow-hidden bg-black">
+      {/* 3D Scene Layer */}
+      <main className="absolute inset-0 z-0">
+        {loading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-white/70">Đang tải dữ liệu hoá học…</div>
+          </div>
+        ) : (
+          <ARScene
+            molecules={molecules}
+            reactions={reactions}
+            toSpawn={toSpawn}
+            onSpawned={() => setToSpawn(null)}
+            resetSignal={resetSignal}
+            educationMode={education}
+            onReaction={handleReaction}
+            arOn={false}
+          />
         )}
-        <span className="font-medium text-sm">Phòng thí nghiệm 3D</span>
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="ml-auto rounded-full text-xs gap-1.5"
-        >
-          <Link to="/lab/ar">
-            <Camera className="h-3.5 w-3.5" /> Chuyển sang AR
-          </Link>
-        </Button>
-      </div>
+      </main>
 
-      {/* Main layout */}
-      <div className="flex-1 overflow-hidden p-3 md:p-5">
-        <div className="mx-auto w-full max-w-[1500px] grid gap-4 lg:grid-cols-[360px_1fr] h-full">
+      {/* UI Overlay Layer */}
+      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col p-4 md:p-6 justify-between">
+        {/* Close Button */}
+        <div className="pointer-events-auto absolute top-6 right-6 z-50">
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="rounded-full bg-background/60 backdrop-blur-md border-border text-foreground hover:bg-background/80 shadow-lg w-12 h-12"
+          >
+            <Link to={lesson ? "/learn/lesson" : "/dashboard"} search={lesson ? { lessonId: lesson } : { tab: "lab" }}>
+              <X className="h-6 w-6" />
+            </Link>
+          </Button>
+        </div>
+
+        {/* Reaction banner (Floating Top Center or Bottom) */}
+        {lastReaction && (
+          <div className="pointer-events-auto absolute top-20 left-1/2 -translate-x-1/2 rounded-full border border-primary/20 bg-card/80 backdrop-blur-xl px-6 py-2.5 text-sm flex items-center justify-between gap-4 shadow-xl animate-in fade-in slide-in-from-top-4">
+            <span>
+              ✨ <span className="font-mono font-semibold text-primary">{lastReaction.equation}</span>
+              {lastReaction.energy_kj != null && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  ΔH = {lastReaction.energy_kj} kJ
+                </span>
+              )}
+            </span>
+            <Link to="/tools/reactions" className="text-xs text-primary hover:underline shrink-0 font-medium">
+              Xem chi tiết →
+            </Link>
+          </div>
+        )}
+
+        {/* Main Control Panel (takes remaining space and pointer-events-auto internally) */}
+        <div className="flex-1 mt-4 relative">
           <ControlPanel
             molecules={molecules}
             reactions={reactions}
@@ -121,43 +149,8 @@ function LabSimPage() {
             onToggleAr={() => {}}
             lastReaction={lastReaction}
           />
-          <main className="relative rounded-3xl overflow-hidden bg-card shadow-panel border border-border">
-            {loading ? (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-muted-foreground">Đang tải dữ liệu…</div>
-              </div>
-            ) : (
-              <ARScene
-                molecules={molecules}
-                reactions={reactions}
-                toSpawn={toSpawn}
-                onSpawned={() => setToSpawn(null)}
-                resetSignal={resetSignal}
-                educationMode={education}
-                onReaction={handleReaction}
-                arOn={false}
-              />
-            )}
-          </main>
         </div>
       </div>
-
-      {/* Reaction banner */}
-      {lastReaction && (
-        <div className="border-t border-border bg-card/90 backdrop-blur px-6 py-2.5 text-sm flex items-center justify-between gap-4">
-          <span>
-            ✨ <span className="font-mono font-semibold">{lastReaction.equation}</span>
-            {lastReaction.energy_kj != null && (
-              <span className="ml-2 text-xs text-muted-foreground">
-                ΔH = {lastReaction.energy_kj} kJ
-              </span>
-            )}
-          </span>
-          <Link to="/tools/reactions" className="text-xs text-primary hover:underline shrink-0">
-            Xem chi tiết →
-          </Link>
-        </div>
-      )}
     </div>
   );
 }
