@@ -288,7 +288,7 @@ export default function ControlPanel({
                           : "border-white/5 bg-background/40"
                       }`}
                     >
-                      <div className="font-mono font-semibold tracking-wide text-primary-foreground">{r.equation}</div>
+                      <div className="font-mono font-semibold tracking-wide text-foreground">{r.equation}</div>
                       <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{r.description}</div>
                       {education && r.energy_kj != null && (
                         <div className="text-[10px] font-mono text-primary mt-2 bg-primary/10 inline-block px-1.5 py-0.5 rounded">

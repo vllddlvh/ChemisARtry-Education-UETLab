@@ -190,6 +190,14 @@ export default function ARScene({
   const moleculesRef = useRef(molecules);
   const onReactionRef = useRef(onReaction);
 
+  // Mouse drag refs
+  const raycasterRef = useRef(new THREE.Raycaster());
+  const mouseRef = useRef(new THREE.Vector2());
+  const dragPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0));
+  const isDraggingRef = useRef(false);
+  const draggedMolRef = useRef<SpawnedMol | null>(null);
+  const intersectionRef = useRef(new THREE.Vector3());
+
   educationRef.current = educationMode;
   reactionsRef.current = reactions;
   moleculesRef.current = molecules;
@@ -225,6 +233,62 @@ export default function ARScene({
     };
     window.addEventListener("resize", onResize);
 
+    const raycaster = raycasterRef.current;
+    const mouse = mouseRef.current;
+    const dragPlane = dragPlaneRef.current;
+    const intersection = intersectionRef.current;
+
+    const onPointerDown = (e: any) => {
+      const rect = wrap.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const meshes = spawnedRef.current.map((m) => m.group);
+      const intersects = raycaster.intersectObjects(meshes, true);
+
+      if (intersects.length > 0) {
+        let hitGroup = intersects[0].object as THREE.Object3D;
+        while (hitGroup.parent && hitGroup.parent.type !== "Scene") {
+          if (spawnedRef.current.some((m) => m.group === hitGroup)) break;
+          hitGroup = hitGroup.parent;
+        }
+        const mol = spawnedRef.current.find((m) => m.group === hitGroup);
+        if (mol) {
+          isDraggingRef.current = true;
+          draggedMolRef.current = mol;
+          const camDir = new THREE.Vector3();
+          camera.getWorldDirection(camDir);
+          dragPlane.setFromNormalAndCoplanarPoint(camDir, mol.group.position);
+          mol.grabbedBy = -1; // -1 means grabbed by mouse
+        }
+      }
+    };
+
+    const onPointerMove = (e: any) => {
+      if (!isDraggingRef.current || !draggedMolRef.current) return;
+      const rect = wrap.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      if (raycaster.ray.intersectPlane(dragPlane, intersection)) {
+        draggedMolRef.current.group.position.copy(intersection);
+      }
+    };
+
+    const onPointerUp = () => {
+      if (isDraggingRef.current && draggedMolRef.current) {
+        draggedMolRef.current.grabbedBy = null;
+        isDraggingRef.current = false;
+        draggedMolRef.current = null;
+      }
+    };
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+
     let rafId = 0;
     let lastHandTs = -1;
 
@@ -256,6 +320,9 @@ export default function ARScene({
 
     return () => {
       window.removeEventListener("resize", onResize);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
       cancelAnimationFrame(rafId);
       renderer.dispose();
       // clear scene
@@ -364,6 +431,11 @@ export default function ARScene({
 
     // First pass: update grabs
     spawnedRef.current.forEach((m) => {
+      if (m.grabbedBy === -1) {
+        m.group.rotation.y += 0.01;
+        return; // Skip hand logic, being dragged by mouse
+      }
+
       // find nearest hand
       let nearestIdx = -1;
       let nearestDist = Infinity;
@@ -470,14 +542,18 @@ export default function ARScene({
         muted
       />
       {!arOn && (
-        <div className="absolute inset-0 bg-gradient-hero flex items-center justify-center">
-          <div className="text-center px-6">
-            <div className="text-6xl mb-3 animate-float-slow inline-block">🧪</div>
-            <p className="text-muted-foreground">Turn on AR to start interacting with molecules</p>
+        <div className="absolute inset-0 bg-background flex flex-col items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_50%,transparent_0%,var(--background)_100%)]"></div>
+          <div className="text-center px-6 z-0 pointer-events-none select-none opacity-20 flex flex-col items-center">
+            <div className="text-7xl mb-4 grayscale animate-float-slow">🧪</div>
+            <h2 className="font-display text-2xl font-bold tracking-widest uppercase text-muted-foreground">
+              Workspace
+            </h2>
           </div>
         </div>
       )}
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full pointer-events-none" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full touch-none cursor-grab active:cursor-grabbing" />
       <div className="absolute top-3 left-3 rounded-full bg-card/80 backdrop-blur px-3 py-1.5 text-xs font-medium shadow-soft">
         <span className={handCount > 0 ? "text-primary" : "text-muted-foreground"}>
           ✋ {handCount} {handCount === 1 ? "hand" : "hands"}
