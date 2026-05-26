@@ -12,6 +12,7 @@ import { initHandLandmarker, processResult, type HandFrame } from "@/lib/hand-tr
 import { elementInfo, type Molecule } from "@/lib/chemistry";
 import { findMatchingReaction, PROXIMITY_THRESHOLD } from "@/lib/reaction-engine";
 import type { Reaction } from "@/lib/chemistry";
+import MoleculeInfoTooltip from "./MoleculeInfoTooltip";
 
 type SpawnedMol = {
   id: string;
@@ -56,6 +57,7 @@ function buildMoleculeGroup(
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(a.x, a.y, a.z);
+    mesh.userData = { isAtom: true, el: a.el };
     group.add(mesh);
     atomMeshes.push(mesh);
 
@@ -179,6 +181,9 @@ export default function ARScene({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("Initializing...");
   const [handCount, setHandCount] = useState(0);
+  const [hoveredAtom, setHoveredAtom] = useState<{ symbol: string; x: number; y: number } | null>(null);
+
+  const hoveredElRef = useRef<string | null>(null);
 
   const spawnedRef = useRef<SpawnedMol[]>([]);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -189,6 +194,7 @@ export default function ARScene({
   const reactionsRef = useRef(reactions);
   const moleculesRef = useRef(molecules);
   const onReactionRef = useRef(onReaction);
+  const arOnRef = useRef(arOn);
 
   // Mouse drag refs
   const raycasterRef = useRef(new THREE.Raycaster());
@@ -202,6 +208,7 @@ export default function ARScene({
   reactionsRef.current = reactions;
   moleculesRef.current = molecules;
   onReactionRef.current = onReaction;
+  arOnRef.current = arOn;
 
   // Main setup effect — once.
   useEffect(() => {
@@ -266,14 +273,40 @@ export default function ARScene({
     };
 
     const onPointerMove = (e: any) => {
-      if (!isDraggingRef.current || !draggedMolRef.current) return;
       const rect = wrap.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-      if (raycaster.ray.intersectPlane(dragPlane, intersection)) {
-        draggedMolRef.current.group.position.copy(intersection);
+
+      if (isDraggingRef.current && draggedMolRef.current) {
+        if (raycaster.ray.intersectPlane(dragPlane, intersection)) {
+          draggedMolRef.current.group.position.copy(intersection);
+        }
+        if (hoveredElRef.current !== null) {
+          hoveredElRef.current = null;
+          setHoveredAtom(null);
+        }
+      } else if (!arOnRef.current) {
+        // Hover detection (Chỉ áp dụng cho Lab 3D / Sim)
+        const meshes = spawnedRef.current.map((m) => m.group);
+        const intersects = raycaster.intersectObjects(meshes, true);
+        if (intersects.length > 0) {
+          const obj = intersects[0].object;
+          if (obj.userData?.isAtom) {
+            const el = obj.userData.el;
+            if (hoveredElRef.current !== el) {
+              hoveredElRef.current = el;
+              setHoveredAtom({ symbol: el, x: e.clientX, y: e.clientY });
+            }
+          } else if (hoveredElRef.current !== null) {
+            hoveredElRef.current = null;
+            setHoveredAtom(null);
+          }
+        } else if (hoveredElRef.current !== null) {
+          hoveredElRef.current = null;
+          setHoveredAtom(null);
+        }
       }
     };
 
@@ -553,7 +586,23 @@ export default function ARScene({
           </div>
         </div>
       )}
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full touch-none cursor-grab active:cursor-grabbing" />
+      <canvas 
+        ref={canvasRef} 
+        className={`absolute inset-0 h-full w-full ${arOn ? "pointer-events-none" : "touch-none cursor-grab active:cursor-grabbing"}`} 
+      />
+      
+      {!arOn && (
+        <MoleculeInfoTooltip 
+          elementSymbol={hoveredAtom?.symbol ?? null} 
+          x={hoveredAtom?.x ?? 0} 
+          y={hoveredAtom?.y ?? 0} 
+          onClose={() => {
+            hoveredElRef.current = null;
+            setHoveredAtom(null);
+          }}
+        />
+      )}
+
       <div className="absolute top-3 left-3 rounded-full bg-card/80 backdrop-blur px-3 py-1.5 text-xs font-medium shadow-soft">
         <span className={handCount > 0 ? "text-primary" : "text-muted-foreground"}>
           ✋ {handCount} {handCount === 1 ? "hand" : "hands"}

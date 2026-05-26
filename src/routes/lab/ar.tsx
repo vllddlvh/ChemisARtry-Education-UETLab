@@ -152,6 +152,18 @@ function LabARPage() {
             arOn={arOn}
             onToggleAr={() => setArOn((v) => !v)}
             lastReaction={lastReaction}
+            onSpawnElement={(symbol) => {
+              let toSelect = molecules.find(
+                (m) => m.formula === symbol || m.id === symbol
+              );
+              if (!toSelect) {
+                toSelect = molecules.find((m) => m.formula.includes(symbol));
+              }
+              if (toSelect) {
+                setSelected(toSelect);
+                setToSpawn(toSelect);
+              }
+            }}
           />
         </div>
       </div>

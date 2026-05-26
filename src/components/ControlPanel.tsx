@@ -13,9 +13,11 @@ import {
   ChevronRight,
   Library,
   Sparkles,
-  X
+  X,
+  Atom
 } from "lucide-react";
 import PubChemSearch from "@/components/PubChemSearch";
+import QuickElementSpawn from "@/components/QuickElementSpawn";
 import { usePubChemEnrichment } from "@/hooks/use-pubchem-enrichment";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -34,6 +36,7 @@ type Props = {
   education: boolean;
   onToggleEducation: (v: boolean) => void;
   lastReaction: Reaction | null;
+  onSpawnElement?: (symbol: string) => void;
 };
 
 export default function ControlPanel({
@@ -49,6 +52,7 @@ export default function ControlPanel({
   education,
   onToggleEducation,
   lastReaction,
+  onSpawnElement,
 }: Props) {
   const [activeTab, setActiveTab] = useState("library");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -134,9 +138,12 @@ export default function ControlPanel({
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full grid grid-cols-2 bg-background/50">
+              <TabsList className="w-full grid grid-cols-3 bg-background/50">
                 <TabsTrigger value="library" className="text-xs rounded-full">
                   Thư viện
+                </TabsTrigger>
+                <TabsTrigger value="elements" className="text-xs rounded-full">
+                  <Atom className="h-3 w-3 mr-1" /> Nguyên tố
                 </TabsTrigger>
                 <TabsTrigger value="pubchem" className="text-xs rounded-full">
                   <Search className="h-3 w-3 mr-1" /> PubChem
@@ -166,6 +173,10 @@ export default function ControlPanel({
                     </button>
                   );
                 })}
+              </TabsContent>
+
+              <TabsContent value="elements" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4">
+                <QuickElementSpawn onSpawn={onSpawnElement || (() => {})} />
               </TabsContent>
 
               <TabsContent value="pubchem" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4">

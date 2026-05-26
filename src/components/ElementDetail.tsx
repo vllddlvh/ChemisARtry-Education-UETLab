@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Box, Loader2, ExternalLink } from "lucide-react";
+import { Sparkles, FlaskConical, Loader2, ExternalLink } from "lucide-react";
 import AtomViewer3D from "./AtomViewer3D";
 import { categoryStyle, SHELL_NAMES, type PTElement } from "@/lib/periodic-table-data";
 import { searchPubChem, type PubChemCompoundSummary } from "@/lib/pubchem-api";
@@ -119,10 +119,9 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
         {/* Tabs */}
         <div className="px-5 py-4">
           <Tabs defaultValue="overview">
-            <TabsList className="w-full grid grid-cols-5 text-xs">
+            <TabsList className="w-full grid grid-cols-4 text-xs">
               <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-              <TabsTrigger value="config">Cấu hình</TabsTrigger>
-              <TabsTrigger value="shells">Lớp vỏ</TabsTrigger>
+              <TabsTrigger value="electron">Electron</TabsTrigger>
               <TabsTrigger value="pubchem">PubChem</TabsTrigger>
               <TabsTrigger value="lessons">Bài học</TabsTrigger>
             </TabsList>
@@ -148,32 +147,34 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
               </dl>
             </TabsContent>
 
-            <TabsContent value="config" className="mt-4 space-y-3">
-              <div className="rounded-lg bg-muted/50 p-3 font-mono text-sm break-all">
-                {element.electron_configuration ?? element.electron_configuration_semantic ?? "—"}
-              </div>
-              {element.electron_configuration_semantic && (
-                <div className="text-xs text-muted-foreground">
-                  Rút gọn:{" "}
-                  <span className="font-mono">{element.electron_configuration_semantic}</span>
+            <TabsContent value="electron" className="mt-4 space-y-4">
+              <div className="space-y-3">
+                <div className="rounded-lg bg-muted/50 p-3 font-mono text-sm break-all">
+                  {element.electron_configuration ?? element.electron_configuration_semantic ?? "—"}
                 </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="shells" className="mt-4">
-              <div className="grid grid-cols-4 gap-2">
-                {element.shells.map((n, i) => (
-                  <div
-                    key={i}
-                    className="rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 text-center shadow-soft"
-                  >
-                    <div className="text-xs text-muted-foreground font-mono">
-                      Vỏ {SHELL_NAMES[i] ?? i + 1}
-                    </div>
-                    <div className="text-2xl font-bold font-display mt-1">{n}</div>
-                    <div className="text-[10px] text-muted-foreground">electron</div>
+                {element.electron_configuration_semantic && (
+                  <div className="text-xs text-muted-foreground">
+                    Rút gọn:{" "}
+                    <span className="font-mono">{element.electron_configuration_semantic}</span>
                   </div>
-                ))}
+                )}
+              </div>
+              <div className="pt-2">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-3 font-semibold">Phân bố lớp vỏ</div>
+                <div className="grid grid-cols-4 gap-2">
+                  {element.shells.map((n, i) => (
+                    <div
+                      key={i}
+                      className="rounded-lg border border-border/50 bg-card/40 backdrop-blur-sm p-3 text-center shadow-soft"
+                    >
+                      <div className="text-xs text-muted-foreground font-mono">
+                        Vỏ {SHELL_NAMES[i] ?? i + 1}
+                      </div>
+                      <div className="text-2xl font-bold font-display mt-1">{n}</div>
+                      <div className="text-[10px] text-muted-foreground">electron</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </TabsContent>
 
@@ -295,10 +296,10 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
           </Tabs>
 
           <div className="grid grid-cols-2 gap-2 mt-5">
-            <Button asChild variant="outline" className="rounded-full">
+            <Button asChild className="rounded-full bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30">
               <Link to="/lab/sim" search={{ spawn: element.symbol }}>
-                <Box className="mr-2 h-4 w-4" />
-                Dùng trong Lab
+                <FlaskConical className="mr-2 h-4 w-4" />
+                Ghép phân tử trong Lab
               </Link>
             </Button>
             <Button

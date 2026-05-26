@@ -54,9 +54,14 @@ function LabSimPage() {
     if (spawnParam && molecules.length > 0) {
       // spawnParam can be a comma-separated list or a single formula
       const formulas = spawnParam.split(",");
-      const toSelect = molecules.find(
+      let toSelect = molecules.find(
         (m) => formulas.includes(m.formula) || formulas.includes(m.id),
       );
+      if (!toSelect) {
+        // Fallback: tìm phân tử chứa nguyên tố đó (vd: O -> O2)
+        toSelect = molecules.find((m) => formulas.some((f) => m.formula.includes(f)));
+      }
+      
       if (toSelect) {
         setSelected(toSelect);
         setToSpawn(toSelect); // auto-trigger spawn
@@ -148,6 +153,18 @@ function LabSimPage() {
             arOn={false}
             onToggleAr={() => {}}
             lastReaction={lastReaction}
+            onSpawnElement={(symbol) => {
+              let toSelect = molecules.find(
+                (m) => m.formula === symbol || m.id === symbol
+              );
+              if (!toSelect) {
+                toSelect = molecules.find((m) => m.formula.includes(symbol));
+              }
+              if (toSelect) {
+                setSelected(toSelect);
+                setToSpawn(toSelect);
+              }
+            }}
           />
         </div>
       </div>
