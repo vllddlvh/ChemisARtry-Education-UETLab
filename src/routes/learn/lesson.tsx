@@ -44,12 +44,23 @@ function LessonPage() {
       {/* Background noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
 
-      {/* Header */}
+      {/* Header: left pill, centered title+chapter, exit on right */}
       <div className="shrink-0 px-4 md:px-6 py-4 flex items-center justify-between pointer-events-none relative z-20">
         <div className="pointer-events-auto">
           <div className="bg-card/40 border border-border/50 backdrop-blur-xl px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold shadow-soft">
             Bài {lesson.order}{" "}
             <span className="text-muted-foreground">/ {lesson.roadId === 1 ? 12 : 10}</span>
+          </div>
+        </div>
+
+        <div className="pointer-events-auto flex-1 flex justify-center">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground drop-shadow-md">
+              Bài {lesson.order}: {lesson.title}
+            </h1>
+            <div className="text-[11px] font-bold uppercase tracking-widest text-primary drop-shadow-sm mt-1">
+              {lesson.chapter}
+            </div>
           </div>
         </div>
 
@@ -64,20 +75,11 @@ function LessonPage() {
 
       {/* Content Container */}
       <div className="mx-auto max-w-5xl px-4 md:px-6 relative z-10 flex-1 w-full flex flex-col min-h-0 pb-6">
-        <div className="mb-3 shrink-0 flex flex-col md:flex-row md:items-baseline gap-1 md:gap-3">
-          <div className="text-[11px] font-bold uppercase tracking-widest text-primary drop-shadow-sm">
-            {lesson.chapter}
-          </div>
-          <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground drop-shadow-md">
-            Bài {lesson.order}: {lesson.title}
-          </h1>
-        </div>
-
         <Tabs defaultValue="theory" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid grid-cols-3 mb-4 p-1.5 bg-card/40 border border-border/50 backdrop-blur-xl rounded-2xl shadow-soft shrink-0 relative z-20">
+          <TabsList className="grid h-auto grid-cols-3 mb-2 bg-card/40 border border-border/50 backdrop-blur-xl rounded-2xl shadow-soft shrink-0 relative z-20">
             <TabsTrigger
               value="theory"
-              className="gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow transition-all py-3"
+              className="gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow transition-all py-2.5"
             >
               <BookOpen className="size-4" />{" "}
               <span className="font-bold hidden sm:inline">Lý thuyết</span>
@@ -85,7 +87,7 @@ function LessonPage() {
             </TabsTrigger>
             <TabsTrigger
               value="explore"
-              className="gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow transition-all py-3"
+              className="gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow transition-all py-2.5"
             >
               <Box className="size-4" />{" "}
               <span className="font-bold hidden sm:inline">Khám phá 3D</span>
@@ -93,7 +95,7 @@ function LessonPage() {
             </TabsTrigger>
             <TabsTrigger
               value="practice"
-              className="gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow transition-all py-3"
+              className="gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-glow transition-all py-2.5"
             >
               <FlaskConical className="size-4" />{" "}
               <span className="font-bold hidden sm:inline">Thực hành</span>
@@ -213,15 +215,14 @@ function TheoryTab({ lesson }: { lesson: Lesson }) {
                         key={i}
                         disabled={showResult}
                         onClick={() => setQuizAnswers((prev) => ({ ...prev, [q.id]: i }))}
-                        className={`rounded-2xl border p-4 text-sm font-bold text-left transition-all ${
-                          showResult
-                            ? isCorrect
-                              ? "border-green-500 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                              : isChosen
-                                ? "border-red-400 bg-red-400/10 text-red-400 shadow-[0_0_15px_rgba(248,113,113,0.1)]"
-                                : "border-border/50 opacity-50 bg-card/40"
-                            : "border-border/50 bg-card/40 hover:border-primary/50 hover:bg-card/60"
-                        }`}
+                        className={`rounded-2xl border p-4 text-sm font-bold text-left transition-all ${showResult
+                          ? isCorrect
+                            ? "border-green-500 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                            : isChosen
+                              ? "border-red-400 bg-red-400/10 text-red-400 shadow-[0_0_15px_rgba(248,113,113,0.1)]"
+                              : "border-border/50 opacity-50 bg-card/40"
+                          : "border-border/50 bg-card/40 hover:border-primary/50 hover:bg-card/60"
+                          }`}
                       >
                         {opt}
                       </button>
@@ -258,11 +259,10 @@ function ExploreTab({ lesson }: { lesson: Lesson }) {
                   <button
                     key={el}
                     onClick={() => setSelected(el)}
-                    className={`h-9 px-3 rounded-lg text-sm font-bold border transition-all ${
-                      selected === el
-                        ? "bg-primary text-primary-foreground border-primary shadow-glow"
-                        : "bg-card/40 border-border/50 hover:border-primary/40 text-foreground hover:bg-card/60"
-                    }`}
+                    className={`h-9 px-3 rounded-lg text-sm font-bold border transition-all ${selected === el
+                      ? "bg-primary text-primary-foreground border-primary shadow-glow"
+                      : "bg-card/40 border-border/50 hover:border-primary/40 text-foreground hover:bg-card/60"
+                      }`}
                   >
                     {el}
                   </button>
@@ -459,11 +459,10 @@ function PracticeCard({
   return (
     <Link
       to={href}
-      className={`group rounded-3xl border p-6 transition-all flex flex-col gap-4 relative overflow-hidden ${
-        highlight
-          ? "border-primary/50 bg-primary/5 hover:bg-primary/10 hover:shadow-[0_0_30px_rgba(45,212,191,0.15)]"
-          : "border-border/50 bg-card/40 hover:bg-card/60 hover:border-primary/30 shadow-soft"
-      }`}
+      className={`group rounded-3xl border p-6 transition-all flex flex-col gap-4 relative overflow-hidden ${highlight
+        ? "border-primary/50 bg-primary/5 hover:bg-primary/10 hover:shadow-[0_0_30px_rgba(45,212,191,0.15)]"
+        : "border-border/50 bg-card/40 hover:bg-card/60 hover:border-primary/30 shadow-soft"
+        }`}
     >
       {highlight && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary" />}
 

@@ -1,10 +1,11 @@
 // PubChem search panel — search any compound, preview 3D, and spawn into AR.
 // Used in ControlPanel sidebar (compact mode) and standalone.
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   usePubChemSearch,
   usePubChemMolecule,
   usePubChemDescription,
+  usePubChemCompoundAutocomplete,
 } from "@/hooks/use-pubchem-search";
 import type { Molecule } from "@/lib/chemistry";
 import type { PubChemCompoundSummary } from "@/lib/pubchem-api";
@@ -26,10 +27,13 @@ type Props = {
 
 export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false }: Props) {
   const search = usePubChemSearch();
+  const autocomplete = usePubChemCompoundAutocomplete();
   const mol3d = usePubChemMolecule();
   const desc = usePubChemDescription();
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedCompound, setSelectedCompound] = useState<PubChemCompoundSummary | null>(null);
+  const [inputFocused, setInputFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   function handleSelect(compound: PubChemCompoundSummary) {
     setSelectedCompound(compound);
@@ -51,19 +55,70 @@ export default function PubChemSearch({ onSpawn, onAddToLibrary, compact = false
     }
   }
 
+  function handleChooseSuggestion(term: string) {
+    search.setQuery(term);
+    autocomplete.setQuery(term);
+    inputRef.current?.blur();
+    setInputFocused(false);
+  }
+
+  const showAutocomplete =
+    inputFocused &&
+    search.query.trim().length >= 3 &&
+    autocomplete.terms.length > 0 &&
+    !autocomplete.error;
+
   return (
     <div className={compact ? "space-y-2" : "space-y-4"}>
       {/* Search input */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
+          ref={inputRef}
           value={search.query}
-          onChange={(e) => search.setQuery(e.target.value)}
-          placeholder="Tìm kiếm PubChem (vd: caffeine, C6H12O6)..."
+          onChange={(e) => {
+            const next = e.target.value;
+            search.setQuery(next);
+            autocomplete.setQuery(next);
+          }}
+          onFocus={() => setInputFocused(true)}
+          onBlur={() => setInputFocused(false)}
+          placeholder="Tìm kiếm compound (vd: caffeine, glucose)..."
           className={`pl-9 ${compact ? "h-9 text-sm rounded-xl" : "rounded-full"}`}
         />
         {search.loading && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+        )}
+
+        {showAutocomplete && (
+          <div
+            className={`absolute left-0 right-0 top-full mt-2 z-30 overflow-hidden rounded-2xl border border-border/60 bg-popover/95 shadow-2xl backdrop-blur-xl ${compact ? "max-h-[220px]" : "max-h-[280px]"
+              }`}
+          >
+            <div className="flex items-center justify-between px-3 pt-3 pb-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+              <span>Compound suggestions</span>
+              <span>{autocomplete.total} gợi ý</span>
+            </div>
+            <div className="max-h-[240px] overflow-y-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {autocomplete.terms.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleChooseSuggestion(term)}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-primary/10"
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
+                    C
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="font-semibold">{search.query}</span>
+                    <span className="text-muted-foreground">{term.slice(search.query.trim().length)}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
@@ -231,9 +286,8 @@ function CompoundCard({
   return (
     <button
       onClick={onSelect}
-      className={`w-full text-left rounded-xl border border-white/5 bg-background/40 hover:bg-background/60 hover:border-primary/40 hover:-translate-y-0.5 transition-all ${
-        compact ? "p-3" : "p-4"
-      }`}
+      className={`w-full text-left rounded-xl border border-white/5 bg-background/40 hover:bg-background/60 hover:border-primary/40 hover:-translate-y-0.5 transition-all ${compact ? "p-3" : "p-4"
+        }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">

@@ -106,18 +106,18 @@ function AuthPage() {
           <div className="w-full flex flex-col items-center justify-center text-center">
             <div className="relative w-full aspect-square max-w-[440px] mb-8 group">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-primary/20 blur-3xl opacity-40 rounded-full mix-blend-screen pointer-events-none" />
-              <HeroMoleculeAnimation 
-                 autoRotate={true}
-                 className="w-full h-full z-10"
-               />
-               <div className="absolute bottom-0 left-0 right-0 flex justify-center pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                  <span className="px-4 py-1.5 rounded-full bg-background/60 backdrop-blur-md text-xs font-medium border border-border/50 flex items-center gap-2 shadow-lg text-foreground">
-                    <span className="size-2 rounded-full bg-primary animate-pulse" />
-                    Kéo thả để xoay
-                  </span>
-                </div>
+              <HeroMoleculeAnimation
+                autoRotate={true}
+                className="w-full h-full z-10"
+              />
+              <div className="absolute bottom-0 left-0 right-0 flex justify-center pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-500 z-20">
+                <span className="px-4 py-1.5 rounded-full bg-background/60 backdrop-blur-md text-xs font-medium border border-border/50 flex items-center gap-2 shadow-lg text-foreground">
+                  <span className="size-2 rounded-full bg-primary animate-pulse" />
+                  Kéo thả để xoay
+                </span>
+              </div>
             </div>
-            
+
             <h2 className="text-2xl font-display font-bold text-foreground mb-2 text-balance">
               Học để hiểu, không chỉ học thuộc
             </h2>

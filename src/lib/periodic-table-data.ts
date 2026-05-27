@@ -3,6 +3,8 @@
 // Strategy: try fetch -> cache to localStorage -> fall back to a small embedded
 // snapshot of common elements so the page is always usable offline.
 
+import { translateToVietnamese } from "@/lib/translate";
+
 export type PTElement = {
   number: number;
   symbol: string;
@@ -27,7 +29,7 @@ export type PTElement = {
 
 const SOURCE_URL =
   "https://raw.githubusercontent.com/Bowserinator/Periodic-Table-JSON/master/PeriodicTableJSON.json";
-const CACHE_KEY = "molelab.periodic-table.v1";
+const CACHE_KEY = "molelab.periodic-table.v2";
 
 // Compact embedded fallback (first 36 elements) — enough so the page renders
 // even when offline. The full set is fetched on first visit and cached.
@@ -451,7 +453,7 @@ export async function loadPeriodicTable(): Promise<PTElement[]> {
       const cached = window.localStorage.getItem(CACHE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached) as PTElement[];
-        if (Array.isArray(parsed) && parsed.length > 100) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 100) return localizeSummaries(parsed);
       }
     } catch {
       /* ignore */
@@ -464,12 +466,13 @@ export async function loadPeriodicTable(): Promise<PTElement[]> {
     if (res.ok) {
       const json = (await res.json()) as { elements: PTElement[] };
       if (Array.isArray(json.elements) && json.elements.length > 100) {
+        const localized = await localizeSummaries(json.elements);
         try {
-          window.localStorage.setItem(CACHE_KEY, JSON.stringify(json.elements));
+          window.localStorage.setItem(CACHE_KEY, JSON.stringify(localized));
         } catch {
           /* quota — ignore */
         }
-        return json.elements;
+        return localized;
       }
     }
   } catch {
@@ -477,7 +480,16 @@ export async function loadPeriodicTable(): Promise<PTElement[]> {
   }
 
   // 3. Fallback
-  return FALLBACK;
+  return localizeSummaries(FALLBACK);
+}
+
+async function localizeSummaries(elements: PTElement[]): Promise<PTElement[]> {
+  return Promise.all(
+    elements.map(async (element) => ({
+      ...element,
+      summary: element.summary ? await translateToVietnamese(element.summary) : element.summary,
+    })),
+  );
 }
 
 // Map category -> Tailwind/CSS background classes (semantic-friendly).

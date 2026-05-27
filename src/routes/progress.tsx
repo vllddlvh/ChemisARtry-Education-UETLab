@@ -111,12 +111,12 @@ function ProgressPage() {
         <div className="flex-1 grid place-items-center px-6">
           <div className="max-w-md text-center rounded-3xl bg-card border border-border p-8 shadow-panel">
             <div className="text-4xl">🔒</div>
-            <h1 className="mt-3 text-2xl font-display font-bold">Sign in to see your progress</h1>
+            <h1 className="mt-3 text-2xl font-display font-bold">Đăng nhập để theo dõi tiến trình của bạn</h1>
             <p className="text-muted-foreground mt-2 text-sm">
-              Track molecules, reactions, and unlock chemistry achievements.
+              Khám phá các nguyên tử, các phản ứng hóa học và mở khóa các thành tựu.
             </p>
             <Button asChild className="mt-5 rounded-full bg-gradient-primary">
-              <Link to="/auth">Sign in</Link>
+              <Link to="/auth">Đăng nhập</Link>
             </Button>
           </div>
         </div>
@@ -174,11 +174,10 @@ function ProgressPage() {
               return (
                 <div
                   key={a.id}
-                  className={`rounded-3xl p-5 border transition ${
-                    got
-                      ? "border-primary bg-gradient-primary text-primary-foreground shadow-glow"
-                      : "border-border bg-card text-muted-foreground"
-                  }`}
+                  className={`rounded-3xl p-5 border transition ${got
+                    ? "border-primary bg-gradient-primary text-primary-foreground shadow-glow"
+                    : "border-border bg-card text-muted-foreground"
+                    }`}
                 >
                   <div className={`text-3xl ${got ? "" : "grayscale opacity-50"}`}>{a.icon}</div>
                   <div className="mt-2 font-bold">{a.label}</div>

@@ -1,17 +1,27 @@
 // React hook for PubChem search with debounce and loading state.
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  autocompletePubChemCompound,
   searchPubChem,
   fetchMolecule3D,
   fetchCompoundDescription,
   type PubChemCompoundSummary,
   type PubChemMolecule3D,
   type PubChemDescription,
+  type PubChemAutocompleteResult,
 } from "@/lib/pubchem-api";
 
 export type PubChemSearchState = {
   query: string;
   results: PubChemCompoundSummary[];
+  total: number;
+  loading: boolean;
+  error: string | null;
+};
+
+export type PubChemAutocompleteState = {
+  query: string;
+  terms: string[];
   total: number;
   loading: boolean;
   error: string | null;
@@ -69,6 +79,71 @@ export function usePubChemSearch(debounceMs = 400) {
           total: 0,
           loading: false,
           error: e instanceof Error ? e.message : "Search failed",
+        }));
+      }
+    }, debounceMs);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      abortRef.current = true;
+    };
+  }, [state.query, debounceMs]);
+
+  return { ...state, setQuery };
+}
+
+/**
+ * Debounced compound autocomplete hook.
+ */
+export function usePubChemCompoundAutocomplete(debounceMs = 180) {
+  const [state, setState] = useState<PubChemAutocompleteState>({
+    query: "",
+    terms: [],
+    total: 0,
+    loading: false,
+    error: null,
+  });
+
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef(false);
+
+  const setQuery = useCallback((q: string) => {
+    setState((s) => ({ ...s, query: q }));
+  }, []);
+
+  useEffect(() => {
+    const q = state.query.trim();
+    if (q.length < 3) {
+      setState((s) => ({ ...s, terms: [], total: 0, loading: false, error: null }));
+      return;
+    }
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+    abortRef.current = true;
+
+    setState((s) => ({ ...s, loading: true, error: null }));
+
+    timerRef.current = setTimeout(async () => {
+      abortRef.current = false;
+      try {
+        const result: PubChemAutocompleteResult = await autocompletePubChemCompound(q);
+        if (abortRef.current) return;
+        const prefix = q.toLowerCase();
+        const terms = result.terms.filter((term) => term.toLowerCase().startsWith(prefix));
+        setState((s) => ({
+          ...s,
+          terms,
+          total: terms.length,
+          loading: false,
+        }));
+      } catch (e) {
+        if (abortRef.current) return;
+        setState((s) => ({
+          ...s,
+          terms: [],
+          total: 0,
+          loading: false,
+          error: e instanceof Error ? e.message : "Autocomplete failed",
         }));
       }
     }, debounceMs);

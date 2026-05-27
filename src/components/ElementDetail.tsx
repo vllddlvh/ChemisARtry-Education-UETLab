@@ -10,6 +10,7 @@ import { categoryStyle, SHELL_NAMES, type PTElement } from "@/lib/periodic-table
 import { searchPubChem, type PubChemCompoundSummary } from "@/lib/pubchem-api";
 import { ALL_LESSONS } from "@/lib/lessons-data";
 import { Link } from "@tanstack/react-router";
+import { translateToVietnamese } from "@/lib/translate";
 
 type Props = {
   element: PTElement | null;
@@ -28,6 +29,32 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
   const [pubchemData, setPubchemData] = useState<PubChemCompoundSummary | null>(null);
   const [pubchemLoading, setPubchemLoading] = useState(false);
   const [relatedCompounds, setRelatedCompounds] = useState<PubChemCompoundSummary[]>([]);
+  const [translatedSummary, setTranslatedSummary] = useState<string>("");
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open || !element?.summary) {
+      setTranslatedSummary("");
+      setSummaryLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSummaryLoading(true);
+    setTranslatedSummary("");
+
+    translateToVietnamese(element.summary)
+      .then((viSummary) => {
+        if (!cancelled) setTranslatedSummary(viSummary);
+      })
+      .finally(() => {
+        if (!cancelled) setSummaryLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, element?.summary]);
 
   useEffect(() => {
     if (!open || !element) return;
@@ -128,7 +155,9 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
 
             <TabsContent value="overview" className="mt-4 space-y-3 text-sm">
               {element.summary && (
-                <p className="text-foreground/90 leading-relaxed">{element.summary}</p>
+                <p className="text-foreground/90 leading-relaxed">
+                  {summaryLoading ? "Đang dịch mô tả..." : translatedSummary || element.summary}
+                </p>
               )}
               <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                 <Row label="Số hiệu nguyên tử" value={String(element.number)} />
@@ -297,7 +326,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
 
           <div className="grid grid-cols-2 gap-2 mt-5">
             <Button asChild className="rounded-full bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30">
-              <Link to="/lab/sim" search={{ spawn: element.symbol }}>
+              <Link to="/lab/sim" search={{ element: element.symbol }}>
                 <FlaskConical className="mr-2 h-4 w-4" />
                 Ghép phân tử trong Lab
               </Link>

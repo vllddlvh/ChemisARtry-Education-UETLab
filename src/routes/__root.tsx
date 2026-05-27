@@ -85,7 +85,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-background text-foreground antialiased h-[100dvh] overflow-hidden">
+      <body className="bg-background text-foreground antialiased h-[100dvh] overflow-auto">
         {children}
         <Scripts />
       </body>

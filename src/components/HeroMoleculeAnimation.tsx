@@ -87,7 +87,7 @@ export default function HeroMoleculeAnimation({
       renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
       renderer.setSize(getWidth(), getHeight());
       renderer.setClearColor(0x000000, 0); // Transparent
-      
+
       // Fade in smoothly
       renderer.domElement.style.opacity = "0";
       renderer.domElement.style.transition = "opacity 0.8s ease-out";

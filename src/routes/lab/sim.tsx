@@ -11,11 +11,13 @@ import { useChemistryData } from "@/hooks/use-chemistry-data";
 import { useVoiceCommands } from "@/hooks/use-voice-commands";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { createAtomMolecule, resolveLabSpawn } from "@/lib/lab-spawn";
 import type { Molecule, Reaction } from "@/lib/chemistry";
 
 const searchSchema = z.object({
   lesson: z.string().optional(),
   spawn: z.string().optional(),
+  element: z.string().optional(),
 });
 
 export const Route = createFileRoute("/lab/sim")({
@@ -33,7 +35,7 @@ export const Route = createFileRoute("/lab/sim")({
 });
 
 function LabSimPage() {
-  const { lesson } = Route.useSearch();
+  const { lesson, spawn: spawnParam, element: elementParam } = Route.useSearch();
   const { molecules, reactions, loading } = useChemistryData();
   const { user } = useAuth();
 
@@ -48,26 +50,43 @@ function LabSimPage() {
   }, []);
   useVoiceCommands(handleVoice);
 
-  // Auto-spawn molecule from query string
-  const { spawn: spawnParam } = Route.useSearch();
   useEffect(() => {
-    if (spawnParam && molecules.length > 0) {
-      // spawnParam can be a comma-separated list or a single formula
-      const formulas = spawnParam.split(",");
-      let toSelect = molecules.find(
-        (m) => formulas.includes(m.formula) || formulas.includes(m.id),
-      );
-      if (!toSelect) {
-        // Fallback: tìm phân tử chứa nguyên tố đó (vd: O -> O2)
-        toSelect = molecules.find((m) => formulas.some((f) => m.formula.includes(f)));
-      }
-      
-      if (toSelect) {
+    if (typeof window === "undefined") return;
+
+    const pendingSpawn = window.sessionStorage.getItem("chemisartry.pendingSpawn");
+    if (!pendingSpawn || molecules.length === 0) return;
+
+    try {
+      const parsed = JSON.parse(pendingSpawn) as Molecule;
+      if (parsed && Array.isArray(parsed.atoms) && Array.isArray(parsed.bonds)) {
+        const toSelect = {
+          ...parsed,
+          id: parsed.id || `pubchem-${parsed.formula}`,
+          formula: parsed.formula.trim(),
+          name: parsed.name?.trim() || parsed.formula,
+          description: parsed.description?.trim() || "",
+          category: parsed.category?.trim() || "pubchem",
+        } satisfies Molecule;
+
         setSelected(toSelect);
-        setToSpawn(toSelect); // auto-trigger spawn
+        setToSpawn(toSelect);
+        window.sessionStorage.removeItem("chemisartry.pendingSpawn");
+        return;
       }
+    } catch {
+      window.sessionStorage.removeItem("chemisartry.pendingSpawn");
     }
-  }, [spawnParam, molecules]);
+  }, [molecules]);
+
+  useEffect(() => {
+    if (spawnParam === "pubchem") return;
+
+    const toSelect = resolveLabSpawn(molecules, spawnParam, elementParam);
+    if (toSelect) {
+      setSelected(toSelect);
+      setToSpawn(toSelect); // auto-trigger spawn
+    }
+  }, [spawnParam, elementParam, molecules]);
 
   const handleReaction = useCallback(
     async (r: Reaction) => {
@@ -151,15 +170,10 @@ function LabSimPage() {
             education={education}
             onToggleEducation={setEducation}
             arOn={false}
-            onToggleAr={() => {}}
+            onToggleAr={() => { }}
             lastReaction={lastReaction}
             onSpawnElement={(symbol) => {
-              let toSelect = molecules.find(
-                (m) => m.formula === symbol || m.id === symbol
-              );
-              if (!toSelect) {
-                toSelect = molecules.find((m) => m.formula.includes(symbol));
-              }
+              const toSelect = createAtomMolecule(symbol);
               if (toSelect) {
                 setSelected(toSelect);
                 setToSpawn(toSelect);

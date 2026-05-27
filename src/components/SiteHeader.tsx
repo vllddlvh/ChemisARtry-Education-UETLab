@@ -23,6 +23,10 @@ export default function SiteHeader() {
     activePath.startsWith("/tools") ||
     activePath.startsWith("/progress");
   const showAppMenu = user || isAppRoute;
+  const appMenuContentClassName =
+    "w-56 rounded-3xl border border-border/50 bg-card/90 p-2 text-foreground shadow-soft backdrop-blur-xl";
+  const appMenuItemClassName =
+    "rounded-2xl px-3 py-2 text-sm font-medium transition-colors focus:bg-muted/70 focus:text-foreground";
 
   return (
     <header className="sticky top-0 z-30 backdrop-blur-lg bg-background/80 border-b border-border">
@@ -40,30 +44,38 @@ export default function SiteHeader() {
         <nav className="hidden md:flex items-center gap-1">
           {showAppMenu && (
             <>
-              <NavLink to="/learn" label="Học" active={activePath.startsWith("/learn")} />
-              <NavLink to="/lab/sim" label="Thực hành" active={activePath.startsWith("/lab")} />
+              <NavLink to="/learn" label="Học tập" active={activePath.startsWith("/learn")} />
+              <NavLink to="/lab/sim" label="Phòng thí nghiệm" active={activePath.startsWith("/lab")} />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="rounded-full px-3 gap-1 hover:bg-muted font-normal h-8"
+                    className="rounded-full px-3 gap-1 h-8 font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   >
-                    Tools <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+                    Công cụ <ChevronDown className="h-3.5 w-3.5 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 rounded-2xl">
+                <DropdownMenuContent align="start" className={appMenuContentClassName}>
                   <DropdownMenuItem asChild>
-                    <Link to="/tools/periodic-table">📊 Bảng tuần hoàn</Link>
+                    <Link to="/tools/periodic-table" className={appMenuItemClassName}>
+                      Bảng tuần hoàn
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/tools/explorer">🔍 Compound Explorer</Link>
+                    <Link to="/tools/explorer" className={appMenuItemClassName}>
+                      Khám phá hợp chất
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/tools/molecules">📋 Thư viện phân tử</Link>
+                    <Link to="/tools/molecules" className={appMenuItemClassName}>
+                      Thư viện phân tử
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/tools/reactions">⚗️ Danh sách phản ứng</Link>
+                    <Link to="/tools/reactions" className={appMenuItemClassName}>
+                      Danh sách phản ứng
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -85,24 +97,30 @@ export default function SiteHeader() {
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-2xl">
+              <DropdownMenuContent align="end" className={appMenuContentClassName}>
                 <DropdownMenuItem asChild>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/dashboard" className={appMenuItemClassName}>
+                    Dashboard
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/progress">Tiến độ</Link>
+                  <Link to="/progress" className={appMenuItemClassName}>
+                    Tiến độ
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {user ? (
                   <DropdownMenuItem
                     onClick={() => supabase.auth.signOut()}
-                    className="text-red-500"
+                    className="rounded-2xl px-3 py-2 text-sm font-medium text-red-500 transition-colors focus:bg-red-500/10 focus:text-red-600"
                   >
                     <LogOut className="mr-2 h-4 w-4" /> Đăng xuất
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem asChild>
-                    <Link to="/auth">Đăng nhập</Link>
+                    <Link to="/auth" className={appMenuItemClassName}>
+                      Đăng nhập
+                    </Link>
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -127,11 +145,10 @@ function NavLink({ to, label, active }: { to: string; label: string; active: boo
   return (
     <Link
       to={to}
-      className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-        active
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-      }`}
+      className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${active
+        ? "bg-primary/10 text-primary"
+        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+        }`}
     >
       {label}
     </Link>

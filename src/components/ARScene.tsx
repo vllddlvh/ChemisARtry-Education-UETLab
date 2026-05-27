@@ -179,8 +179,11 @@ export default function ARScene({
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const trashRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState("Initializing...");
   const [handCount, setHandCount] = useState(0);
+  const [hasSpawnedMolecules, setHasSpawnedMolecules] = useState(false);
+  const [trashHot, setTrashHot] = useState(false);
   const [hoveredAtom, setHoveredAtom] = useState<{ symbol: string; x: number; y: number } | null>(null);
 
   const hoveredElRef = useRef<string | null>(null);
@@ -203,6 +206,30 @@ export default function ARScene({
   const isDraggingRef = useRef(false);
   const draggedMolRef = useRef<SpawnedMol | null>(null);
   const intersectionRef = useRef(new THREE.Vector3());
+
+  const syncSpawnedState = () => {
+    setHasSpawnedMolecules(spawnedRef.current.length > 0);
+  };
+
+  const isOverTrash = (clientX: number, clientY: number) => {
+    const trash = trashRef.current;
+    if (!trash) return false;
+    const rect = trash.getBoundingClientRect();
+    return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+  };
+
+  const removeSpawnedMolecule = (mol: SpawnedMol) => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    scene.remove(mol.group);
+    spawnedRef.current = spawnedRef.current.filter((item) => item !== mol);
+    if (draggedMolRef.current === mol) {
+      draggedMolRef.current = null;
+      isDraggingRef.current = false;
+    }
+    syncSpawnedState();
+  };
 
   educationRef.current = educationMode;
   reactionsRef.current = reactions;
@@ -283,11 +310,13 @@ export default function ARScene({
         if (raycaster.ray.intersectPlane(dragPlane, intersection)) {
           draggedMolRef.current.group.position.copy(intersection);
         }
+        setTrashHot(isOverTrash(e.clientX, e.clientY));
         if (hoveredElRef.current !== null) {
           hoveredElRef.current = null;
           setHoveredAtom(null);
         }
       } else if (!arOnRef.current) {
+        setTrashHot(false);
         // Hover detection (Chỉ áp dụng cho Lab 3D / Sim)
         const meshes = spawnedRef.current.map((m) => m.group);
         const intersects = raycaster.intersectObjects(meshes, true);
@@ -310,11 +339,18 @@ export default function ARScene({
       }
     };
 
-    const onPointerUp = () => {
+    const onPointerUp = (e: PointerEvent) => {
       if (isDraggingRef.current && draggedMolRef.current) {
-        draggedMolRef.current.grabbedBy = null;
+        const dragged = draggedMolRef.current;
+        dragged.grabbedBy = null;
+        if (isOverTrash(e.clientX, e.clientY)) {
+          removeSpawnedMolecule(dragged);
+          setTrashHot(false);
+          return;
+        }
         isDraggingRef.current = false;
         draggedMolRef.current = null;
+        setTrashHot(false);
       }
     };
 
@@ -421,6 +457,8 @@ export default function ARScene({
       baseScale: 1,
       spawnedAt: performance.now(),
     });
+    syncSpawnedState();
+    setTrashHot(false);
     spawnBurst(sceneRef.current, group.position.clone(), "#67d0ff");
     onSpawned();
   }, [toSpawn, onSpawned]);
@@ -432,6 +470,8 @@ export default function ARScene({
     if (!s) return;
     spawnedRef.current.forEach((m) => s.remove(m.group));
     spawnedRef.current = [];
+    syncSpawnedState();
+    setTrashHot(false);
   }, [resetSignal]);
 
   // Toggle labels when education mode changes.
@@ -540,6 +580,8 @@ export default function ARScene({
     scene.remove(a.group);
     scene.remove(b.group);
     spawnedRef.current = spawnedRef.current.filter((m) => m !== a && m !== b);
+    syncSpawnedState();
+    setTrashHot(false);
 
     spawnBurst(scene, center, "#ffb86b");
     spawnBurst(scene, center, "#7de2ff");
@@ -562,6 +604,8 @@ export default function ARScene({
       });
     });
 
+    syncSpawnedState();
+
     onReactionRef.current(rx);
   }
 
@@ -578,24 +622,26 @@ export default function ARScene({
         <div className="absolute inset-0 bg-background flex flex-col items-center justify-center overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_50%,transparent_0%,var(--background)_100%)]"></div>
-          <div className="text-center px-6 z-0 pointer-events-none select-none opacity-20 flex flex-col items-center">
-            <div className="text-7xl mb-4 grayscale animate-float-slow">🧪</div>
-            <h2 className="font-display text-2xl font-bold tracking-widest uppercase text-muted-foreground">
-              Workspace
-            </h2>
-          </div>
+          {!hasSpawnedMolecules && (
+            <div className="text-center px-6 z-0 pointer-events-none select-none opacity-20 flex flex-col items-center">
+              <div className="text-7xl mb-4 grayscale animate-float-slow">🧪</div>
+              <h2 className="font-display text-2xl font-bold tracking-widest uppercase text-muted-foreground">
+                Workspace
+              </h2>
+            </div>
+          )}
         </div>
       )}
-      <canvas 
-        ref={canvasRef} 
-        className={`absolute inset-0 h-full w-full ${arOn ? "pointer-events-none" : "touch-none cursor-grab active:cursor-grabbing"}`} 
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 h-full w-full touch-none cursor-grab active:cursor-grabbing"
       />
-      
+
       {!arOn && (
-        <MoleculeInfoTooltip 
-          elementSymbol={hoveredAtom?.symbol ?? null} 
-          x={hoveredAtom?.x ?? 0} 
-          y={hoveredAtom?.y ?? 0} 
+        <MoleculeInfoTooltip
+          elementSymbol={hoveredAtom?.symbol ?? null}
+          x={hoveredAtom?.x ?? 0}
+          y={hoveredAtom?.y ?? 0}
           onClose={() => {
             hoveredElRef.current = null;
             setHoveredAtom(null);
@@ -609,6 +655,18 @@ export default function ARScene({
         </span>
         <span className="mx-2 text-border">•</span>
         <span className="text-muted-foreground">{status}</span>
+      </div>
+
+      <div
+        ref={trashRef}
+        className={`pointer-events-auto absolute bottom-6 right-6 z-50 flex h-20 w-20 flex-col items-center justify-center rounded-3xl border border-border/60 bg-card/85 backdrop-blur-xl shadow-2xl transition-all duration-200 ${trashHot ? "scale-105 border-destructive/60 bg-destructive/15 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]" : "hover:border-destructive/30 hover:bg-destructive/10"}`}
+      >
+        <div className={`text-2xl transition-transform duration-200 ${trashHot ? "scale-110" : ""}`}>
+          🗑️
+        </div>
+        <div className={`mt-1 text-[10px] uppercase tracking-[0.3em] ${trashHot ? "text-destructive" : "text-muted-foreground"}`}>
+          Trash
+        </div>
       </div>
     </div>
   );

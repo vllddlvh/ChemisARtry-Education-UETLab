@@ -10,6 +10,7 @@ import { normalizeFormula } from "@/lib/chemistry-api";
 import { translateToVietnamese } from "@/lib/translate";
 
 const BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug";
+const AUTOCOMPLETE_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete";
 const VIEW_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view";
 const TIMEOUT_MS = 12000;
 
@@ -30,6 +31,11 @@ export type PubChemCompoundSummary = {
 
 export type PubChemSearchResult = {
   compounds: PubChemCompoundSummary[];
+  total: number;
+};
+
+export type PubChemAutocompleteResult = {
+  terms: string[];
   total: number;
 };
 
@@ -79,17 +85,39 @@ export async function searchPubChem(query: string, limit = 8): Promise<PubChemSe
   const q = query.trim();
   if (!q) return { compounds: [], total: 0 };
 
+  // Try exact name search first.
+  const exactResult = await searchPubChemExact(q, limit);
+  if (exactResult.compounds.length > 0 || q.length < 3) {
+    return exactResult;
+  }
+
+  // Fall back to compound autocomplete so prefixes like "gluc" still return compounds.
+  const autocomplete = await autocompletePubChemCompound(q, limit * 3);
+  if (autocomplete.terms.length === 0) {
+    return exactResult;
+  }
+
+  const fallbackResults = await searchPubChemTerms(autocomplete.terms, limit);
+  if (fallbackResults.compounds.length > 0) {
+    return fallbackResults;
+  }
+
+  return exactResult;
+}
+
+async function searchPubChemExact(query: string, limit: number): Promise<PubChemSearchResult> {
   // Try name search first
+  const q = query.trim();
   const url = `${BASE}/compound/name/${encodeURIComponent(q)}/property/IUPACName,MolecularFormula,MolecularWeight,CanonicalSMILES,InChI,Charge,Complexity,HBondDonorCount,HBondAcceptorCount/JSON`;
 
   try {
     const data = await fetchJson<{
-      PropertyTable: { Properties: RawProperty[] };
+      PropertyTable?: { Properties?: RawProperty[] };
     }>(url);
-    const props = data.PropertyTable.Properties.slice(0, limit);
+    const props = getProperties(data).slice(0, limit);
     return {
       compounds: props.map(mapProperty),
-      total: data.PropertyTable.Properties.length,
+      total: props.length,
     };
   } catch (e) {
     if (e instanceof PubChemNotFoundError) {
@@ -100,16 +128,66 @@ export async function searchPubChem(query: string, limit = 8): Promise<PubChemSe
   }
 }
 
+async function searchPubChemTerms(terms: string[], limit: number): Promise<PubChemSearchResult> {
+  const seen = new Set<number>();
+  const compounds: PubChemCompoundSummary[] = [];
+
+  for (const term of terms) {
+    if (compounds.length >= limit) break;
+
+    try {
+      const result = await searchPubChemExact(term, 1);
+      for (const compound of result.compounds) {
+        if (seen.has(compound.cid)) continue;
+        seen.add(compound.cid);
+        compounds.push(compound);
+        if (compounds.length >= limit) break;
+      }
+    } catch {
+      // best-effort fallback; skip broken terms
+    }
+  }
+
+  return { compounds, total: compounds.length };
+}
+
+/**
+ * Autocomplete compound names by prefix using PubChem's compound dictionary only.
+ */
+export async function autocompletePubChemCompound(
+  query: string,
+  limit = 8,
+): Promise<PubChemAutocompleteResult> {
+  const q = query.trim();
+  if (q.length < 3) return { terms: [], total: 0 };
+
+  const url = `${AUTOCOMPLETE_BASE}/compound/${encodeURIComponent(q)}/json?limit=${limit}`;
+
+  try {
+    const data = await fetchJson<PubChemAutocompleteResponse>(url);
+    const terms = data?.dictionary_terms?.compound ?? [];
+    return {
+      terms: terms.slice(0, limit),
+      total: Number(data?.total) || terms.length,
+    };
+  } catch (e) {
+    if (e instanceof PubChemNotFoundError) {
+      return { terms: [], total: 0 };
+    }
+    throw e;
+  }
+}
+
 async function searchByFormula(formula: string, limit: number): Promise<PubChemSearchResult> {
   const url = `${BASE}/compound/formula/${encodeURIComponent(formula)}/property/IUPACName,MolecularFormula,MolecularWeight,CanonicalSMILES,InChI,Charge,Complexity,HBondDonorCount,HBondAcceptorCount/JSON`;
   try {
     const data = await fetchJson<{
-      PropertyTable: { Properties: RawProperty[] };
+      PropertyTable?: { Properties?: RawProperty[] };
     }>(url);
-    const props = data.PropertyTable.Properties.slice(0, limit);
+    const props = getProperties(data).slice(0, limit);
     return {
       compounds: props.map(mapProperty),
-      total: data.PropertyTable.Properties.length,
+      total: props.length,
     };
   } catch (e) {
     if (e instanceof PubChemNotFoundError) {
@@ -131,6 +209,17 @@ type RawProperty = {
   HBondDonorCount?: number;
   HBondAcceptorCount?: number;
 };
+
+type PubChemAutocompleteResponse = {
+  total?: number;
+  dictionary_terms?: {
+    compound?: string[];
+  };
+};
+
+function getProperties(data: { PropertyTable?: { Properties?: RawProperty[] } } | null | undefined) {
+  return data?.PropertyTable?.Properties ?? [];
+}
 
 function mapProperty(p: RawProperty): PubChemCompoundSummary {
   return {
@@ -159,7 +248,7 @@ export async function fetchMolecule3D(cid: number): Promise<PubChemMolecule3D | 
   const conformerUrl = `${BASE}/compound/cid/${cid}/JSON?record_type=3d`;
 
   const [propData, conformerData] = await Promise.allSettled([
-    fetchJson<{ PropertyTable: { Properties: RawProperty[] } }>(propUrl),
+    fetchJson<{ PropertyTable?: { Properties?: RawProperty[] } }>(propUrl),
     fetchJson<PubChemRecordResponse>(conformerUrl),
   ]);
 
@@ -177,7 +266,7 @@ export async function fetchMolecule3D(cid: number): Promise<PubChemMolecule3D | 
 
   if (atoms.length === 0) return null;
 
-  const prop = propData.status === "fulfilled" ? propData.value.PropertyTable.Properties[0] : null;
+  const prop = propData.status === "fulfilled" ? getProperties(propData.value)[0] ?? null : null;
 
   const formula = normalizeFormula(prop?.MolecularFormula ?? `CID${cid}`);
   const name = prop?.IUPACName ?? formula;
@@ -204,7 +293,7 @@ export async function fetchMolecule3D(cid: number): Promise<PubChemMolecule3D | 
 
 async function fetch2DFallback(
   cid: number,
-  propResult: PromiseSettledResult<{ PropertyTable: { Properties: RawProperty[] } }>,
+  propResult: PromiseSettledResult<{ PropertyTable?: { Properties?: RawProperty[] } }>,
 ): Promise<PubChemMolecule3D | null> {
   try {
     const url2d = `${BASE}/compound/cid/${cid}/JSON`;
@@ -216,8 +305,7 @@ async function fetch2DFallback(
     const bonds = parseConformerBonds(conformer);
     if (atoms.length === 0) return null;
 
-    const prop =
-      propResult.status === "fulfilled" ? propResult.value.PropertyTable.Properties[0] : null;
+    const prop = propResult.status === "fulfilled" ? getProperties(propResult.value)[0] ?? null : null;
 
     const formula = normalizeFormula(prop?.MolecularFormula ?? `CID${cid}`);
     const name = prop?.IUPACName ?? formula;
