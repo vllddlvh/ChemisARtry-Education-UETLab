@@ -3,7 +3,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState, useCallback, useEffect } from "react";
-import SiteHeader from "@/components/SiteHeader";
 import ARScene from "@/components/ARScene";
 import ControlPanel from "@/components/ControlPanel";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
@@ -107,8 +106,7 @@ function LabARPage() {
   }, [selected]);
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-black flex flex-col">
-      <SiteHeader />
+    <div className="relative w-full h-full overflow-hidden bg-black flex flex-col">
 
       {/* 3D / AR Scene Layer */}
       <main className="relative flex-1 z-0">
@@ -131,7 +129,7 @@ function LabARPage() {
       </main>
 
       {/* UI Overlay Layer */}
-      <div className="absolute inset-x-0 bottom-0 top-16 pointer-events-none z-10 flex flex-col p-4 md:p-6 justify-between">
+      <div className="absolute inset-x-0 bottom-0 top-0 pointer-events-none z-10 flex flex-col p-4 md:p-6 justify-between">
         {/* Reaction banner (Floating Top Center or Bottom) */}
         {lastReaction && (
           <div className="pointer-events-auto absolute top-20 left-1/2 -translate-x-1/2 rounded-full border border-primary/20 bg-card/80 backdrop-blur-xl px-6 py-2.5 text-sm flex items-center justify-between gap-4 shadow-xl animate-in fade-in slide-in-from-top-4">

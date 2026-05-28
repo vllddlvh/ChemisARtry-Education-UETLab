@@ -1,8 +1,6 @@
 // /search — PubChem Compound Explorer: deep search + 3D preview + properties.
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import MoleculePreview from "@/components/MoleculePreview";
 import {
   usePubChemSearch,
@@ -103,8 +101,7 @@ function SearchPage() {
   const hasSubmittedResults = showResults && !search.loading && search.results.length > 0;
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden bg-background text-foreground">
-      <SiteHeader />
+    <div className="h-full flex flex-col overflow-hidden bg-background text-foreground">
       <main className="flex-1 min-h-0 overflow-y-auto scroll-smooth scrollbar-dark">
         <div className="mx-auto max-w-7xl w-full px-6 pt-10 pb-0">
           {/* Header */}
@@ -369,7 +366,6 @@ function SearchPage() {
           {/* Attribution removed per design request */}
         </div>
       </main>
-      <SiteFooter className="mt-0" />
     </div>
   );
 }

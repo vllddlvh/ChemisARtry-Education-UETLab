@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import MoleculePreview from "@/components/MoleculePreview";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
 import {
@@ -97,8 +95,7 @@ function MoleculesPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
+    <div className="h-full flex flex-col">
       <div className="mx-auto max-w-7xl w-full px-6 py-10 flex-1">
         <h1 className="text-4xl font-display font-bold">Molecule Library</h1>
         <p className="text-muted-foreground mt-1">
@@ -238,7 +235,6 @@ function MoleculesPage() {
           </>
         )}
       </div>
-      <SiteFooter />
 
       {/* Local molecule detail dialog */}
       <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>

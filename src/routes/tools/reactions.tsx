@@ -1,7 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
 import { usePubChemEnrichment } from "@/hooks/use-pubchem-enrichment";
 import { Button } from "@/components/ui/button";
@@ -44,8 +42,7 @@ function ReactionsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
+    <div className="h-full flex flex-col">
       <div className="mx-auto max-w-5xl w-full px-6 py-10 flex-1">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
@@ -107,7 +104,6 @@ function ReactionsPage() {
           </div>
         )}
       </div>
-      <SiteFooter />
 
       {/* Reaction detail dialog with PubChem enrichment */}
       <Dialog open={!!detailReaction} onOpenChange={(v) => !v && setDetailReaction(null)}>

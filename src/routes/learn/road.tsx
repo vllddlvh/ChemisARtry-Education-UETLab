@@ -3,7 +3,6 @@ import { z } from "zod";
 import { getLessonsByRoad, type Lesson } from "@/lib/lessons-data";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Circle, Lock, X } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
 
 const searchSchema = z.object({ roadId: z.coerce.number().int().min(1).max(2).catch(1) });
 
@@ -43,8 +42,7 @@ function RoadPage() {
   }, {});
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground overflow-y-auto font-body flex flex-col">
-      <SiteHeader />
+    <div className="dark h-full bg-background text-foreground overflow-y-auto font-body flex flex-col relative">
 
       {/* Background noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />

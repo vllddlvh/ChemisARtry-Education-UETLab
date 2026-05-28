@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
+import SiteHeader from "@/components/SiteHeader";
 
 import appCss from "../styles.css?url";
 
@@ -96,9 +97,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
+  const isAuthPage = pathname.startsWith("/auth");
 
   return (
-    <>
+    <div className="flex flex-col h-[100dvh] w-full overflow-hidden">
+      {!isAuthPage && <SiteHeader />}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
@@ -106,12 +109,12 @@ function RootComponent() {
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="flex flex-col h-[100dvh] w-full"
+          className="flex flex-col flex-1 w-full min-h-0 relative"
         >
           <Outlet />
         </motion.div>
       </AnimatePresence>
       <Toaster position="top-center" richColors />
-    </>
+    </div>
   );
 }

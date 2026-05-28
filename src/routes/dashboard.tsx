@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate, useLocation } from "@tanstack/react
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { FlaskConical, Sparkles, Atom, Zap, LogOut, Home, BarChart2, Camera, Monitor } from "lucide-react";
 import { z } from "zod";
@@ -52,7 +51,7 @@ function DashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="dark min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="dark h-full flex items-center justify-center bg-background text-foreground">
         <div className="text-muted-foreground animate-pulse">Đang tải…</div>
       </div>
     );
@@ -69,8 +68,7 @@ function DashboardPage() {
   const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="dark min-h-screen w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
-      <SiteHeader />
+    <div className="dark h-full w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
 
       {/* Background noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />

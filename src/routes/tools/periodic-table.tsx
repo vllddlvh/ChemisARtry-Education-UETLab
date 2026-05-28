@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Sparkles, Atom, X } from "lucide-react";
 import { loadPeriodicTable, categoryStyle, type PTElement } from "@/lib/periodic-table-data";
-import SiteHeader from "@/components/SiteHeader";
 
 const AtomARScene = lazy(() => import("@/components/AtomARScene"));
 
@@ -71,8 +70,7 @@ function PeriodicTablePage() {
   };
 
   return (
-    <div className="dark min-h-screen w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
-      <SiteHeader />
+    <div className="dark h-full w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
 
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
 

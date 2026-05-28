@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { BookOpen, FlaskConical, Trophy, ArrowRight } from "lucide-react";
 import { ROAD1_LESSONS, ROAD2_LESSONS } from "@/lib/lessons-data";
@@ -19,9 +18,8 @@ export const Route = createFileRoute("/learn/")({
 
 function LearnPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <SiteHeader />
-      <div className="mx-auto max-w-4xl px-4 md:px-6 py-10">
+    <div className="h-full bg-background overflow-y-auto flex flex-col">
+      <div className="mx-auto max-w-4xl px-4 md:px-6 py-10 flex-1 w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-display font-bold">Lộ trình học của bạn</h1>
           <p className="text-muted-foreground mt-2">

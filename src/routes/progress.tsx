@@ -1,7 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -97,8 +95,7 @@ function ProgressPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <SiteHeader />
+      <div className="h-full flex flex-col">
         <div className="flex-1 grid place-items-center text-muted-foreground">Loading…</div>
       </div>
     );
@@ -106,8 +103,7 @@ function ProgressPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <SiteHeader />
+      <div className="h-full flex flex-col">
         <div className="flex-1 grid place-items-center px-6">
           <div className="max-w-md text-center rounded-3xl bg-card border border-border p-8 shadow-panel">
             <div className="text-4xl">🔒</div>
@@ -120,7 +116,6 @@ function ProgressPage() {
             </Button>
           </div>
         </div>
-        <SiteFooter />
       </div>
     );
   }
@@ -134,8 +129,7 @@ function ProgressPage() {
   const unlocked = ACHIEVEMENTS.filter((a) => a.need(p));
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
+    <div className="h-full flex flex-col">
       <div className="mx-auto max-w-5xl w-full px-6 py-10 flex-1">
         <h1 className="text-4xl font-display font-bold">Your lab journal</h1>
         <p className="text-muted-foreground mt-1">
@@ -196,7 +190,6 @@ function ProgressPage() {
           </Button>
         </div>
       </div>
-      <SiteFooter />
     </div>
   );
 }

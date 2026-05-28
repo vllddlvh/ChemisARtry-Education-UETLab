@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { FlaskConical, BookOpen, Trophy, ArrowRight, Sparkles } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
 import { cn } from "@/lib/utils";
 import AtomViewer3D from "@/components/AtomViewer3D";
 import { motion } from "motion/react";
@@ -32,8 +31,8 @@ function LandingPage() {
   if (loading || user) return null;
 
   return (
-    <div className="dark flex flex-col h-[100dvh] overflow-y-auto no-scrollbar overflow-x-hidden snap-y snap-mandatory scroll-pt-16 scroll-smooth bg-background text-foreground">
-      <SiteHeader />
+    <div className="dark flex flex-col h-full overflow-y-auto no-scrollbar overflow-x-hidden snap-y snap-mandatory scroll-pt-16 scroll-smooth bg-background text-foreground">
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative min-h-[calc(100dvh-4rem)] flex items-center py-12 lg:py-0 overflow-hidden snap-start">
