@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getLessonsByRoad, type Lesson } from "@/lib/lessons-data";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Circle, Lock, X } from "lucide-react";
+import SiteHeader from "@/components/SiteHeader";
 
 const searchSchema = z.object({ roadId: z.coerce.number().int().min(1).max(2).catch(1) });
 
@@ -42,20 +43,15 @@ function RoadPage() {
   }, {});
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground fixed inset-0 z-50 overflow-y-auto font-body">
+    <div className="dark min-h-screen bg-background text-foreground overflow-y-auto font-body flex flex-col">
+      <SiteHeader />
+
       {/* Background noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
 
-      <div className="mx-auto max-w-3xl px-6 py-8 relative z-10">
-        {/* Header with Close Button */}
-        <div className="flex justify-end mb-6">
-          <Link
-            to="/dashboard"
-            className="size-12 rounded-full bg-card/40 border border-border/50 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all cursor-pointer"
-          >
-            <X className="size-6" />
-          </Link>
-        </div>
+      <div className="mx-auto max-w-3xl px-6 py-8 relative z-10 flex-1 w-full">
+        {/* Header */}
+        <div className="mb-6" />
 
         <div className="flex items-center gap-5 mb-10">
           <span className="text-5xl drop-shadow-md">{meta.icon}</span>
@@ -145,11 +141,10 @@ function LessonRow({
         <Link
           to="/learn/lesson"
           search={{ lessonId: lesson.id }}
-          className={`text-sm font-bold px-5 py-2.5 rounded-xl transition-all ${
-            status === "done"
-              ? "text-muted-foreground bg-muted/50 hover:bg-muted"
-              : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-          }`}
+          className={`text-sm font-bold px-5 py-2.5 rounded-xl transition-all ${status === "done"
+            ? "text-muted-foreground bg-muted/50 hover:bg-muted"
+            : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+            }`}
         >
           {status === "done" ? "Ôn tập" : "Học ngay"}
         </Link>

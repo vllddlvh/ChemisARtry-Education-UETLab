@@ -123,11 +123,10 @@ function MoleculesPage() {
               <button
                 key={c}
                 onClick={() => setCat(c)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition capitalize ${
-                  cat === c
+                className={`text-xs px-3 py-1.5 rounded-full border transition capitalize ${cat === c
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-card border-border text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 {c}
               </button>
@@ -289,7 +288,7 @@ function MoleculesPage() {
               })()}
 
               <Button asChild className="w-full mt-4 rounded-full bg-gradient-primary">
-                <Link to="/lab/sim" search={{ spawn: open.formula }}>
+                <Link to="/lab/ar" search={{ spawn: open.formula }}>
                   <Box className="mr-2 h-4 w-4" />
                   Dùng trong Lab
                 </Link>

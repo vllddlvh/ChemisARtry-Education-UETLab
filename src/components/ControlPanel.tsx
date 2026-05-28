@@ -125,7 +125,7 @@ export default function ControlPanel({
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, x: -20, filter: "blur(10px)" }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="absolute left-0 top-24 bottom-24 w-[340px] flex flex-col p-4 bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl pointer-events-auto z-40 overflow-hidden"
+            className="absolute left-0 top-24 bottom-24 w-[340px] flex flex-col p-4 bg-card/60 backdrop-blur-xl border border-white/10 rounded-none shadow-2xl pointer-events-auto z-40 overflow-hidden"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-display font-bold flex items-center gap-2">
@@ -157,11 +157,10 @@ export default function ControlPanel({
                     <button
                       key={m.id}
                       onClick={() => onSelect(m)}
-                      className={`w-full text-left rounded-2xl border p-3 transition-all ${
-                        active
+                      className={`w-full text-left rounded-2xl border p-3 transition-all ${active
                           ? "border-primary bg-primary/20 shadow-glow"
                           : "border-white/5 bg-background/40 hover:border-primary/40 hover:bg-background/60"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -176,7 +175,7 @@ export default function ControlPanel({
               </TabsContent>
 
               <TabsContent value="elements" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4">
-                <QuickElementSpawn onSpawn={onSpawnElement || (() => {})} />
+                <QuickElementSpawn onSpawn={onSpawnElement || (() => { })} />
               </TabsContent>
 
               <TabsContent value="pubchem" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4">
@@ -195,7 +194,7 @@ export default function ControlPanel({
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="absolute right-0 top-24 bottom-24 w-[340px] flex flex-col p-5 bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl pointer-events-auto z-40 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="absolute right-0 top-24 bottom-24 w-[340px] flex flex-col p-5 bg-card/60 backdrop-blur-xl border border-white/10 rounded-none shadow-2xl pointer-events-auto z-40 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -207,10 +206,10 @@ export default function ControlPanel({
                   {selected.formula}
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 rounded-full shrink-0 -mr-2" 
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full shrink-0 -mr-2"
                 onClick={() => onSelect(null)}
                 title="Đóng thẻ"
               >
@@ -293,11 +292,10 @@ export default function ControlPanel({
                   {reactions.map((r) => (
                     <div
                       key={r.id}
-                      className={`rounded-xl border p-3 text-sm transition-all ${
-                        lastReaction?.id === r.id
+                      className={`rounded-xl border p-3 text-sm transition-all ${lastReaction?.id === r.id
                           ? "border-primary bg-primary/20 shadow-glow"
                           : "border-white/5 bg-background/40"
-                      }`}
+                        }`}
                     >
                       <div className="font-mono font-semibold tracking-wide text-foreground">{r.equation}</div>
                       <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{r.description}</div>

@@ -17,6 +17,7 @@ export type PubChemSearchState = {
   total: number;
   loading: boolean;
   error: string | null;
+  searchedQuery: string;
 };
 
 export type PubChemAutocompleteState = {
@@ -31,65 +32,108 @@ export type PubChemAutocompleteState = {
  * Debounced PubChem search hook.
  * Returns search state + setQuery function.
  */
-export function usePubChemSearch(debounceMs = 400) {
+export function usePubChemSearch(debounceMs = 400, autoSearch = true) {
   const [state, setState] = useState<PubChemSearchState>({
     query: "",
     results: [],
     total: 0,
     loading: false,
     error: null,
+    searchedQuery: "",
   });
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const abortRef = useRef(false);
+  const requestIdRef = useRef(0);
 
   const setQuery = useCallback((q: string) => {
     setState((s) => ({ ...s, query: q }));
   }, []);
 
+  const clearResults = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    requestIdRef.current += 1;
+    setState((s) => ({
+      ...s,
+      results: [],
+      total: 0,
+      loading: false,
+      error: null,
+      searchedQuery: "",
+    }));
+  }, []);
+
+  const performSearch = useCallback(async (q: string) => {
+    const requestId = ++requestIdRef.current;
+    setState((s) => ({ ...s, loading: true, error: null }));
+
+    try {
+      const result = await searchPubChem(q);
+      if (requestId !== requestIdRef.current) return;
+      setState((s) => ({
+        ...s,
+        results: result.compounds,
+        total: result.total,
+        loading: false,
+        searchedQuery: q,
+      }));
+    } catch (e) {
+      if (requestId !== requestIdRef.current) return;
+      setState((s) => ({
+        ...s,
+        results: [],
+        total: 0,
+        loading: false,
+        error: e instanceof Error ? e.message : "Search failed",
+        searchedQuery: q,
+      }));
+    }
+  }, []);
+
+  const runSearch = useCallback(
+    (queryOverride?: string) => {
+      const normalizedQuery = (queryOverride ?? state.query).trim();
+
+      if (queryOverride !== undefined) {
+        setState((s) => ({ ...s, query: queryOverride }));
+      }
+
+      if (!normalizedQuery || normalizedQuery.length < 2) {
+        clearResults();
+        return;
+      }
+
+      if (timerRef.current) clearTimeout(timerRef.current);
+      void performSearch(normalizedQuery);
+    },
+    [clearResults, performSearch, state.query],
+  );
+
   useEffect(() => {
+    if (!autoSearch) {
+      return;
+    }
+
     const q = state.query.trim();
     if (!q || q.length < 2) {
-      setState((s) => ({ ...s, results: [], total: 0, loading: false, error: null }));
+      clearResults();
       return;
     }
 
     // Debounce
     if (timerRef.current) clearTimeout(timerRef.current);
-    abortRef.current = true; // cancel previous in-flight
 
     setState((s) => ({ ...s, loading: true, error: null }));
 
     timerRef.current = setTimeout(async () => {
-      abortRef.current = false;
-      try {
-        const result = await searchPubChem(q);
-        if (abortRef.current) return;
-        setState((s) => ({
-          ...s,
-          results: result.compounds,
-          total: result.total,
-          loading: false,
-        }));
-      } catch (e) {
-        if (abortRef.current) return;
-        setState((s) => ({
-          ...s,
-          results: [],
-          total: 0,
-          loading: false,
-          error: e instanceof Error ? e.message : "Search failed",
-        }));
-      }
+      void performSearch(q);
     }, debounceMs);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      abortRef.current = true;
     };
-  }, [state.query, debounceMs]);
+  }, [autoSearch, clearResults, debounceMs, performSearch, state.query]);
 
-  return { ...state, setQuery };
+  return { ...state, setQuery, runSearch, clearResults };
 }
 
 /**

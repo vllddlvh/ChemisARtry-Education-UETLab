@@ -98,7 +98,7 @@ function LandingPage() {
                     variant="outline"
                     className="rounded-full h-14 px-8 text-base border-border bg-card/50 hover:bg-muted text-card-foreground backdrop-blur transition-colors"
                   >
-                    <Link to="/lab/sim">Xem thử không cần đăng nhập</Link>
+                    <Link to="/lab/ar">Xem thử không cần đăng nhập</Link>
                   </Button>
                 </motion.div>
               </div>
@@ -138,7 +138,7 @@ function LandingPage() {
         {/* Feature Highlights */}
         <section className="min-h-[calc(100dvh-4rem)] flex items-center py-24 bg-muted/30 snap-start">
           <div className="w-full mx-auto max-w-6xl px-4 md:px-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, amount: 0.3 }}
@@ -197,7 +197,7 @@ function LandingPage() {
         {/* Path Preview */}
         <section className="min-h-[calc(100dvh-4rem)] flex items-center py-24 border-t border-border snap-start">
           <div className="w-full mx-auto max-w-4xl px-4 md:px-6">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, amount: 0.3 }}
@@ -270,7 +270,7 @@ function LandingPage() {
         {/* CTA */}
         <section className="min-h-[calc(100dvh-4rem)] flex items-center justify-center py-24 text-center relative overflow-hidden bg-background snap-start">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay -z-10" />
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: false, amount: 0.3 }}

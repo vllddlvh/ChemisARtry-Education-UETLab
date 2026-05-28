@@ -108,7 +108,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
                 <span className="text-sm font-mono text-muted-foreground">#{element.number}</span>
               </SheetTitle>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                <Badge variant="secondary">{s.label}</Badge>
+                {s.label ? <Badge variant="secondary">{s.label}</Badge> : null}
                 {element.phase && <Badge variant="outline">{element.phase}</Badge>}
                 <span className="text-muted-foreground font-mono">
                   M = {element.atomic_mass.toFixed(3)} u
@@ -326,7 +326,7 @@ export default function ElementDetail({ element, open, onOpenChange, onLaunchAR 
 
           <div className="grid grid-cols-2 gap-2 mt-5">
             <Button asChild className="rounded-full bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30">
-              <Link to="/lab/sim" search={{ element: element.symbol }}>
+              <Link to="/lab/ar" search={{ element: element.symbol }}>
                 <FlaskConical className="mr-2 h-4 w-4" />
                 Ghép phân tử trong Lab
               </Link>

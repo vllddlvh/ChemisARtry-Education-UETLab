@@ -101,12 +101,15 @@ export default function PeriodicTableGrid({
 
       {/* Legend */}
       <div className="mt-4 flex flex-wrap gap-2">
-        {Object.keys(
+        {(
           (function () {
             const m: Record<string, true> = {};
-            for (const e of elements) m[e.category.toLowerCase()] = true;
-            return m;
-          })(),
+            for (const e of elements) if (e.category) m[e.category.toLowerCase()] = true;
+            return Object.keys(m).filter((cat) => {
+              const s = categoryStyle(cat);
+              return !!(s.label && s.label.trim()) && (s.label || "").toLowerCase() !== "unknown" && cat.trim() !== "";
+            });
+          })()
         )
           .slice(0, 12)
           .map((cat) => {

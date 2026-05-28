@@ -158,11 +158,10 @@ function ReactionsPage() {
 
               {detailReaction.energy_kj != null && (
                 <div
-                  className={`mt-3 rounded-xl p-3 text-center ${
-                    detailReaction.energy_kj < 0
+                  className={`mt-3 rounded-xl p-3 text-center ${detailReaction.energy_kj < 0
                       ? "bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800"
                       : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
-                  }`}
+                    }`}
                 >
                   <div className="text-xs text-muted-foreground">Enthalpy change</div>
                   <div className="font-mono text-lg font-bold mt-0.5">
@@ -209,7 +208,7 @@ function ReactionsPage() {
               )}
 
               <Button asChild className="w-full mt-4 rounded-full bg-gradient-primary">
-                <Link to="/lab/sim" search={{ spawn: detailReaction.reactants.join(",") }}>
+                <Link to="/lab/ar" search={{ spawn: detailReaction.reactants.join(",") }}>
                   Thử trong Lab →
                 </Link>
               </Button>

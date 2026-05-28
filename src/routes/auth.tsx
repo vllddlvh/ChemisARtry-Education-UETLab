@@ -264,7 +264,7 @@ function AuthPage() {
                   )}
                   <div className="mt-4">
                     <Link
-                      to="/lab/sim"
+                      to="/lab/ar"
                       className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-4"
                     >
                       Tiếp tục không cần đăng nhập

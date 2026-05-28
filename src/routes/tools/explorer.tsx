@@ -57,7 +57,7 @@ const SUGGESTIONS = [
 
 function SearchPage() {
   const navigate = useNavigate();
-  const search = usePubChemSearch(500);
+  const search = usePubChemSearch(500, false);
   const autocomplete = usePubChemCompoundAutocomplete(180);
   const mol3d = usePubChemMolecule();
   const desc = usePubChemDescription();
@@ -76,28 +76,30 @@ function SearchPage() {
     if (!mol3d.molecule) return;
 
     sessionStorage.setItem("chemisartry.pendingSpawn", JSON.stringify(mol3d.molecule));
-    navigate({ to: "/lab/sim", search: { spawn: "pubchem" } });
+    navigate({ to: "/lab/ar", search: { spawn: "pubchem" } });
   }
 
   function handleChooseSuggestion(term: string) {
-    // Set the query, submit it, and close the dropdown
-    search.setQuery(term);
     autocomplete.setQuery(term);
     setInputFocused(false);
-    setSubmittedQuery(term.trim());
-    setSelected(null);
+    handleSubmitSearch(term);
     inputRef.current?.blur();
   }
 
-  function handleSubmitSearch() {
-    const q = search.query.trim();
+  function handleSubmitSearch(queryOverride?: string) {
+    const q = (queryOverride ?? search.query).trim();
+    if (q.length < 2) return;
+    if (queryOverride !== undefined) {
+      search.setQuery(queryOverride);
+      autocomplete.setQuery(queryOverride);
+    }
     setSubmittedQuery(q);
-    setSelected(null);
+    search.runSearch(q);
   }
 
   const showAutocomplete =
     inputFocused && search.query.trim().length >= 3 && autocomplete.terms.length > 0;
-  const showResults = submittedQuery.length >= 2;
+  const showResults = submittedQuery.length >= 2 && submittedQuery === search.query.trim();
   const hasSubmittedResults = showResults && !search.loading && search.results.length > 0;
 
   return (
@@ -117,7 +119,7 @@ function SearchPage() {
               </p>
             </div>
             <Button asChild className="rounded-full bg-gradient-primary">
-              <Link to="/lab/sim">
+              <Link to="/lab/ar">
                 <FlaskConical className="mr-2 h-4 w-4" /> AR Lab
               </Link>
             </Button>
@@ -188,7 +190,7 @@ function SearchPage() {
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s.query}
-                  onClick={() => search.setQuery(s.query)}
+                  onClick={() => handleSubmitSearch(s.query)}
                   className="text-xs px-3 py-1.5 rounded-full border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition"
                 >
                   {s.label}
@@ -214,27 +216,31 @@ function SearchPage() {
                     <button
                       key={c.cid}
                       onClick={() => handleSelect(c)}
-                      className={`w-full text-left rounded-2xl border p-4 transition-all ${selected?.cid === c.cid
+                      className={`w-full text-left rounded-2xl border p-4 transition-all overflow-hidden ${selected?.cid === c.cid
                         ? "border-primary bg-primary/5 shadow-md"
                         : "border-border bg-card hover:border-primary/40 hover:-translate-y-0.5"
                         }`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-sm truncate">
+                      <div className="grid grid-cols-[minmax(0,1fr)_2.25rem] items-start gap-3 min-w-0">
+                        <div className="min-w-0 overflow-hidden">
+                          <div
+                            className="block overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-sm"
+                            style={{ maxWidth: "100%" }}
+                            title={c.iupacName || c.molecularFormula}
+                          >
                             {c.iupacName || c.molecularFormula}
                           </div>
-                          <div className="flex items-center gap-3 mt-1 text-xs">
-                            <span className="font-mono text-primary font-bold">
+                          <div className="mt-1 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 text-xs min-w-0 overflow-hidden">
+                            <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-primary font-bold">
                               {c.molecularFormula}
                             </span>
-                            <span className="text-muted-foreground">
+                            <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground">
                               MW: {Number(c.molecularWeight).toFixed(2)}
                             </span>
-                            <span className="text-muted-foreground">CID: {c.cid}</span>
+                            <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground">CID: {c.cid}</span>
                           </div>
                         </div>
-                        <div className="shrink-0 h-9 w-9 rounded-xl bg-primary/10 grid place-items-center">
+                        <div className="h-9 w-9 rounded-xl bg-primary/10 grid place-items-center shrink-0">
                           <Atom className="h-4 w-4 text-primary" />
                         </div>
                       </div>

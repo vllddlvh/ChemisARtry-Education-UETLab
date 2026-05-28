@@ -569,7 +569,7 @@ export function categoryStyle(category: string) {
       bg: "bg-muted",
       text: "text-foreground",
       ring: "ring-border",
-      label: category || "Unknown",
+      label: "",
     }
   );
 }

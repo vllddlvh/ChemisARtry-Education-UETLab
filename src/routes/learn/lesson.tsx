@@ -406,7 +406,7 @@ function PracticeTab({ lesson }: { lesson: Lesson }) {
             icon="🖥️"
             title="Mô phỏng 3D"
             subtitle="Kéo thả tương tác · Không cần camera"
-            href={`/lab/sim?lesson=${lesson.id}`}
+            href={`/lab/ar?lesson=${lesson.id}`}
           />
           <PracticeCard
             icon="📷"

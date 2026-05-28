@@ -1,10 +1,9 @@
 // /lab/ar — AR mode (camera + hand tracking)
-// Tương tự lab/sim nhưng arOn mặc định = true
+// Tương tự chế độ mô phỏng nhưng arOn mặc định = true
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState, useCallback, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import SiteHeader from "@/components/SiteHeader";
 import ARScene from "@/components/ARScene";
 import ControlPanel from "@/components/ControlPanel";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
@@ -35,7 +34,7 @@ export const Route = createFileRoute("/lab/ar")({
 });
 
 function LabARPage() {
-  const { lesson, spawn: spawnParam, element: elementParam } = Route.useSearch();
+  const { spawn: spawnParam, element: elementParam } = Route.useSearch();
   const { molecules, reactions, loading } = useChemistryData();
   const { user } = useAuth();
 
@@ -108,9 +107,11 @@ function LabARPage() {
   }, [selected]);
 
   return (
-    <div className="relative w-full h-dvh overflow-hidden bg-black">
+    <div className="relative w-full min-h-screen overflow-hidden bg-black flex flex-col">
+      <SiteHeader />
+
       {/* 3D / AR Scene Layer */}
-      <main className="absolute inset-0 z-0">
+      <main className="relative flex-1 z-0">
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-white/70">Đang tải dữ liệu hoá học…</div>
@@ -130,21 +131,7 @@ function LabARPage() {
       </main>
 
       {/* UI Overlay Layer */}
-      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col p-4 md:p-6 justify-between">
-        {/* Close Button */}
-        <div className="pointer-events-auto absolute top-6 right-6 z-50">
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            className="rounded-full bg-background/60 backdrop-blur-md border-border text-foreground hover:bg-background/80 shadow-lg w-12 h-12"
-          >
-            <Link to={lesson ? "/learn/lesson" : "/dashboard"} search={lesson ? { lessonId: lesson } : { tab: "lab" }}>
-              <X className="h-6 w-6" />
-            </Link>
-          </Button>
-        </div>
-
+      <div className="absolute inset-x-0 bottom-0 top-16 pointer-events-none z-10 flex flex-col p-4 md:p-6 justify-between">
         {/* Reaction banner (Floating Top Center or Bottom) */}
         {lastReaction && (
           <div className="pointer-events-auto absolute top-20 left-1/2 -translate-x-1/2 rounded-full border border-primary/20 bg-card/80 backdrop-blur-xl px-6 py-2.5 text-sm flex items-center justify-between gap-4 shadow-xl animate-in fade-in slide-in-from-top-4">

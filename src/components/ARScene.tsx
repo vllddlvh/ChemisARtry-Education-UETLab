@@ -610,7 +610,7 @@ export default function ARScene({
   }
 
   return (
-    <div ref={wrapRef} className="relative h-full w-full overflow-hidden rounded-3xl">
+    <div ref={wrapRef} className="relative h-full w-full overflow-hidden rounded-none">
       <video
         ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"

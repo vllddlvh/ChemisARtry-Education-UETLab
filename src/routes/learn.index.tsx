@@ -67,7 +67,7 @@ function LearnPage() {
           </h2>
           <div className="grid sm:grid-cols-3 gap-4">
             <ToolCard
-              href="/lab/sim"
+              href="/lab/ar"
               icon={<FlaskConical className="h-5 w-5" />}
               title="Phòng thí nghiệm"
               desc="Mô phỏng 3D không cần camera"

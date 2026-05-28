@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Sparkles, Atom, X } from "lucide-react";
 import { loadPeriodicTable, categoryStyle, type PTElement } from "@/lib/periodic-table-data";
+import SiteHeader from "@/components/SiteHeader";
 
 const AtomARScene = lazy(() => import("@/components/AtomARScene"));
 
@@ -55,7 +56,12 @@ function PeriodicTablePage() {
 
   const categories = useMemo(() => {
     const set = new Set<string>();
-    for (const e of elements) set.add(e.category.toLowerCase());
+    for (const e of elements) {
+      if (!e.category) continue;
+      const c = e.category.toLowerCase().trim();
+      if (!c || c === "unknown") continue;
+      set.add(c);
+    }
     return Array.from(set).sort();
   }, [elements]);
 
@@ -65,17 +71,10 @@ function PeriodicTablePage() {
   };
 
   return (
-    <div className="dark h-dvh w-full flex bg-background text-foreground overflow-hidden font-body relative">
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
+    <div className="dark min-h-screen w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
+      <SiteHeader />
 
-      {/* Nút X đóng trang và trở về dashboard */}
-      <Link
-        to="/dashboard"
-        className="absolute top-6 right-6 z-50 h-12 w-12 rounded-full bg-card/40 backdrop-blur-xl border border-border/50 flex items-center justify-center text-muted-foreground hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all hover:scale-110 hover:shadow-lg"
-        aria-label="Đóng bảng tuần hoàn"
-      >
-        <X className="h-6 w-6" />
-      </Link>
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
 
       <main className="flex-1 relative z-10 flex flex-col min-h-0 w-full px-4 md:px-8 py-4">
         <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col lg:flex-row gap-6 min-h-0">
@@ -123,8 +122,8 @@ function PeriodicTablePage() {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Tìm nguyên tố..."
-                className="pl-9 h-10 bg-card/40 backdrop-blur-md border-border/50 text-foreground shadow-soft focus-visible:ring-primary/50"
+                placeholder="Tìm nguyên tố"
+                className="pl-9 ml-1 h-10 bg-card/40 backdrop-blur-md border-border/50 text-foreground shadow-soft focus-visible:ring-primary/50"
               />
               {query && (
                 <button
@@ -193,6 +192,8 @@ function CategoryChip({
   onClick: () => void;
   label: string;
 }) {
+  if (!label || !label.trim() || label.toLowerCase().trim() === "unknown") return null;
+
   return (
     <button
       onClick={onClick}
