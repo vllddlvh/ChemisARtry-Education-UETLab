@@ -11,6 +11,7 @@ import * as THREE from "three";
 import { initHandLandmarker, processResult, type HandFrame } from "@/lib/hand-tracker";
 import { elementInfo, type Molecule } from "@/lib/chemistry";
 import { findMatchingReaction, PROXIMITY_THRESHOLD } from "@/lib/reaction-engine";
+import { reactionVisual, type ReactionVisual } from "@/lib/reaction-data";
 import type { Reaction } from "@/lib/chemistry";
 import MoleculeInfoTooltip from "./MoleculeInfoTooltip";
 
@@ -22,7 +23,23 @@ type SpawnedMol = {
   grabbedBy: number | null; // hand index or null
   baseScale: number;
   spawnedAt: number;
+  // Hiệu ứng phóng to khi mới xuất hiện (sản phẩm phản ứng).
+  scaleIn?: { start: number; duration: number };
+  // Đang trong pha "đang phản ứng" (bị hút về tâm + phát sáng).
+  reacting?: boolean;
 };
+
+// Một phản ứng đang diễn ra (pha animation trước khi tạo sản phẩm).
+type PendingReaction = {
+  a: SpawnedMol;
+  b: SpawnedMol;
+  rx: Reaction;
+  visual: ReactionVisual;
+  center: THREE.Vector3;
+  startedAt: number;
+};
+
+const REACTION_WINDUP_MS = 650; // thời gian "tích tụ" trước khi tạo sản phẩm
 
 type Props = {
   molecules: Molecule[];
@@ -123,8 +140,17 @@ function makeTextSprite(text: string, color = "#0f1e3d") {
 }
 
 // Spawn a sparkly particle burst at a position.
-function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string) {
-  const count = 60;
+function spawnBurst(
+  scene: THREE.Scene,
+  position: THREE.Vector3,
+  color: string,
+  opts?: { count?: number; size?: number; speed?: number; life?: number; gravity?: number },
+) {
+  const count = opts?.count ?? 60;
+  const size = opts?.size ?? 0.18;
+  const speed = opts?.speed ?? 4;
+  const life = opts?.life ?? 1.2;
+  const gravity = opts?.gravity ?? 0;
   const geom = new THREE.BufferGeometry();
   const pos = new Float32Array(count * 3);
   const vel: THREE.Vector3[] = [];
@@ -134,14 +160,21 @@ function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string) 
     pos[i * 3 + 2] = position.z;
     vel.push(
       new THREE.Vector3(
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * speed,
+        (Math.random() - 0.5) * speed,
+        (Math.random() - 0.5) * speed,
       ),
     );
   }
   geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  const mat = new THREE.PointsMaterial({ color, size: 0.18, transparent: true, opacity: 1 });
+  const mat = new THREE.PointsMaterial({
+    color,
+    size,
+    transparent: true,
+    opacity: 1,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
   const points = new THREE.Points(geom, mat);
   scene.add(points);
   const start = performance.now();
@@ -149,14 +182,15 @@ function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string) 
     const t = (performance.now() - start) / 1000;
     const arr = geom.attributes.position.array as Float32Array;
     for (let i = 0; i < count; i++) {
+      vel[i].y -= gravity * 0.016;
       arr[i * 3] += vel[i].x * 0.016;
       arr[i * 3 + 1] += vel[i].y * 0.016;
       arr[i * 3 + 2] += vel[i].z * 0.016;
       vel[i].multiplyScalar(0.94);
     }
     geom.attributes.position.needsUpdate = true;
-    mat.opacity = Math.max(0, 1 - t / 1.2);
-    if (t < 1.2) requestAnimationFrame(tick);
+    mat.opacity = Math.max(0, 1 - t / life);
+    if (t < life) requestAnimationFrame(tick);
     else {
       scene.remove(points);
       geom.dispose();
@@ -164,6 +198,101 @@ function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string) 
     }
   };
   requestAnimationFrame(tick);
+}
+
+// Expanding glowing ring (shockwave) — nhấn mạnh thời điểm phản ứng xảy ra.
+function spawnShockwave(scene: THREE.Scene, position: THREE.Vector3, color: string) {
+  const geo = new THREE.RingGeometry(0.1, 0.32, 48);
+  const mat = new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity: 0.9,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const ring = new THREE.Mesh(geo, mat);
+  ring.position.copy(position);
+  scene.add(ring);
+  const start = performance.now();
+  const life = 0.7;
+  const tick = () => {
+    const t = (performance.now() - start) / 1000;
+    const s = 1 + (t / life) * 9;
+    ring.scale.set(s, s, s);
+    mat.opacity = Math.max(0, 0.9 * (1 - t / life));
+    if (t < life) requestAnimationFrame(tick);
+    else {
+      scene.remove(ring);
+      geo.dispose();
+      mat.dispose();
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+// Sprite hiển thị phương trình phản ứng nổi lên giữa không gian rồi mờ dần.
+function spawnEquationSprite(scene: THREE.Scene, position: THREE.Vector3, equation: string) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // nền bo tròn bán trong suốt
+  ctx.fillStyle = "rgba(12,18,30,0.82)";
+  roundRect(ctx, 12, 70, canvas.width - 24, 116, 40);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(125,226,255,0.55)";
+  ctx.lineWidth = 3;
+  roundRect(ctx, 12, 70, canvas.width - 24, 116, 40);
+  ctx.stroke();
+  ctx.fillStyle = "#eaf6ff";
+  ctx.font = "bold 64px 'JetBrains Mono', monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(equation, canvas.width / 2, canvas.height / 2 + 4);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 4;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(5.2, 1.3, 1);
+  sprite.position.copy(position).add(new THREE.Vector3(0, 1.6, 0));
+  scene.add(sprite);
+
+  const start = performance.now();
+  const life = 2.6;
+  const baseY = sprite.position.y;
+  const tick = () => {
+    const t = (performance.now() - start) / 1000;
+    sprite.position.y = baseY + t * 0.5;
+    const k = t < 0.3 ? t / 0.3 : t > life - 0.6 ? Math.max(0, (life - t) / 0.6) : 1;
+    mat.opacity = k;
+    if (t < life) requestAnimationFrame(tick);
+    else {
+      scene.remove(sprite);
+      tex.dispose();
+      mat.dispose();
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
 export default function ARScene({
@@ -184,11 +313,18 @@ export default function ARScene({
   const [handCount, setHandCount] = useState(0);
   const [hasSpawnedMolecules, setHasSpawnedMolecules] = useState(false);
   const [trashHot, setTrashHot] = useState(false);
-  const [hoveredAtom, setHoveredAtom] = useState<{ symbol: string; x: number; y: number } | null>(null);
+  const [hoveredAtom, setHoveredAtom] = useState<{ symbol: string; x: number; y: number } | null>(
+    null,
+  );
+  // Hiệu ứng chớp sáng toàn màn hình khi phản ứng xảy ra (toả/thu nhiệt).
+  const [flash, setFlash] = useState<{ color: string; key: number } | null>(null);
+  // Gợi ý "sắp phản ứng" khi 2 phân tử tương thích lại gần nhau.
+  const [reactionHint, setReactionHint] = useState<{ label: string; icon: string } | null>(null);
 
   const hoveredElRef = useRef<string | null>(null);
 
   const spawnedRef = useRef<SpawnedMol[]>([]);
+  const pendingReactionRef = useRef<PendingReaction | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -215,7 +351,9 @@ export default function ARScene({
     const trash = trashRef.current;
     if (!trash) return false;
     const rect = trash.getBoundingClientRect();
-    return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+    return (
+      clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom
+    );
   };
 
   const removeSpawnedMolecule = (mol: SpawnedMol) => {
@@ -272,7 +410,7 @@ export default function ARScene({
     const dragPlane = dragPlaneRef.current;
     const intersection = intersectionRef.current;
 
-    const onPointerDown = (e: any) => {
+    const onPointerDown = (e: PointerEvent) => {
       const rect = wrap.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -299,7 +437,7 @@ export default function ARScene({
       }
     };
 
-    const onPointerMove = (e: any) => {
+    const onPointerMove = (e: PointerEvent) => {
       const rect = wrap.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -470,9 +608,18 @@ export default function ARScene({
     if (!s) return;
     spawnedRef.current.forEach((m) => s.remove(m.group));
     spawnedRef.current = [];
+    pendingReactionRef.current = null;
+    setReactionHint(null);
     syncSpawnedState();
     setTrashHot(false);
   }, [resetSignal]);
+
+  // Tự tắt hiệu ứng chớp sáng sau một nhịp ngắn.
+  useEffect(() => {
+    if (!flash) return;
+    const id = setTimeout(() => setFlash(null), 650);
+    return () => clearTimeout(id);
+  }, [flash]);
 
   // Toggle labels when education mode changes.
   useEffect(() => {
@@ -486,6 +633,28 @@ export default function ARScene({
     if (!scene) return;
     const frame = handFrameRef.current;
     const now = performance.now();
+
+    // Hiệu ứng phóng to khi sản phẩm mới xuất hiện.
+    spawnedRef.current.forEach((m) => {
+      if (m.scaleIn) {
+        const t = (now - m.scaleIn.start) / m.scaleIn.duration;
+        if (t >= 1) {
+          m.group.scale.setScalar(m.baseScale);
+          m.scaleIn = undefined;
+        } else {
+          // ease-out-back nhẹ
+          const k = 1 - Math.pow(1 - t, 3);
+          const overshoot = Math.sin(t * Math.PI) * 0.18;
+          m.group.scale.setScalar(m.baseScale * (k + overshoot));
+        }
+      }
+    });
+
+    // Nếu đang có phản ứng trong pha "tích tụ", xử lý riêng và bỏ qua phần còn lại.
+    if (pendingReactionRef.current) {
+      advancePendingReaction(now);
+      return;
+    }
 
     // Map normalized hand coords -> world coords (mirror X for selfie).
     const handsWorld = frame.hands.map((h) => ({
@@ -554,27 +723,89 @@ export default function ARScene({
     }
 
     // Reaction check: any two molecules within threshold
+    let hintShown = false;
     for (let i = 0; i < spawnedRef.current.length; i++) {
       for (let j = i + 1; j < spawnedRef.current.length; j++) {
         const a = spawnedRef.current[i],
           b = spawnedRef.current[j];
         if (now - a.spawnedAt < 400 || now - b.spawnedAt < 400) continue;
         const d = a.group.position.distanceTo(b.group.position);
+        const rx = findMatchingReaction([a.formula, b.formula], reactionsRef.current);
+        if (!rx) continue;
+
+        // Gợi ý "sắp phản ứng" khi lại gần (trong vùng 2x ngưỡng).
+        if (d < PROXIMITY_THRESHOLD * 2.2 && !hintShown) {
+          const v = reactionVisual(rx);
+          setReactionHint((prev) =>
+            prev?.label === v.label ? prev : { label: v.label, icon: v.icon },
+          );
+          hintShown = true;
+        }
+
         if (d < PROXIMITY_THRESHOLD) {
-          const rx = findMatchingReaction([a.formula, b.formula], reactionsRef.current);
-          if (rx) {
-            triggerReaction(a, b, rx);
-            return;
-          }
+          beginReaction(a, b, rx);
+          return;
         }
       }
     }
+    if (!hintShown) setReactionHint((prev) => (prev === null ? prev : null));
   }
 
-  function triggerReaction(a: SpawnedMol, b: SpawnedMol, rx: Reaction) {
+  // Bắt đầu pha "tích tụ": hai chất phản ứng bị hút về tâm + phát sáng.
+  function beginReaction(a: SpawnedMol, b: SpawnedMol, rx: Reaction) {
+    const center = a.group.position.clone().add(b.group.position).multiplyScalar(0.5);
+    a.grabbedBy = null;
+    b.grabbedBy = null;
+    a.reacting = true;
+    b.reacting = true;
+    pendingReactionRef.current = {
+      a,
+      b,
+      rx,
+      visual: reactionVisual(rx),
+      center,
+      startedAt: performance.now(),
+    };
+    setReactionHint(null);
+  }
+
+  // Cập nhật pha "tích tụ" mỗi frame; khi đủ thời gian thì tạo sản phẩm.
+  function advancePendingReaction(now: number) {
+    const p = pendingReactionRef.current;
+    const scene = sceneRef.current;
+    if (!p || !scene) return;
+    const t = (now - p.startedAt) / REACTION_WINDUP_MS;
+
+    // Hút 2 chất về tâm + rung + co lại nhẹ.
+    [p.a, p.b].forEach((m) => {
+      m.group.position.lerp(p.center, 0.18);
+      const shake = Math.sin(now * 0.05) * 0.04 * t;
+      m.group.position.x += shake;
+      m.group.rotation.y += 0.12;
+      const s = m.baseScale * (1 - 0.35 * t);
+      m.group.scale.setScalar(Math.max(0.05, s));
+    });
+
+    // Phát một ít hạt "tích điện" hút vào tâm.
+    if (Math.random() < 0.5) {
+      spawnBurst(scene, p.center.clone(), p.visual.particleColors[1], {
+        count: 6,
+        size: 0.1,
+        speed: 1.2,
+        life: 0.5,
+      });
+    }
+
+    if (t >= 1) {
+      commitReaction(p);
+      pendingReactionRef.current = null;
+    }
+  }
+
+  function commitReaction(p: PendingReaction) {
     const scene = sceneRef.current;
     if (!scene) return;
-    const center = a.group.position.clone().add(b.group.position).multiplyScalar(0.5);
+    const { a, b, rx, visual, center } = p;
 
     // Remove reactants
     scene.remove(a.group);
@@ -583,29 +814,58 @@ export default function ARScene({
     syncSpawnedState();
     setTrashHot(false);
 
-    spawnBurst(scene, center, "#ffb86b");
-    spawnBurst(scene, center, "#7de2ff");
+    // Hiệu ứng theo loại phản ứng.
+    const [c1, c2] = visual.particleColors;
+    spawnShockwave(scene, center, c1);
+    spawnBurst(scene, center, c1, { count: 90, size: 0.2, speed: 6, life: 1.3 });
+    spawnBurst(scene, center, c2, { count: 60, size: 0.14, speed: 3.5, life: 1.1 });
+    if (visual.kind === "combustion") {
+      // lửa bay lên
+      spawnBurst(scene, center, "#ffd166", {
+        count: 50,
+        size: 0.22,
+        speed: 2,
+        life: 1.6,
+        gravity: -3,
+      });
+    }
+    spawnEquationSprite(scene, center, rx.equation);
 
-    // Spawn products
-    rx.products.forEach((pf, idx) => {
-      const def = moleculesRef.current.find((m) => m.formula === pf);
-      if (!def) return;
+    // Chớp sáng toàn màn hình (đỏ-cam nếu toả nhiệt, xanh nếu thu nhiệt).
+    setFlash({
+      color:
+        visual.exothermic === true
+          ? "rgba(255,138,80,0.28)"
+          : visual.exothermic === false
+            ? "rgba(110,160,255,0.26)"
+            : "rgba(167,139,250,0.24)",
+      key: performance.now(),
+    });
+
+    // Spawn products với hiệu ứng phóng to.
+    const productDefs = rx.products
+      .map((pf) => moleculesRef.current.find((m) => m.formula === pf))
+      .filter(Boolean) as Molecule[];
+
+    productDefs.forEach((def, idx) => {
       const { group, labels } = buildMoleculeGroup(def, educationRef.current);
-      group.position.copy(center).add(new THREE.Vector3((idx - 0.5) * 2, 0, 0));
+      const spread = (idx - (productDefs.length - 1) / 2) * 2.2;
+      group.position.copy(center).add(new THREE.Vector3(spread, 0, 0));
+      group.scale.setScalar(0.05);
       scene.add(group);
       spawnedRef.current.push({
         id: crypto.randomUUID(),
-        formula: pf,
+        formula: def.formula,
         group,
         labels,
         grabbedBy: null,
         baseScale: 1,
         spawnedAt: performance.now(),
+        scaleIn: { start: performance.now(), duration: 420 },
       });
     });
 
     syncSpawnedState();
-
     onReactionRef.current(rx);
   }
 
@@ -637,6 +897,26 @@ export default function ARScene({
         className="absolute inset-0 h-full w-full touch-none cursor-grab active:cursor-grabbing"
       />
 
+      {/* Chớp sáng toàn màn hình khi phản ứng xảy ra */}
+      {flash && (
+        <div
+          key={flash.key}
+          className="pointer-events-none absolute inset-0 z-30 animate-reaction-flash"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, ${flash.color}, transparent 70%)`,
+          }}
+        />
+      )}
+
+      {/* Gợi ý "sắp phản ứng" */}
+      {reactionHint && (
+        <div className="pointer-events-none absolute top-16 left-1/2 -translate-x-1/2 z-30 rounded-full bg-card/85 backdrop-blur-xl border border-primary/40 px-4 py-1.5 text-xs font-medium shadow-glow animate-pulse-glow flex items-center gap-2">
+          <span className="text-base">{reactionHint.icon}</span>
+          <span className="text-foreground">Sắp xảy ra: {reactionHint.label}</span>
+          <span className="text-muted-foreground">— đưa lại gần để phản ứng</span>
+        </div>
+      )}
+
       {!arOn && (
         <MoleculeInfoTooltip
           elementSymbol={hoveredAtom?.symbol ?? null}
@@ -661,10 +941,14 @@ export default function ARScene({
         ref={trashRef}
         className={`pointer-events-auto absolute bottom-6 right-6 z-50 flex h-20 w-20 flex-col items-center justify-center rounded-3xl border border-border/60 bg-card/85 backdrop-blur-xl shadow-2xl transition-all duration-200 ${trashHot ? "scale-105 border-destructive/60 bg-destructive/15 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]" : "hover:border-destructive/30 hover:bg-destructive/10"}`}
       >
-        <div className={`text-2xl transition-transform duration-200 ${trashHot ? "scale-110" : ""}`}>
+        <div
+          className={`text-2xl transition-transform duration-200 ${trashHot ? "scale-110" : ""}`}
+        >
           🗑️
         </div>
-        <div className={`mt-1 text-[10px] uppercase tracking-[0.3em] ${trashHot ? "text-destructive" : "text-muted-foreground"}`}>
+        <div
+          className={`mt-1 text-[10px] uppercase tracking-[0.3em] ${trashHot ? "text-destructive" : "text-muted-foreground"}`}
+        >
           Trash
         </div>
       </div>

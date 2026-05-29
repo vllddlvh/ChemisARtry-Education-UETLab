@@ -215,14 +215,15 @@ function TheoryTab({ lesson }: { lesson: Lesson }) {
                         key={i}
                         disabled={showResult}
                         onClick={() => setQuizAnswers((prev) => ({ ...prev, [q.id]: i }))}
-                        className={`rounded-2xl border p-4 text-sm font-bold text-left transition-all ${showResult
-                          ? isCorrect
-                            ? "border-green-500 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                            : isChosen
-                              ? "border-red-400 bg-red-400/10 text-red-400 shadow-[0_0_15px_rgba(248,113,113,0.1)]"
-                              : "border-border/50 opacity-50 bg-card/40"
-                          : "border-border/50 bg-card/40 hover:border-primary/50 hover:bg-card/60"
-                          }`}
+                        className={`rounded-2xl border p-4 text-sm font-bold text-left transition-all ${
+                          showResult
+                            ? isCorrect
+                              ? "border-green-500 bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                              : isChosen
+                                ? "border-red-400 bg-red-400/10 text-red-400 shadow-[0_0_15px_rgba(248,113,113,0.1)]"
+                                : "border-border/50 opacity-50 bg-card/40"
+                            : "border-border/50 bg-card/40 hover:border-primary/50 hover:bg-card/60"
+                        }`}
                       >
                         {opt}
                       </button>
@@ -259,10 +260,11 @@ function ExploreTab({ lesson }: { lesson: Lesson }) {
                   <button
                     key={el}
                     onClick={() => setSelected(el)}
-                    className={`h-9 px-3 rounded-lg text-sm font-bold border transition-all ${selected === el
-                      ? "bg-primary text-primary-foreground border-primary shadow-glow"
-                      : "bg-card/40 border-border/50 hover:border-primary/40 text-foreground hover:bg-card/60"
-                      }`}
+                    className={`h-9 px-3 rounded-lg text-sm font-bold border transition-all ${
+                      selected === el
+                        ? "bg-primary text-primary-foreground border-primary shadow-glow"
+                        : "bg-card/40 border-border/50 hover:border-primary/40 text-foreground hover:bg-card/60"
+                    }`}
                   >
                     {el}
                   </button>
@@ -406,13 +408,13 @@ function PracticeTab({ lesson }: { lesson: Lesson }) {
             icon="🖥️"
             title="Mô phỏng 3D"
             subtitle="Kéo thả tương tác · Không cần camera"
-            href={`/lab/ar?lesson=${lesson.id}`}
+            lessonId={lesson.id}
           />
           <PracticeCard
             icon="📷"
             title="AR Lab (Camera)"
             subtitle="Dùng thẻ AR để điều khiển · Yêu cầu camera"
-            href={`/lab/ar?lesson=${lesson.id}`}
+            lessonId={lesson.id}
             highlight
           />
         </div>
@@ -447,22 +449,24 @@ function PracticeCard({
   icon,
   title,
   subtitle,
-  href,
+  lessonId,
   highlight,
 }: {
   icon: string;
   title: string;
   subtitle: string;
-  href: string;
+  lessonId: string;
   highlight?: boolean;
 }) {
   return (
     <Link
-      to={href}
-      className={`group rounded-3xl border p-6 transition-all flex flex-col gap-4 relative overflow-hidden ${highlight
-        ? "border-primary/50 bg-primary/5 hover:bg-primary/10 hover:shadow-[0_0_30px_rgba(45,212,191,0.15)]"
-        : "border-border/50 bg-card/40 hover:bg-card/60 hover:border-primary/30 shadow-soft"
-        }`}
+      to="/lab/ar"
+      search={{ lesson: lessonId }}
+      className={`group rounded-3xl border p-6 transition-all flex flex-col gap-4 relative overflow-hidden ${
+        highlight
+          ? "border-primary/50 bg-primary/5 hover:bg-primary/10 hover:shadow-[0_0_30px_rgba(45,212,191,0.15)]"
+          : "border-border/50 bg-card/40 hover:bg-card/60 hover:border-primary/30 shadow-soft"
+      }`}
     >
       {highlight && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary" />}
 

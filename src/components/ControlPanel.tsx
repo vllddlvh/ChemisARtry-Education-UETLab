@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Molecule, Reaction } from "@/lib/chemistry";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -14,11 +14,12 @@ import {
   Library,
   Sparkles,
   X,
-  Atom
+  Atom,
 } from "lucide-react";
 import PubChemSearch from "@/components/PubChemSearch";
 import QuickElementSpawn from "@/components/QuickElementSpawn";
 import { usePubChemEnrichment } from "@/hooks/use-pubchem-enrichment";
+import { reactionVisual } from "@/lib/reaction-data";
 import { motion, AnimatePresence } from "motion/react";
 
 import { translateToVietnamese } from "@/lib/translate";
@@ -58,6 +59,15 @@ export default function ControlPanel({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [translatedDesc, setTranslatedDesc] = useState<string>("");
   const enrichment = usePubChemEnrichment();
+
+  // Sắp xếp phản ứng: ưu tiên những phản ứng liên quan đến phân tử đang chọn.
+  const orderedReactions = useMemo(() => {
+    if (!selected) return reactions;
+    const f = selected.formula;
+    const involved = reactions.filter((r) => r.reactants.includes(f) || r.products.includes(f));
+    const rest = reactions.filter((r) => !r.reactants.includes(f) && !r.products.includes(f));
+    return [...involved, ...rest];
+  }, [reactions, selected]);
 
   // Auto-enrich when a molecule is selected
   useEffect(() => {
@@ -132,12 +142,21 @@ export default function ControlPanel({
                 <span className="inline-block animate-float-slow">⚗️</span>
                 Quản lý hóa chất
               </h2>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setDrawerOpen(false)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+                onClick={() => setDrawerOpen(false)}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="flex-1 flex flex-col min-h-0"
+            >
               <TabsList className="w-full grid grid-cols-3 bg-background/50">
                 <TabsTrigger value="library" className="text-xs rounded-full">
                   Thư viện
@@ -150,21 +169,27 @@ export default function ControlPanel({
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="library" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4 space-y-2 pr-1">
+              <TabsContent
+                value="library"
+                className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4 space-y-2 pr-1"
+              >
                 {molecules.map((m) => {
                   const active = selected?.id === m.id;
                   return (
                     <button
                       key={m.id}
                       onClick={() => onSelect(m)}
-                      className={`w-full text-left rounded-2xl border p-3 transition-all ${active
+                      className={`w-full text-left rounded-2xl border p-3 transition-all ${
+                        active
                           ? "border-primary bg-primary/20 shadow-glow"
                           : "border-white/5 bg-background/40 hover:border-primary/40 hover:bg-background/60"
-                        }`}
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-mono text-sm font-bold tracking-wider">{m.formula}</div>
+                          <div className="font-mono text-sm font-bold tracking-wider">
+                            {m.formula}
+                          </div>
                           <div className="text-xs text-muted-foreground mt-0.5">{m.name}</div>
                         </div>
                         {active && <ChevronRight className="h-4 w-4 text-primary" />}
@@ -174,11 +199,17 @@ export default function ControlPanel({
                 })}
               </TabsContent>
 
-              <TabsContent value="elements" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4">
-                <QuickElementSpawn onSpawn={onSpawnElement || (() => { })} />
+              <TabsContent
+                value="elements"
+                className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4"
+              >
+                <QuickElementSpawn onSpawn={onSpawnElement || (() => {})} />
               </TabsContent>
 
-              <TabsContent value="pubchem" className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4">
+              <TabsContent
+                value="pubchem"
+                className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mt-4"
+              >
                 <PubChemSearch compact onSpawn={onSpawnMolecule} />
               </TabsContent>
             </Tabs>
@@ -201,7 +232,9 @@ export default function ControlPanel({
                 <div className="text-[10px] uppercase tracking-widest text-primary font-semibold mb-1">
                   Đã chọn
                 </div>
-                <div className="font-display text-2xl font-bold leading-tight pr-8">{selected.name}</div>
+                <div className="font-display text-2xl font-bold leading-tight pr-8">
+                  {selected.name}
+                </div>
                 <div className="font-mono text-sm text-primary mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md tabular-nums">
                   {selected.formula}
                 </div>
@@ -242,14 +275,18 @@ export default function ControlPanel({
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs tabular-nums">
                   <div className="rounded-xl bg-background/50 px-3 py-2 border border-white/5">
-                    <span className="text-muted-foreground block text-[10px] mb-0.5">Khối lượng</span>
+                    <span className="text-muted-foreground block text-[10px] mb-0.5">
+                      Khối lượng
+                    </span>
                     <span className="font-mono text-foreground font-medium">
                       {Number(enrichment.pubchem.molecularWeight).toFixed(2)}
                     </span>
                   </div>
                   <div className="rounded-xl bg-background/50 px-3 py-2 border border-white/5">
                     <span className="text-muted-foreground block text-[10px] mb-0.5">CID</span>
-                    <span className="font-mono text-foreground font-medium">{enrichment.pubchem.cid}</span>
+                    <span className="font-mono text-foreground font-medium">
+                      {enrichment.pubchem.cid}
+                    </span>
                   </div>
                 </div>
                 {enrichment.pubchem.canonicalSmiles && (
@@ -289,23 +326,56 @@ export default function ControlPanel({
                   Phản ứng đã biết
                 </h3>
                 <div className="space-y-2">
-                  {reactions.map((r) => (
-                    <div
-                      key={r.id}
-                      className={`rounded-xl border p-3 text-sm transition-all ${lastReaction?.id === r.id
-                          ? "border-primary bg-primary/20 shadow-glow"
-                          : "border-white/5 bg-background/40"
+                  {orderedReactions.map((r) => {
+                    const v = reactionVisual(r);
+                    const involvesSelected =
+                      !!selected &&
+                      (r.reactants.includes(selected.formula) ||
+                        r.products.includes(selected.formula));
+                    return (
+                      <div
+                        key={r.id}
+                        className={`rounded-xl border p-3 text-sm transition-all ${
+                          lastReaction?.id === r.id
+                            ? "border-primary bg-primary/20 shadow-glow"
+                            : involvesSelected
+                              ? "border-primary/30 bg-primary/5"
+                              : "border-white/5 bg-background/40"
                         }`}
-                    >
-                      <div className="font-mono font-semibold tracking-wide text-foreground">{r.equation}</div>
-                      <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">{r.description}</div>
-                      {education && r.energy_kj != null && (
-                        <div className="text-[10px] font-mono text-primary mt-2 bg-primary/10 inline-block px-1.5 py-0.5 rounded">
-                          ΔH ≈ {r.energy_kj} kJ/mol
+                      >
+                        <div className="flex items-start gap-2">
+                          <span className="text-base leading-none mt-0.5">{v.icon}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-mono font-semibold tracking-wide text-foreground break-words">
+                              {r.equation}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                              <span
+                                className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold border ${v.accentClass}`}
+                              >
+                                {v.label}
+                              </span>
+                              {v.exothermic != null && (
+                                <span className="text-[9px] text-muted-foreground">
+                                  {v.exothermic ? "Toả nhiệt" : "Thu nhiệt"}
+                                </span>
+                              )}
+                            </div>
+                            {r.description && (
+                              <div className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+                                {r.description}
+                              </div>
+                            )}
+                            {education && r.energy_kj != null && (
+                              <div className="text-[10px] font-mono text-primary mt-2 bg-primary/10 inline-block px-1.5 py-0.5 rounded">
+                                ΔH ≈ {r.energy_kj} kJ/mol
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

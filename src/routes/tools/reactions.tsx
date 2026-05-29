@@ -5,8 +5,9 @@ import { usePubChemEnrichment } from "@/hooks/use-pubchem-enrichment";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FlaskConical, Loader2, ExternalLink, Zap } from "lucide-react";
+import { Loader2, ExternalLink, Zap } from "lucide-react";
 import type { Reaction } from "@/lib/chemistry";
+import { reactionVisual } from "@/lib/reaction-data";
 import { ALL_LESSONS } from "@/lib/lessons-data";
 
 export const Route = createFileRoute("/tools/reactions")({
@@ -60,47 +61,51 @@ function ReactionsPage() {
           <div className="mt-10 text-muted-foreground">Loading…</div>
         ) : (
           <div className="mt-8 space-y-4">
-            {reactions.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => handleOpen(r)}
-                className="w-full text-left rounded-3xl border border-border bg-card p-6 shadow-soft hover:shadow-panel hover:-translate-y-0.5 transition"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-primary text-primary-foreground grid place-items-center shadow-glow">
-                    <FlaskConical className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-mono text-lg font-bold break-words">{r.equation}</div>
-                    <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                      {r.description}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                      <Tag label={`Reactants: ${r.reactants.join(" + ")}`} />
-                      <Tag label={`Products: ${r.products.join(" + ")}`} />
-                      {r.energy_kj != null && (
-                        <Tag
-                          label={`ΔH ≈ ${r.energy_kj} kJ/mol`}
-                          accent={r.energy_kj < 0 ? "warm" : "cool"}
-                        />
-                      )}
-                      {(() => {
-                        const lesson = ALL_LESSONS.find((l) =>
-                          l.practice.missions.some(
-                            (m) =>
-                              m.completionKey.includes("react:") &&
-                              r.reactants.every((re) => m.completionKey.includes(re)),
-                          ),
-                        );
-                        return lesson ? (
-                          <Tag label={`Bài học: ${lesson.title}`} accent="cool" />
-                        ) : null;
-                      })()}
+            {reactions.map((r) => {
+              const v = reactionVisual(r);
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => handleOpen(r)}
+                  className="w-full text-left rounded-3xl border border-border bg-card p-6 shadow-soft hover:shadow-panel hover:-translate-y-0.5 transition"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="h-12 w-12 shrink-0 rounded-2xl bg-gradient-primary text-primary-foreground grid place-items-center shadow-glow text-xl">
+                      {v.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-mono text-lg font-bold break-words">{r.equation}</div>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                        {r.description}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                        <Tag label={v.label} accent={v.exothermic ? "warm" : "cool"} />
+                        <Tag label={`Reactants: ${r.reactants.join(" + ")}`} />
+                        <Tag label={`Products: ${r.products.join(" + ")}`} />
+                        {r.energy_kj != null && (
+                          <Tag
+                            label={`ΔH ≈ ${r.energy_kj} kJ/mol`}
+                            accent={r.energy_kj < 0 ? "warm" : "cool"}
+                          />
+                        )}
+                        {(() => {
+                          const lesson = ALL_LESSONS.find((l) =>
+                            l.practice.missions.some(
+                              (m) =>
+                                m.completionKey.includes("react:") &&
+                                r.reactants.every((re) => m.completionKey.includes(re)),
+                            ),
+                          );
+                          return lesson ? (
+                            <Tag label={`Bài học: ${lesson.title}`} accent="cool" />
+                          ) : null;
+                        })()}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -154,10 +159,11 @@ function ReactionsPage() {
 
               {detailReaction.energy_kj != null && (
                 <div
-                  className={`mt-3 rounded-xl p-3 text-center ${detailReaction.energy_kj < 0
+                  className={`mt-3 rounded-xl p-3 text-center ${
+                    detailReaction.energy_kj < 0
                       ? "bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800"
                       : "bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800"
-                    }`}
+                  }`}
                 >
                   <div className="text-xs text-muted-foreground">Enthalpy change</div>
                   <div className="font-mono text-lg font-bold mt-0.5">

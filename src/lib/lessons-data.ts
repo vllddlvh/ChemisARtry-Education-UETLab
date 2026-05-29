@@ -515,7 +515,17 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 1,
     chapter: "Chương 1: Phản ứng hoá học",
     title: "Phản ứng là gì?",
-    theory: "",
+    theory: `<p><strong>Phản ứng hoá học</strong> là quá trình biến đổi từ chất này thành chất khác. Trong phản ứng, các nguyên tử không bị mất đi mà chỉ <strong>sắp xếp lại</strong>: liên kết cũ bị phá vỡ và liên kết mới được hình thành.</p>
+<h4>Dấu hiệu nhận biết có phản ứng xảy ra</h4>
+<ul>
+<li>Thay đổi màu sắc (vd: sắt để lâu chuyển nâu đỏ).</li>
+<li>Tạo chất khí (sủi bọt) hoặc kết tủa (chất rắn không tan).</li>
+<li>Toả nhiệt / thu nhiệt, phát sáng.</li>
+</ul>
+<h4>Chất tham gia & sản phẩm</h4>
+<p>Phương trình có dạng: <strong>Chất phản ứng → Sản phẩm</strong>.<br/>
+Ví dụ kinh điển: 2H₂ + O₂ → 2H₂O. Hai phân tử hydro và một phân tử oxi tái tổ hợp thành nước.</p>
+<p>💡 <em>Kiến thức liên quan:</em> Định luật bảo toàn khối lượng (Lavoisier) — tổng khối lượng các chất phản ứng luôn bằng tổng khối lượng sản phẩm, vì số nguyên tử mỗi loại được giữ nguyên.</p>`,
     explore3D: { elements: [], molecules: ["H2", "O2", "H2O"] },
     practice: {
       missions: [
@@ -544,7 +554,18 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 2,
     chapter: "Chương 1: Phản ứng hoá học",
     title: "Cân bằng phương trình",
-    theory: "",
+    theory: `<p>Vì nguyên tử được bảo toàn, số nguyên tử mỗi nguyên tố ở <strong>hai vế</strong> của phương trình phải bằng nhau. <strong>Cân bằng phương trình</strong> là việc thêm các hệ số (số đứng trước công thức) để đạt được điều đó.</p>
+<h4>Các bước cân bằng</h4>
+<ol>
+<li>Viết sơ đồ phản ứng (chất phản ứng → sản phẩm).</li>
+<li>Đếm số nguyên tử mỗi nguyên tố ở hai vế.</li>
+<li>Thêm hệ số (không đổi chỉ số dưới chân công thức!) để cân bằng từng nguyên tố.</li>
+<li>Kiểm tra lại và rút gọn hệ số về tỉ lệ tối giản.</li>
+</ol>
+<h4>Ví dụ: H₂ + O₂ → H₂O</h4>
+<p>Vế phải có 1 O, vế trái có 2 O ⇒ đặt hệ số 2 trước H₂O: H₂ + O₂ → 2H₂O.<br/>
+Giờ vế phải có 4 H, vế trái 2 H ⇒ đặt 2 trước H₂: <strong>2H₂ + O₂ → 2H₂O</strong>. Cân bằng xong!</p>
+<p>💡 <em>Lưu ý:</em> Tuyệt đối không thay đổi công thức hoá học (vd không được viết H₂O thành H₂O₂) để cân bằng — chỉ được đổi hệ số.</p>`,
     explore3D: { elements: [], molecules: ["H2", "O2", "H2O"] },
     practice: {
       missions: [
@@ -572,7 +593,19 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 3,
     chapter: "Chương 2: Phân loại phản ứng",
     title: "Phản ứng đốt cháy",
-    theory: "",
+    theory: `<p><strong>Phản ứng cháy</strong> là phản ứng của một chất với oxi, thường <strong>toả nhiều nhiệt và phát sáng</strong>. Đây là phản ứng toả nhiệt điển hình (ΔH < 0).</p>
+<h4>Đốt cháy hydrocarbon</h4>
+<p>Khi đốt cháy hoàn toàn hợp chất chứa C và H (hydrocarbon, rượu...), sản phẩm luôn là <strong>CO₂ và H₂O</strong>:</p>
+<ul>
+<li>CH₄ + 2O₂ → CO₂ + 2H₂O (khí gas đun nấu)</li>
+<li>C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O (đốt cồn)</li>
+</ul>
+<h4>Cháy hoàn toàn vs không hoàn toàn</h4>
+<ul>
+<li><strong>Hoàn toàn</strong> (đủ oxi): tạo CO₂ + H₂O.</li>
+<li><strong>Không hoàn toàn</strong> (thiếu oxi): tạo thêm CO (khí độc) hoặc muội than C — đây là lý do không nên đốt than trong phòng kín.</li>
+</ul>
+<p>💡 <em>Kiến thức liên quan:</em> Phản ứng cháy là nền tảng của động cơ đốt trong và nhà máy nhiệt điện, nhưng cũng sinh ra CO₂ — khí gây hiệu ứng nhà kính.</p>`,
     explore3D: { elements: [], molecules: ["CH4", "O2", "CO2", "H2O", "C2H5OH"] },
     practice: {
       missions: [
@@ -597,7 +630,16 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 4,
     chapter: "Chương 2: Phân loại phản ứng",
     title: "Phản ứng tổng hợp",
-    theory: "",
+    theory: `<p><strong>Phản ứng tổng hợp (hoá hợp)</strong> là phản ứng trong đó <strong>hai hay nhiều chất kết hợp tạo thành một chất duy nhất</strong>: A + B → AB.</p>
+<h4>Ví dụ quan trọng</h4>
+<ul>
+<li><strong>Tổng hợp amoniac (Haber-Bosch):</strong> N₂ + 3H₂ → 2NH₃. Phản ứng công nghiệp quan trọng bậc nhất, dùng sản xuất phân đạm nuôi sống hàng tỉ người.</li>
+<li><strong>Sản xuất axit sunfuric:</strong> 2SO₂ + O₂ → 2SO₃, sau đó SO₃ + H₂O → H₂SO₄.</li>
+<li>2Na + Cl₂ → 2NaCl; CaO + CO₂ → CaCO₃.</li>
+</ul>
+<h4>Điều kiện phản ứng</h4>
+<p>Nhiều phản ứng tổng hợp cần <strong>nhiệt độ, áp suất cao và chất xúc tác</strong>. Ví dụ Haber-Bosch cần ~450°C, 200 atm và xúc tác sắt.</p>
+<p>💡 <em>Kiến thức liên quan:</em> Fritz Haber nhận giải Nobel Hoá học 1918 cho quy trình tổng hợp amoniac từ nitơ trong không khí.</p>`,
     explore3D: { elements: [], molecules: ["N2", "H2", "NH3", "SO2", "O2", "SO3"] },
     practice: {
       missions: [
@@ -631,7 +673,16 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 5,
     chapter: "Chương 2: Phân loại phản ứng",
     title: "Phản ứng phân huỷ",
-    theory: "",
+    theory: `<p><strong>Phản ứng phân huỷ</strong> ngược lại với tổng hợp: <strong>một chất bị tách thành hai hay nhiều chất</strong>: AB → A + B. Phần lớn phản ứng phân huỷ <strong>thu nhiệt</strong> (cần cung cấp năng lượng).</p>
+<h4>Ví dụ</h4>
+<ul>
+<li><strong>Phân huỷ oxi già:</strong> 2H₂O₂ → 2H₂O + O₂ (sủi bọt khi rửa vết thương, có xúc tác là enzyme catalase).</li>
+<li><strong>Nung vôi:</strong> CaCO₃ →(nhiệt) CaO + CO₂. Sản xuất vôi sống từ đá vôi.</li>
+<li><strong>Điện phân nước:</strong> 2H₂O →(điện) 2H₂ + O₂.</li>
+</ul>
+<h4>Nguồn năng lượng kích hoạt</h4>
+<p>Phân huỷ thường cần: <strong>nhiệt</strong> (nhiệt phân), <strong>điện</strong> (điện phân) hoặc <strong>ánh sáng</strong> (quang phân).</p>
+<p>💡 <em>Kiến thức liên quan:</em> Túi khí ô tô hoạt động nhờ phản ứng phân huỷ cực nhanh của NaN₃ tạo khí N₂ bơm phồng túi trong vài mili-giây.</p>`,
     explore3D: { elements: [], molecules: ["H2O2", "H2O", "O2", "CaCO3", "CaO", "CO2"] },
     practice: {
       missions: [
@@ -656,7 +707,19 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 6,
     chapter: "Chương 3: Acid & Base",
     title: "Acid & Base",
-    theory: "",
+    theory: `<p><strong>Axit</strong> là chất khi tan trong nước phân li ra ion H⁺ (vd HCl, H₂SO₄). <strong>Bazơ</strong> phân li ra ion OH⁻ (vd NaOH, Ca(OH)₂).</p>
+<h4>Thang pH</h4>
+<ul>
+<li>pH < 7: môi trường axit (chanh ~2, dạ dày ~1.5).</li>
+<li>pH = 7: trung tính (nước cất).</li>
+<li>pH > 7: môi trường bazơ (xà phòng ~10, nước Javen ~12).</li>
+</ul>
+<h4>Phản ứng trung hoà</h4>
+<p>Axit phản ứng với bazơ tạo <strong>muối và nước</strong>: <strong>Axit + Bazơ → Muối + H₂O</strong>.</p>
+<p>Ví dụ: HCl + NaOH → NaCl + H₂O. Bản chất là H⁺ + OH⁻ → H₂O, toả nhiệt.</p>
+<h4>Chất chỉ thị</h4>
+<p>Quỳ tím hoá đỏ trong axit, hoá xanh trong bazơ. Phenolphtalein không màu trong axit, hồng trong bazơ.</p>
+<p>💡 <em>Kiến thức liên quan:</em> Khi bị ong đốt (axit) bôi vôi/baking soda (bazơ); khi bị kiến đốt cũng dùng nguyên lý trung hoà này.</p>`,
     explore3D: { elements: [], molecules: ["HCl", "NaOH", "NaCl", "H2O", "HF", "H2SO4"] },
     practice: {
       missions: [
@@ -684,7 +747,17 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 7,
     chapter: "Chương 3: Năng lượng phản ứng",
     title: "Nhiệt hoá học (ΔH)",
-    theory: "",
+    theory: `<p>Mỗi phản ứng đều kèm theo sự thay đổi năng lượng, đo bằng <strong>biến thiên enthalpy ΔH</strong> (đơn vị kJ/mol).</p>
+<h4>Toả nhiệt vs Thu nhiệt</h4>
+<ul>
+<li><strong>Toả nhiệt (ΔH &lt; 0):</strong> giải phóng năng lượng ra môi trường, hệ nóng lên. Vd: cháy, trung hoà. (Trong Lab, hiệu ứng chớp <span style="color:#f97316">cam-đỏ 🔥</span>.)</li>
+<li><strong>Thu nhiệt (ΔH &gt; 0):</strong> hấp thụ năng lượng, hệ lạnh đi. Vd: nhiệt phân CaCO₃, điện phân. (Hiệu ứng chớp <span style="color:#3b82f6">xanh ❄️</span>.)</li>
+</ul>
+<h4>Năng lượng liên kết</h4>
+<p>Phá vỡ liên kết <em>cần</em> năng lượng; tạo liên kết <em>giải phóng</em> năng lượng.<br/>
+ΔH ≈ (tổng năng lượng liên kết bị phá) − (tổng năng lượng liên kết tạo thành).<br/>
+Nếu sản phẩm có liên kết bền hơn ⇒ phản ứng toả nhiệt.</p>
+<p>💡 <em>Kiến thức liên quan:</em> Túi chườm nóng/lạnh y tế dùng phản ứng toả/thu nhiệt; ví dụ NH₄NO₃ tan trong nước thu nhiệt mạnh tạo túi chườm lạnh.</p>`,
     explore3D: { elements: [], molecules: ["H2", "O2", "H2O", "CH4", "CO2"] },
     practice: {
       missions: [
@@ -713,7 +786,17 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 8,
     chapter: "Chương 3: Năng lượng phản ứng",
     title: "Tốc độ phản ứng",
-    theory: "",
+    theory: `<p><strong>Tốc độ phản ứng</strong> cho biết phản ứng xảy ra nhanh hay chậm (lượng chất biến đổi trong một đơn vị thời gian).</p>
+<h4>Các yếu tố ảnh hưởng</h4>
+<ul>
+<li><strong>Nhiệt độ:</strong> tăng nhiệt ⇒ phân tử va chạm mạnh và thường xuyên hơn ⇒ nhanh hơn.</li>
+<li><strong>Nồng độ / áp suất:</strong> càng đậm đặc, va chạm càng nhiều ⇒ nhanh hơn.</li>
+<li><strong>Diện tích bề mặt:</strong> chất rắn nghiền nhỏ phản ứng nhanh hơn (bột than cháy nhanh hơn cục than).</li>
+<li><strong>Chất xúc tác:</strong> làm tăng tốc độ mà không bị tiêu hao, bằng cách giảm năng lượng hoạt hoá.</li>
+</ul>
+<h4>Thuyết va chạm</h4>
+<p>Phản ứng chỉ xảy ra khi các phân tử va chạm <strong>đủ mạnh</strong> (vượt năng lượng hoạt hoá Eₐ) và <strong>đúng hướng</strong>.</p>
+<p>💡 <em>Kiến thức liên quan:</em> Enzyme trong cơ thể là chất xúc tác sinh học cực mạnh, tăng tốc phản ứng lên hàng triệu lần ở nhiệt độ cơ thể.</p>`,
     explore3D: { elements: [], molecules: ["H2", "O2", "H2O"] },
     practice: {
       missions: [
@@ -741,7 +824,17 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 9,
     chapter: "Chương 4: Cân bằng hoá học",
     title: "Cân bằng hoá học",
-    theory: "",
+    theory: `<p>Nhiều phản ứng là <strong>thuận nghịch</strong> (xảy ra theo cả hai chiều), ký hiệu ⇌. Khi tốc độ phản ứng thuận bằng tốc độ phản ứng nghịch, hệ đạt <strong>trạng thái cân bằng động</strong> — nồng độ các chất không đổi nhưng phản ứng vẫn diễn ra ở mức vi mô.</p>
+<h4>Nguyên lý Le Chatelier</h4>
+<p>"Khi một hệ cân bằng chịu tác động từ bên ngoài, hệ sẽ <strong>chuyển dịch theo chiều chống lại</strong> tác động đó."</p>
+<ul>
+<li><strong>Tăng nồng độ chất phản ứng</strong> ⇒ cân bằng dịch sang phải (tạo thêm sản phẩm).</li>
+<li><strong>Tăng áp suất</strong> ⇒ dịch về phía có ít phân tử khí hơn.</li>
+<li><strong>Tăng nhiệt độ</strong> ⇒ dịch theo chiều thu nhiệt.</li>
+</ul>
+<h4>Ứng dụng: Haber-Bosch (N₂ + 3H₂ ⇌ 2NH₃)</h4>
+<p>Phản ứng toả nhiệt và giảm số mol khí, nên để tăng NH₃ người ta dùng <strong>áp suất cao</strong> và nhiệt độ vừa phải, đồng thời liên tục tách NH₃ ra khỏi hệ.</p>
+<p>💡 <em>Kiến thức liên quan:</em> Hemoglobin trong máu vận chuyển O₂ cũng dựa trên cân bằng thuận nghịch giữa hemoglobin và oxi.</p>`,
     explore3D: { elements: [], molecules: ["N2", "H2", "NH3"] },
     practice: {
       missions: [
@@ -774,7 +867,17 @@ export const ROAD2_LESSONS: Lesson[] = [
     order: 10,
     chapter: "Chương 4: Cân bằng hoá học",
     title: "Thực hành AR tổng hợp",
-    theory: "",
+    theory: `<p>Chúc mừng bạn đã đi hết Road 2: Phản ứng Hoá học! 🎉 Đây là bài tổng hợp để bạn vận dụng tất cả kiến thức đã học.</p>
+<h4>Thử thách lớn — kích hoạt 5 loại phản ứng</h4>
+<ol>
+<li>🔥 <strong>Cháy:</strong> CH₄ + O₂ → CO₂ + H₂O</li>
+<li>🧬 <strong>Tổng hợp:</strong> N₂ + H₂ → NH₃</li>
+<li>💥 <strong>Phân huỷ:</strong> H₂O₂ → H₂O + O₂</li>
+<li>⚗️ <strong>Trung hoà:</strong> HCl + NaOH → NaCl + H₂O</li>
+<li>⚡ <strong>Oxi hoá:</strong> Fe + O₂ → Fe₂O₃</li>
+</ol>
+<p>Hãy chú ý màu của hiệu ứng: cam-đỏ là toả nhiệt, xanh là thu nhiệt. Quan sát nhật ký phản ứng góc phải để theo dõi những gì bạn đã tạo ra.</p>
+<p>Chúc bạn có những khám phá thú vị và đừng quên thử các phản ứng ngoài danh sách bằng cách ghép các chất khác nhau!</p>`,
     explore3D: { elements: [], molecules: ["H2", "O2", "CH4", "HCl", "NaOH", "NaCl", "H2O"] },
     practice: {
       missions: [
