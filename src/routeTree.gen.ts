@@ -24,6 +24,7 @@ import { Route as ToolsMoleculesRouteImport } from './routes/tools/molecules'
 import { Route as ToolsExplorerRouteImport } from './routes/tools/explorer'
 import { Route as LearnRoadRouteImport } from './routes/learn/road'
 import { Route as LearnLessonRouteImport } from './routes/learn/lesson'
+import { Route as LabWetRouteImport } from './routes/lab/wet'
 import { Route as LabSimRouteImport } from './routes/lab/sim'
 import { Route as LabArRouteImport } from './routes/lab/ar'
 
@@ -102,6 +103,11 @@ const LearnLessonRoute = LearnLessonRouteImport.update({
   path: '/lesson',
   getParentRoute: () => LearnRoute,
 } as any)
+const LabWetRoute = LabWetRouteImport.update({
+  id: '/wet',
+  path: '/wet',
+  getParentRoute: () => LabRoute,
+} as any)
 const LabSimRoute = LabSimRouteImport.update({
   id: '/sim',
   path: '/sim',
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/progress': typeof ProgressRoute
   '/lab/ar': typeof LabArRoute
   '/lab/sim': typeof LabSimRoute
+  '/lab/wet': typeof LabWetRoute
   '/learn/lesson': typeof LearnLessonRoute
   '/learn/road': typeof LearnRoadRoute
   '/tools/explorer': typeof ToolsExplorerRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/progress': typeof ProgressRoute
   '/lab/ar': typeof LabArRoute
   '/lab/sim': typeof LabSimRoute
+  '/lab/wet': typeof LabWetRoute
   '/learn/lesson': typeof LearnLessonRoute
   '/learn/road': typeof LearnRoadRoute
   '/tools/explorer': typeof ToolsExplorerRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/progress': typeof ProgressRoute
   '/lab/ar': typeof LabArRoute
   '/lab/sim': typeof LabSimRoute
+  '/lab/wet': typeof LabWetRoute
   '/learn/lesson': typeof LearnLessonRoute
   '/learn/road': typeof LearnRoadRoute
   '/tools/explorer': typeof ToolsExplorerRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/lab/ar'
     | '/lab/sim'
+    | '/lab/wet'
     | '/learn/lesson'
     | '/learn/road'
     | '/tools/explorer'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/lab/ar'
     | '/lab/sim'
+    | '/lab/wet'
     | '/learn/lesson'
     | '/learn/road'
     | '/tools/explorer'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/lab/ar'
     | '/lab/sim'
+    | '/lab/wet'
     | '/learn/lesson'
     | '/learn/road'
     | '/tools/explorer'
@@ -348,6 +360,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnLessonRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/lab/wet': {
+      id: '/lab/wet'
+      path: '/wet'
+      fullPath: '/lab/wet'
+      preLoaderRoute: typeof LabWetRouteImport
+      parentRoute: typeof LabRoute
+    }
     '/lab/sim': {
       id: '/lab/sim'
       path: '/sim'
@@ -368,12 +387,14 @@ declare module '@tanstack/react-router' {
 interface LabRouteChildren {
   LabArRoute: typeof LabArRoute
   LabSimRoute: typeof LabSimRoute
+  LabWetRoute: typeof LabWetRoute
   LabIndexRoute: typeof LabIndexRoute
 }
 
 const LabRouteChildren: LabRouteChildren = {
   LabArRoute: LabArRoute,
   LabSimRoute: LabSimRoute,
+  LabWetRoute: LabWetRoute,
   LabIndexRoute: LabIndexRoute,
 }
 

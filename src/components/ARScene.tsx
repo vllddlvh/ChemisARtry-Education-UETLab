@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { initHandLandmarker, processResult, type HandFrame } from "@/lib/hand-tracker";
+import { initFaceDetector, processFaceResult, type HeadPose } from "@/lib/face-tracker";
 import { elementInfo, type Molecule } from "@/lib/chemistry";
 import { findMatchingReaction, PROXIMITY_THRESHOLD } from "@/lib/reaction-engine";
 import { reactionVisual, type ReactionVisual } from "@/lib/reaction-data";
@@ -50,6 +51,8 @@ type Props = {
   educationMode: boolean;
   onReaction: (r: Reaction) => void;
   arOn: boolean;
+  /** Bật hiệu ứng head-coupled perspective (parallax theo đầu qua webcam). */
+  headTracking?: boolean;
 };
 
 // Build a ball-and-stick group for a molecule.
@@ -295,6 +298,37 @@ function roundRect(
   ctx.closePath();
 }
 
+// ── Head-coupled perspective (off-axis projection) ──────────────────────────
+// Đặt camera tại vị trí "mắt" (eye) và dựng frustom bất đối xứng nhìn vào một
+// "cửa sổ" cố định nằm tại mặt phẳng z=0 (màn hình). Khi mắt dịch sang trái,
+// vật thể như lộ ra mặt bên phải — đúng cảm giác nhìn qua cửa sổ thật.
+// Tham khảo: Kooima, "Generalized Perspective Projection"; Johnny Lee WiiDesktopVR.
+function applyOffAxisProjection(
+  camera: THREE.PerspectiveCamera,
+  eye: { x: number; y: number; z: number },
+  screenHalfW: number,
+  screenHalfH: number,
+  near: number,
+  far: number,
+) {
+  const n = near;
+  // Khoảng cách từ mắt tới mặt phẳng màn hình (z=0). eye.z > 0.
+  const dz = Math.max(0.01, eye.z);
+  // Biên cửa sổ tại mặt phẳng màn hình, quy chiếu về near plane.
+  const left = ((-screenHalfW - eye.x) * n) / dz;
+  const right = ((screenHalfW - eye.x) * n) / dz;
+  const top = ((screenHalfH - eye.y) * n) / dz;
+  const bottom = ((-screenHalfH - eye.y) * n) / dz;
+
+  camera.projectionMatrix.makePerspective(left, right, top, bottom, n, far);
+  camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
+
+  // Camera nhìn thẳng theo trục -Z (không xoay), chỉ tịnh tiến theo mắt.
+  camera.position.set(eye.x, eye.y, eye.z);
+  camera.quaternion.identity();
+  camera.updateMatrixWorld(true);
+}
+
 export default function ARScene({
   molecules,
   reactions,
@@ -304,6 +338,7 @@ export default function ARScene({
   educationMode,
   onReaction,
   arOn,
+  headTracking = false,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -334,6 +369,15 @@ export default function ARScene({
   const moleculesRef = useRef(molecules);
   const onReactionRef = useRef(onReaction);
   const arOnRef = useRef(arOn);
+
+  // Head-coupled perspective state.
+  const headTrackingRef = useRef(headTracking);
+  const headPoseRef = useRef<HeadPose | null>(null);
+  // Vị trí "mắt" ảo đã làm mượt (đơn vị world). Camera sẽ ngồi tại đây.
+  const eyeRef = useRef({ x: 0, y: 0, z: 8 });
+  const lastFaceTsRef = useRef(-1);
+  const faceDetectorRef = useRef<Awaited<ReturnType<typeof initFaceDetector>> | null>(null);
+  const [headActive, setHeadActive] = useState(false);
 
   // Mouse drag refs
   const raycasterRef = useRef(new THREE.Raycaster());
@@ -374,6 +418,7 @@ export default function ARScene({
   moleculesRef.current = molecules;
   onReactionRef.current = onReaction;
   arOnRef.current = arOn;
+  headTrackingRef.current = headTracking;
 
   // Main setup effect — once.
   useEffect(() => {
@@ -429,9 +474,10 @@ export default function ARScene({
         if (mol) {
           isDraggingRef.current = true;
           draggedMolRef.current = mol;
-          const camDir = new THREE.Vector3();
-          camera.getWorldDirection(camDir);
-          dragPlane.setFromNormalAndCoplanarPoint(camDir, mol.group.position);
+          // Kéo trên mặt phẳng "cửa sổ" z=0 để các phân tử hội tụ về cùng một
+          // độ sâu — đảm bảo phản ứng (proximity 3D) luôn kích hoạt được, đồng
+          // thời các phân tử chưa cầm vẫn giữ độ sâu riêng cho hiệu ứng parallax.
+          dragPlane.set(new THREE.Vector3(0, 0, 1), 0);
           mol.grabbedBy = -1; // -1 means grabbed by mouse
         }
       }
@@ -499,6 +545,12 @@ export default function ARScene({
     let rafId = 0;
     let lastHandTs = -1;
 
+    // Hằng số "cửa sổ" cho off-axis projection (đơn vị world).
+    // Khớp với khung nhìn mặc định (camera z=8, fov 55°) để khi không có
+    // head-tracking, ảnh nhìn gần như cũ.
+    const NEAR = 0.1;
+    const FAR = 100;
+
     const loop = async () => {
       rafId = requestAnimationFrame(loop);
       const video = videoRef.current;
@@ -518,6 +570,26 @@ export default function ARScene({
           }
         }
       }
+
+      // Head tracking (chỉ khi bật + AR đang mở để có video).
+      const faceDet = faceDetectorRef.current;
+      if (headTrackingRef.current && arOnRef.current && video && video.readyState >= 2 && faceDet) {
+        const ts = performance.now() + 1; // lệch 1ms để không trùng timestamp với hand
+        if (ts !== lastFaceTsRef.current) {
+          try {
+            const res = faceDet.detectForVideo(video, ts);
+            const pose = processFaceResult(res, video.videoWidth, video.videoHeight);
+            headPoseRef.current = pose;
+            lastFaceTsRef.current = ts;
+          } catch {
+            /* bỏ qua timestamp lỗi */
+          }
+        }
+      } else {
+        headPoseRef.current = null;
+      }
+
+      updateCamera(NEAR, FAR);
 
       // Drive molecule positions from hand state.
       updateMolecules();
@@ -583,8 +655,14 @@ export default function ARScene({
   useEffect(() => {
     if (!toSpawn || !sceneRef.current) return;
     const { group, labels } = buildMoleculeGroup(toSpawn, educationRef.current);
-    // Spawn near center, slight random offset
-    group.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1, 0);
+    // Spawn near center, slight random offset. Thêm độ lệch trục Z để hiệu ứng
+    // parallax (head-tracking) tạo cảm giác chiều sâu rõ rệt — vật ở trước/sau
+    // mặt phẳng màn hình (z=0).
+    group.position.set(
+      (Math.random() - 0.5) * 2,
+      (Math.random() - 0.5) * 1,
+      (Math.random() - 0.5) * 3,
+    );
     sceneRef.current.add(group);
     spawnedRef.current.push({
       id: crypto.randomUUID(),
@@ -621,12 +699,97 @@ export default function ARScene({
     return () => clearTimeout(id);
   }, [flash]);
 
+  // Khởi tạo FaceDetector khi bật head-tracking + AR.
+  useEffect(() => {
+    if (!headTracking || !arOn) return;
+    let cancelled = false;
+    initFaceDetector()
+      .then((d) => {
+        if (!cancelled) faceDetectorRef.current = d;
+      })
+      .catch(() => {
+        /* không tải được model — bỏ qua, lab vẫn chạy bình thường */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [headTracking, arOn]);
+
   // Toggle labels when education mode changes.
   useEffect(() => {
     spawnedRef.current.forEach((m) => {
       m.labels.forEach((l) => (l.visible = educationMode));
     });
   }, [educationMode]);
+
+  // Cập nhật camera mỗi frame: nếu bật head-tracking và thấy mặt thì áp dụng
+  // off-axis projection theo vị trí đầu; nếu không thì dùng perspective chuẩn.
+  function updateCamera(near: number, far: number) {
+    const camera = cameraRef.current;
+    const wrap = wrapRef.current;
+    if (!camera || !wrap) return;
+
+    const aspect = wrap.clientWidth / Math.max(1, wrap.clientHeight);
+    // Nửa kích thước "cửa sổ" màn hình (world units) — chọn để khớp khung nhìn cũ.
+    const screenHalfH = 4.2;
+    const screenHalfW = screenHalfH * aspect;
+
+    const pose = headPoseRef.current;
+    const wantHead = headTrackingRef.current && arOnRef.current && !!pose;
+
+    if (wantHead && pose) {
+      // pose.x,y: 0..1 trong khung webcam (chưa mirror). Mirror X cho selfie.
+      // Đưa về [-1,1], 0 = giữa.
+      const nx = (0.5 - pose.x) * 2; // mirror
+      const ny = (pose.y - 0.5) * 2;
+
+      // Biên độ dịch mắt theo phương ngang/dọc (world units).
+      const AMP_X = 6.5;
+      const AMP_Y = 4.0;
+      // size ~ inter-eye distance (0.04 xa .. 0.2 gần). Map sang khoảng cách camera.
+      const s = Math.min(0.25, Math.max(0.05, pose.size));
+      const t = (s - 0.05) / (0.25 - 0.05); // 0 (xa) .. 1 (gần)
+      const targetZ = 9.5 - t * 4.0; // gần hơn => z nhỏ hơn => zoom vào
+
+      const target = { x: nx * AMP_X, y: ny * AMP_Y, z: targetZ };
+      // Làm mượt (low-pass) để tránh giật.
+      const k = 0.18;
+      eyeRef.current.x += (target.x - eyeRef.current.x) * k;
+      eyeRef.current.y += (target.y - eyeRef.current.y) * k;
+      eyeRef.current.z += (target.z - eyeRef.current.z) * k;
+
+      if (!headActive) setHeadActive(true);
+      applyOffAxisProjection(camera, eyeRef.current, screenHalfW, screenHalfH, near, far);
+    } else {
+      // Trả camera về trạng thái chuẩn (mượt) khi không có head-tracking.
+      const target = { x: 0, y: 0, z: 8 };
+      const k = 0.12;
+      eyeRef.current.x += (target.x - eyeRef.current.x) * k;
+      eyeRef.current.y += (target.y - eyeRef.current.y) * k;
+      eyeRef.current.z += (target.z - eyeRef.current.z) * k;
+
+      const drifting =
+        Math.abs(eyeRef.current.x) > 0.01 ||
+        Math.abs(eyeRef.current.y) > 0.01 ||
+        Math.abs(eyeRef.current.z - 8) > 0.01;
+
+      if (drifting) {
+        // vẫn dùng off-axis để nội suy mượt về giữa
+        applyOffAxisProjection(camera, eyeRef.current, screenHalfW, screenHalfH, near, far);
+      } else {
+        eyeRef.current.x = 0;
+        eyeRef.current.y = 0;
+        eyeRef.current.z = 8;
+        camera.position.set(0, 0, 8);
+        camera.quaternion.identity();
+        camera.fov = 55;
+        camera.aspect = aspect;
+        camera.updateProjectionMatrix();
+        camera.updateMatrixWorld(true);
+      }
+      if (headActive) setHeadActive(false);
+    }
+  }
 
   function updateMolecules() {
     const scene = sceneRef.current;
@@ -935,6 +1098,14 @@ export default function ARScene({
         </span>
         <span className="mx-2 text-border">•</span>
         <span className="text-muted-foreground">{status}</span>
+        {headTracking && (
+          <>
+            <span className="mx-2 text-border">•</span>
+            <span className={headActive ? "text-primary" : "text-muted-foreground"}>
+              🧠 {headActive ? "3D theo đầu" : "tìm khuôn mặt…"}
+            </span>
+          </>
+        )}
       </div>
 
       <div

@@ -48,6 +48,7 @@ function LabARPage() {
   const [resetSignal, setResetSignal] = useState(0);
   const [education, setEducation] = useState(false);
   const [arOn, setArOn] = useState(true);
+  const [headTracking, setHeadTracking] = useState(false);
   const [lastReaction, setLastReaction] = useState<Reaction | null>(null);
   const [history, setHistory] = useState<Reaction[]>([]);
   // Theo dõi nhiệm vụ bài học đã hoàn thành (theo id mission).
@@ -59,6 +60,7 @@ function LabARPage() {
     if (/education|label/i.test(cmd)) setEducation((v) => !v);
     if (/stop ar|camera off/i.test(cmd)) setArOn(false);
     if (/start ar|camera on/i.test(cmd)) setArOn(true);
+    if (/3d|parallax|head|đầu/i.test(cmd)) setHeadTracking((v) => !v);
   }, []);
   useVoiceCommands(handleVoice);
 
@@ -199,6 +201,7 @@ function LabARPage() {
             educationMode={education}
             onReaction={handleReaction}
             arOn={arOn}
+            headTracking={headTracking}
           />
         )}
       </main>
@@ -251,6 +254,8 @@ function LabARPage() {
             onToggleEducation={setEducation}
             arOn={arOn}
             onToggleAr={() => setArOn((v) => !v)}
+            headTracking={headTracking}
+            onToggleHeadTracking={() => setHeadTracking((v) => !v)}
             lastReaction={lastReaction}
             onSpawnElement={(symbol) => {
               const toSelect = createAtomMolecule(symbol);

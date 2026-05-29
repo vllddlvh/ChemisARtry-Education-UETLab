@@ -3,7 +3,17 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { FlaskConical, Sparkles, Atom, Zap, LogOut, Home, BarChart2, Camera, Monitor } from "lucide-react";
+import {
+  FlaskConical,
+  Sparkles,
+  Atom,
+  Zap,
+  LogOut,
+  Home,
+  BarChart2,
+  Camera,
+  Monitor,
+} from "lucide-react";
 import { z } from "zod";
 import { motion } from "motion/react";
 
@@ -69,7 +79,6 @@ function DashboardPage() {
 
   return (
     <div className="dark h-full w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
-
       {/* Background noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
 
@@ -121,7 +130,8 @@ function DashboardPage() {
 
                       <h2 className="text-2xl font-bold mb-3 font-display">Thí nghiệm AR</h2>
                       <p className="text-muted-foreground leading-relaxed flex-1 text-sm">
-                        Sử dụng Camera nhận diện cử chỉ. Gắp thả phân tử và ghép chúng lại trong không gian thực.
+                        Sử dụng Camera nhận diện cử chỉ. Gắp thả phân tử và ghép chúng lại trong
+                        không gian thực.
                       </p>
 
                       <div className="mt-8 inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors text-primary-foreground bg-primary hover:bg-primary/90 shadow-sm w-max">
@@ -136,6 +146,33 @@ function DashboardPage() {
                     transition={{ delay: 0.2 }}
                   >
                     <Link
+                      to="/lab/wet"
+                      className="group relative flex flex-col h-full p-8 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/50 hover:border-amber-500/50 hover:bg-card/60 transition-all duration-500 overflow-hidden shadow-soft hover:-translate-y-2"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                      <div className="bg-amber-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner text-amber-500 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+                        <FlaskConical className="w-8 h-8" />
+                      </div>
+
+                      <h2 className="text-2xl font-bold mb-3 font-display">Phòng thí nghiệm ướt</h2>
+                      <p className="text-muted-foreground leading-relaxed flex-1 text-sm">
+                        Rót thuốc thử vào ống nghiệm 3D, quan sát kết tủa, sủi khí, đổi màu như
+                        thật. Có đèn cồn để đun nóng.
+                      </p>
+
+                      <div className="mt-8 inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors text-white bg-amber-500 hover:bg-amber-600 shadow-sm w-max">
+                        Vào phòng lab →
+                      </div>
+                    </Link>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <Link
                       to="/lab/ar"
                       className="group relative flex flex-col h-full p-8 rounded-3xl bg-card/40 backdrop-blur-xl border border-border/50 hover:border-teal-500/50 hover:bg-card/60 transition-all duration-500 overflow-hidden shadow-soft hover:-translate-y-2"
                     >
@@ -147,7 +184,8 @@ function DashboardPage() {
 
                       <h2 className="text-2xl font-bold mb-3 font-display">Phòng thí nghiệm 3D</h2>
                       <p className="text-muted-foreground leading-relaxed flex-1 text-sm">
-                        Mô phỏng 3D tương tác. Kéo thả phân tử bằng chuột, không yêu cầu thiết bị Camera.
+                        Mô phỏng phân tử 3D tương tác. Kéo thả phân tử bằng chuột, không yêu cầu
+                        thiết bị Camera.
                       </p>
 
                       <div className="mt-8 inline-flex px-5 py-2 rounded-xl text-sm font-bold transition-colors text-white bg-teal-500 hover:bg-teal-600 shadow-sm w-max">

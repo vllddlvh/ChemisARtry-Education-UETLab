@@ -15,6 +15,7 @@ import {
   Sparkles,
   X,
   Atom,
+  ScanFace,
 } from "lucide-react";
 import PubChemSearch from "@/components/PubChemSearch";
 import QuickElementSpawn from "@/components/QuickElementSpawn";
@@ -34,6 +35,8 @@ type Props = {
   onReset: () => void;
   arOn: boolean;
   onToggleAr: () => void;
+  headTracking?: boolean;
+  onToggleHeadTracking?: () => void;
   education: boolean;
   onToggleEducation: (v: boolean) => void;
   lastReaction: Reaction | null;
@@ -50,6 +53,8 @@ export default function ControlPanel({
   onReset,
   arOn,
   onToggleAr,
+  headTracking,
+  onToggleHeadTracking,
   education,
   onToggleEducation,
   lastReaction,
@@ -106,6 +111,24 @@ export default function ControlPanel({
         >
           {arOn ? <CameraOff className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
         </Button>
+        {onToggleHeadTracking && (
+          <Button
+            onClick={onToggleHeadTracking}
+            variant={headTracking ? "default" : "ghost"}
+            size="icon"
+            className="rounded-full"
+            disabled={!arOn}
+            title={
+              !arOn
+                ? "Cần bật AR (camera) để dùng 3D theo đầu"
+                : headTracking
+                  ? "Tắt hiệu ứng 3D theo đầu"
+                  : "Bật hiệu ứng 3D theo đầu (parallax)"
+            }
+          >
+            <ScanFace className="h-4 w-4" />
+          </Button>
+        )}
         <Button
           onClick={onReset}
           variant="ghost"

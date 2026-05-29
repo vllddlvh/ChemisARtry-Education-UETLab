@@ -65,7 +65,16 @@ export default function SiteHeader() {
           {showAppMenu && (
             <>
               <NavLink to="/learn" label="Học tập" active={activePath.startsWith("/learn")} />
-              <NavLink to="/lab/ar" label="Phòng thí nghiệm" active={activePath.startsWith("/lab")} />
+              <NavLink
+                to="/lab/ar"
+                label="Phòng thí nghiệm"
+                active={activePath.startsWith("/lab") && !activePath.startsWith("/lab/wet")}
+              />
+              <NavLink
+                to="/lab/wet"
+                label="Lab ướt 3D"
+                active={activePath.startsWith("/lab/wet")}
+              />
               <NavLink
                 to="/tools/periodic-table"
                 label="Bảng tuần hoàn"
@@ -94,13 +103,25 @@ export default function SiteHeader() {
                 >
                   <div className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-border/50 bg-card/90" />
                   <div className="flex flex-col gap-1 items-stretch">
-                    <Link to="/tools/explorer" className={appMenuItemClassName} onClick={() => setToolsOpen(false)}>
+                    <Link
+                      to="/tools/explorer"
+                      className={appMenuItemClassName}
+                      onClick={() => setToolsOpen(false)}
+                    >
                       Khám phá hợp chất
                     </Link>
-                    <Link to="/tools/molecules" className={appMenuItemClassName} onClick={() => setToolsOpen(false)}>
+                    <Link
+                      to="/tools/molecules"
+                      className={appMenuItemClassName}
+                      onClick={() => setToolsOpen(false)}
+                    >
                       Thư viện phân tử
                     </Link>
-                    <Link to="/tools/reactions" className={appMenuItemClassName} onClick={() => setToolsOpen(false)}>
+                    <Link
+                      to="/tools/reactions"
+                      className={appMenuItemClassName}
+                      onClick={() => setToolsOpen(false)}
+                    >
                       Danh sách phản ứng
                     </Link>
                   </div>
@@ -172,10 +193,11 @@ function NavLink({ to, label, active }: { to: string; label: string; active: boo
   return (
     <Link
       to={to}
-      className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${active
-        ? "bg-primary/10 text-primary"
-        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-        }`}
+      className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+        active
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+      }`}
     >
       {label}
     </Link>
