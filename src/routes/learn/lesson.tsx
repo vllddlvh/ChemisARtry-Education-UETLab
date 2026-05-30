@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getLessonById, type Lesson } from "@/lib/lessons-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, BookOpen, Box, FlaskConical, X, Play } from "lucide-react";
 import AtomViewer3D from "@/components/AtomViewer3D";
 import { FALLBACK_ELEMENTS } from "@/lib/lesson-element-map";
+import { getChallengeForLesson } from "@/lib/lab-challenges";
+import { useContentStore } from "@/hooks/use-content-store";
+import { appStore } from "@/store/app-store";
 
 const searchSchema = z.object({ lessonId: z.string().catch("road1-lesson1") });
 
@@ -21,6 +24,26 @@ export const Route = createFileRoute("/learn/lesson")({
 function LessonPage() {
   const { lessonId } = Route.useSearch();
   const lesson = getLessonById(lessonId);
+  const { markLessonOpened, markLessonCompleted, state } = useContentStore();
+
+  // Mở bài → đánh dấu in-progress (ghi nhận hoạt động cho streak).
+  useEffect(() => {
+    if (lesson) markLessonOpened(lesson.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson?.id]);
+
+  // Hoàn thành tất cả nhiệm vụ (đã làm trong lab) → đánh dấu bài hoàn thành.
+  useEffect(() => {
+    if (!lesson) return;
+    const totalMissions = lesson.practice.missions.length;
+    if (totalMissions === 0) return;
+    const done = state.lessons[lesson.id]?.missions.length ?? 0;
+    const already = state.lessons[lesson.id]?.status === "completed";
+    if (done >= totalMissions && !already) {
+      markLessonCompleted(lesson.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson?.id, state.lessons]);
 
   if (!lesson) {
     return (
@@ -378,6 +401,7 @@ function ExploreTab({ lesson }: { lesson: Lesson }) {
 
 // ── Practice Tab ──────────────────────────────────────────────────────────
 function PracticeTab({ lesson }: { lesson: Lesson }) {
+  const wetChallenge = getChallengeForLesson(lesson.id);
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-4">
       {lesson.practice.missions.length > 0 && (
@@ -409,15 +433,39 @@ function PracticeTab({ lesson }: { lesson: Lesson }) {
             title="Mô phỏng 3D"
             subtitle="Kéo thả tương tác · Không cần camera"
             lessonId={lesson.id}
+            mode="sim"
           />
           <PracticeCard
             icon="📷"
             title="AR Lab (Camera)"
             subtitle="Dùng thẻ AR để điều khiển · Yêu cầu camera"
             lessonId={lesson.id}
+            mode="ar"
             highlight
           />
         </div>
+
+        {/* Lab ướt — gợi ý thử thách phù hợp với bài học (nếu có) */}
+        {wetChallenge && (
+          <Link
+            to="/lab/wet"
+            search={{ lesson: lesson.id, challenge: wetChallenge.id }}
+            className="group mt-4 flex items-center gap-4 rounded-3xl border border-amber-500/40 bg-amber-500/5 p-5 transition-all hover:bg-amber-500/10 hover:shadow-[0_0_30px_rgba(245,158,11,0.12)]"
+          >
+            <div className="size-14 rounded-2xl bg-card/80 border border-border/50 shadow-sm flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+              🧪
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-lg text-foreground">Phòng thí nghiệm ướt 3D</div>
+              <div className="text-sm font-medium text-muted-foreground mt-0.5">
+                Thử thách: {wetChallenge.title} — {wetChallenge.hint}
+              </div>
+            </div>
+            <span className="text-sm font-bold text-amber-500 bg-amber-500/10 px-3 py-1.5 rounded-full group-hover:bg-amber-500 group-hover:text-white transition-colors shrink-0">
+              Vào lab →
+            </span>
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -450,18 +498,22 @@ function PracticeCard({
   title,
   subtitle,
   lessonId,
+  mode,
   highlight,
 }: {
   icon: string;
   title: string;
   subtitle: string;
   lessonId: string;
+  mode: "sim" | "ar";
   highlight?: boolean;
 }) {
+  const onEnter = () => appStore.enterLessonContext(lessonId);
   return (
     <Link
-      to="/lab/ar"
+      to={mode === "ar" ? "/lab/ar" : "/lab/sim"}
       search={{ lesson: lessonId }}
+      onClick={onEnter}
       className={`group rounded-3xl border p-6 transition-all flex flex-col gap-4 relative overflow-hidden ${
         highlight
           ? "border-primary/50 bg-primary/5 hover:bg-primary/10 hover:shadow-[0_0_30px_rgba(45,212,191,0.15)]"

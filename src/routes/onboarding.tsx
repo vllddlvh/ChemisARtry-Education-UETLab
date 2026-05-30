@@ -1,11 +1,23 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  setOnboarding,
+  readContent,
+  type GradeLevel,
+  type StartingRoad,
+} from "@/lib/content-store";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding")({
+  beforeLoad: () => {
+    // Đã hoàn tất onboarding → vào thẳng dashboard (guard re-entry).
+    if (typeof window !== "undefined" && readContent().onboardingComplete) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   head: () => ({ meta: [{ title: "Chào mừng — ChemisARtry" }] }),
   component: OnboardingPage,
 });
@@ -39,11 +51,21 @@ function OnboardingPage() {
   async function finish() {
     setBusy(true);
     try {
+      // Map lựa chọn UI → kiểu Content_Store.
+      const gradeMap: Record<string, GradeLevel> = {
+        "Lớp 10": "10",
+        "Lớp 11": "11",
+        "Lớp 12": "12",
+        "Tự học": "self",
+      };
+      const roadValue: StartingRoad = road === "1" ? 1 : road === "2" ? 2 : "free";
+      const gradeValue: GradeLevel = gradeMap[grade] ?? "self";
+
+      // Lưu trạng thái onboarding vào Content_Store (localStorage).
+      setOnboarding(gradeValue, roadValue);
+
       if (user) {
-        // Lưu grade + starting road vào localStorage (không cần bảng riêng)
-        localStorage.setItem("chemisartry.grade", grade);
-        localStorage.setItem("chemisartry.startRoad", road);
-        // Tạo row user_progress nếu chưa có
+        // Tạo row user_progress nếu chưa có.
         await supabase
           .from("user_progress")
           .upsert(

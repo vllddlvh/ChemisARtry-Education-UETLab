@@ -15,6 +15,7 @@ import { findMatchingReaction, PROXIMITY_THRESHOLD } from "@/lib/reaction-engine
 import { reactionVisual, type ReactionVisual } from "@/lib/reaction-data";
 import type { Reaction } from "@/lib/chemistry";
 import MoleculeInfoTooltip from "./MoleculeInfoTooltip";
+import { toast } from "sonner";
 
 type SpawnedMol = {
   id: string;
@@ -375,6 +376,8 @@ export default function ARScene({
   const headPoseRef = useRef<HeadPose | null>(null);
   // Vị trí "mắt" ảo đã làm mượt (đơn vị world). Camera sẽ ngồi tại đây.
   const eyeRef = useRef({ x: 0, y: 0, z: 8 });
+  // Khoảng cách camera mặc định (điều chỉnh bằng scroll-zoom ở chế độ mô phỏng).
+  const baseCameraZRef = useRef(8);
   const lastFaceTsRef = useRef(-1);
   const faceDetectorRef = useRef<Awaited<ReturnType<typeof initFaceDetector>> | null>(null);
   const [headActive, setHeadActive] = useState(false);
@@ -542,6 +545,24 @@ export default function ARScene({
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
 
+    // Scroll-zoom (chế độ mô phỏng / khi không bật AR): điều chỉnh khoảng cách
+    // camera theo trục Z. Khi đang head-tracking, off-axis projection sẽ tự
+    // quản lý vị trí mắt nên ta bỏ qua wheel để tránh xung đột.
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const cam = cameraRef.current;
+      if (!cam) return;
+      if (headTrackingRef.current && arOnRef.current) return;
+      const next = cam.position.z + e.deltaY * 0.01;
+      const clamped = Math.max(3, Math.min(20, next));
+      cam.position.z = clamped;
+      baseCameraZRef.current = clamped;
+      // Đồng bộ "mắt ảo" để updateCamera không kéo camera về mặc định ngay sau đó.
+      eyeRef.current.z = clamped;
+      cam.updateProjectionMatrix();
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+
     let rafId = 0;
     let lastHandTs = -1;
 
@@ -602,6 +623,7 @@ export default function ARScene({
       canvas.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("wheel", onWheel);
       cancelAnimationFrame(rafId);
       renderer.dispose();
       // clear scene
@@ -644,6 +666,12 @@ export default function ARScene({
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Camera error";
         setStatus("Camera: " + msg);
+        // Camera bị từ chối/không khả dụng — báo cho người dùng và vẫn giữ cảnh
+        // hoạt động (phân tử vẫn spawn/kéo bằng chuột, giống chế độ mô phỏng).
+        toast.error("Không thể bật camera", {
+          description:
+            "Phòng thí nghiệm vẫn hoạt động ở chế độ 3D — bạn có thể kéo thả phân tử bằng chuột. Hãy cấp quyền camera để dùng AR.",
+        });
       }
     })();
     return () => {
@@ -762,7 +790,8 @@ export default function ARScene({
       applyOffAxisProjection(camera, eyeRef.current, screenHalfW, screenHalfH, near, far);
     } else {
       // Trả camera về trạng thái chuẩn (mượt) khi không có head-tracking.
-      const target = { x: 0, y: 0, z: 8 };
+      const baseZ = baseCameraZRef.current;
+      const target = { x: 0, y: 0, z: baseZ };
       const k = 0.12;
       eyeRef.current.x += (target.x - eyeRef.current.x) * k;
       eyeRef.current.y += (target.y - eyeRef.current.y) * k;
@@ -771,7 +800,7 @@ export default function ARScene({
       const drifting =
         Math.abs(eyeRef.current.x) > 0.01 ||
         Math.abs(eyeRef.current.y) > 0.01 ||
-        Math.abs(eyeRef.current.z - 8) > 0.01;
+        Math.abs(eyeRef.current.z - baseZ) > 0.01;
 
       if (drifting) {
         // vẫn dùng off-axis để nội suy mượt về giữa
@@ -779,8 +808,8 @@ export default function ARScene({
       } else {
         eyeRef.current.x = 0;
         eyeRef.current.y = 0;
-        eyeRef.current.z = 8;
-        camera.position.set(0, 0, 8);
+        eyeRef.current.z = baseZ;
+        camera.position.set(0, 0, baseZ);
         camera.quaternion.identity();
         camera.fov = 55;
         camera.aspect = aspect;

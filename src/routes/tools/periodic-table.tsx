@@ -71,7 +71,6 @@ function PeriodicTablePage() {
 
   return (
     <div className="dark h-full w-full flex flex-col bg-background text-foreground overflow-hidden font-body relative">
-
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none z-0" />
 
       <main className="flex-1 relative z-10 flex flex-col min-h-0 w-full px-4 md:px-8 py-4">
@@ -88,14 +87,16 @@ function PeriodicTablePage() {
                 ))}
               </div>
             ) : (
-              <div className="w-full h-full flex flex-col justify-center max-w-[calc((100dvh-80px)*1.8)]">
-                <PeriodicTableGrid
-                  elements={elements}
-                  selectedNumber={selected?.number ?? null}
-                  onSelect={handleSelect}
-                  highlightCategory={filterCat}
-                  query={query}
-                />
+              <div className="w-full h-full overflow-x-auto [&::-webkit-scrollbar]:h-1.5 flex flex-col justify-center">
+                <div className="w-full min-w-[640px] h-full flex flex-col justify-center max-w-[calc((100dvh-80px)*1.8)] mx-auto">
+                  <PeriodicTableGrid
+                    elements={elements}
+                    selectedNumber={selected?.number ?? null}
+                    onSelect={handleSelect}
+                    highlightCategory={filterCat}
+                    query={query}
+                  />
+                </div>
               </div>
             )}
           </section>

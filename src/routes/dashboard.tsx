@@ -1,21 +1,11 @@
 import { createFileRoute, Link, useNavigate, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  FlaskConical,
-  Sparkles,
-  Atom,
-  Zap,
-  LogOut,
-  Home,
-  BarChart2,
-  Camera,
-  Monitor,
-} from "lucide-react";
+import { FlaskConical, Atom, Zap, Camera, Monitor } from "lucide-react";
 import { z } from "zod";
 import { motion } from "motion/react";
+import { useContentStore } from "@/hooks/use-content-store";
+import { getLessonById } from "@/lib/lessons-data";
 
 const searchSchema = z.object({
   tab: z.enum(["learning", "lab"]).optional().default("learning"),
@@ -35,29 +25,12 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type ProgressRow = {
-  molecules_spawned: number;
-  reactions_triggered: number;
-  last_molecule: string | null;
-  updated_at: string;
-};
-
 function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { tab } = Route.useSearch();
-  const [progress, setProgress] = useState<ProgressRow | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("user_progress")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setProgress(data as ProgressRow | null));
-  }, [user]);
+  const { state, roadProgress, currentLesson, streak, lessonsCompleted } = useContentStore();
 
   if (authLoading) {
     return (
@@ -67,12 +40,13 @@ function DashboardPage() {
     );
   }
 
-  const p = progress ?? {
-    molecules_spawned: 0,
-    reactions_triggered: 0,
-    last_molecule: null,
-    updated_at: new Date().toISOString(),
-  };
+  const road1 = roadProgress(1);
+  const road2 = roadProgress(2);
+  const moleculesSpawned = state.moleculesSpawned;
+  const reactionsTriggered = state.reactionsTriggered;
+
+  // Bài tiếp tục: bài đang học/chưa hoàn thành; nếu chưa có → bài 1 Road 1.
+  const continueLesson = currentLesson ?? getLessonById("road1-lesson1");
 
   const displayName = user?.email?.split("@")[0] ?? "Khách";
   const userInitial = displayName.charAt(0).toUpperCase();
@@ -89,26 +63,50 @@ function DashboardPage() {
             <div className="w-full space-y-8 pb-24">
               {tab === "learning" ? (
                 <>
+                  {/* Continue learning */}
+                  {continueLesson && (
+                    <div className="rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 to-card/40 backdrop-blur-xl p-7 shadow-soft">
+                      <div className="text-[10px] uppercase tracking-widest text-primary font-bold mb-2">
+                        Tiếp tục học
+                      </div>
+                      <div className="font-display font-bold text-2xl text-foreground">
+                        Bài {continueLesson.order}: {continueLesson.title}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {continueLesson.chapter}
+                      </div>
+                      <Button
+                        asChild
+                        size="lg"
+                        className="mt-5 rounded-full bg-gradient-primary text-primary-foreground shadow-glow"
+                      >
+                        <Link to="/learn/lesson" search={{ lessonId: continueLesson.id }}>
+                          Vào học ngay →
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+
                   <RoadCard
                     icon="🧪"
                     title="Road 1: Nguyên tố & Liên kết Hoá học"
                     subtitle="Nền tảng · 12 bài học"
-                    progress={0}
-                    total={12}
+                    progress={road1.completed}
+                    total={road1.total}
                     href="/learn/road"
                     search={{ roadId: 1 }}
-                    ctaLabel="Bắt đầu Road 1 →"
+                    ctaLabel={road1.completed > 0 ? "Tiếp tục Road 1 →" : "Bắt đầu Road 1 →"}
                   />
 
                   <RoadCard
                     icon="⚗️"
                     title="Road 2: Phản ứng Hoá học"
                     subtitle="Nâng cao · 10 bài học"
-                    progress={0}
-                    total={10}
+                    progress={road2.completed}
+                    total={road2.total}
                     href="/learn/road"
                     search={{ roadId: 2 }}
-                    ctaLabel="Bắt đầu Road 2 →"
+                    ctaLabel={road2.completed > 0 ? "Tiếp tục Road 2 →" : "Bắt đầu Road 2 →"}
                   />
                 </>
               ) : (
@@ -203,11 +201,19 @@ function DashboardPage() {
         <aside className="w-[340px] border-l border-border/50 bg-background/50 backdrop-blur-xl flex flex-col z-10 shrink-0 p-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Top Header Row */}
           <div className="flex items-center justify-between mb-10 mt-2 px-2">
-            <div className="flex items-center gap-2 font-display font-bold text-lab-coral cursor-pointer hover:scale-110 transition-transform">
-              <span className="text-2xl drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]">🔥</span> 0
+            <div
+              className="flex items-center gap-2 font-display font-bold text-lab-coral cursor-pointer hover:scale-110 transition-transform"
+              title="Chuỗi ngày học liên tiếp"
+            >
+              <span className="text-2xl drop-shadow-[0_0_8px_rgba(251,146,60,0.5)]">🔥</span>{" "}
+              {streak}
             </div>
-            <div className="flex items-center gap-2 font-display font-bold text-lab-sun cursor-pointer hover:scale-110 transition-transform">
-              <span className="text-2xl drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">⭐</span> 0
+            <div
+              className="flex items-center gap-2 font-display font-bold text-lab-sun cursor-pointer hover:scale-110 transition-transform"
+              title="Bài học đã hoàn thành"
+            >
+              <span className="text-2xl drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]">⭐</span>{" "}
+              {lessonsCompleted}
             </div>
             <Link
               to="/progress"
@@ -233,13 +239,13 @@ function DashboardPage() {
               <TaskRow
                 icon={<Zap className="size-6 text-lab-sun" />}
                 title="Phản ứng thực hiện"
-                progress={p.reactions_triggered}
+                progress={reactionsTriggered}
                 max={5}
               />
               <TaskRow
                 icon={<Atom className="size-6 text-primary" />}
                 title="Phân tử đã tạo"
-                progress={p.molecules_spawned}
+                progress={moleculesSpawned}
                 max={10}
               />
             </div>
@@ -322,8 +328,8 @@ function RoadCard({
   subtitle: string;
   progress: number;
   total: number;
-  href: any;
-  search?: any;
+  href: "/learn/road";
+  search?: { roadId: 1 | 2 };
   ctaLabel: string;
   locked?: boolean;
 }) {

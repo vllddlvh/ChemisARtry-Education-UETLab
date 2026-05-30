@@ -47,18 +47,18 @@ function ReactionsPage() {
       <div className="mx-auto max-w-5xl w-full px-6 py-10 flex-1">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-display font-bold">Reactions</h1>
+            <h1 className="text-4xl font-display font-bold">Phản ứng hoá học</h1>
             <p className="text-muted-foreground mt-1">
-              Trigger these in the AR lab by bringing the reactants together.
+              Đưa các chất phản ứng lại gần nhau trong phòng thí nghiệm để kích hoạt.
             </p>
           </div>
           <Button asChild className="rounded-full bg-gradient-primary">
-            <Link to="/lab">Open AR Lab</Link>
+            <Link to="/lab/sim">Mở phòng thí nghiệm</Link>
           </Button>
         </div>
 
         {loading ? (
-          <div className="mt-10 text-muted-foreground">Loading…</div>
+          <div className="mt-10 text-muted-foreground">Đang tải…</div>
         ) : (
           <div className="mt-8 space-y-4">
             {reactions.map((r) => {

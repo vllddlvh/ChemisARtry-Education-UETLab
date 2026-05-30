@@ -280,6 +280,15 @@ export function getReagent(id: string): Reagent | undefined {
   return REAGENTS.find((r) => r.id === id);
 }
 
+/**
+ * Canonical id for a reaction given its reactant ids — mirrors the id scheme
+ * used by `rxn()` below (sorted reactant ids joined by "_"). Lets challenges
+ * reference reactions by reactant set without hard-coding fragile strings.
+ */
+export function labReactionId(reactants: string[]): string {
+  return `lab-${[...reactants].sort().join("_")}`;
+}
+
 // ── Phản ứng quan sát được ─────────────────────────────────────────────────
 
 function rxn(
@@ -514,4 +523,61 @@ export function findLabReaction(contents: string[], heated: boolean): LabReactio
     return r;
   }
   return null;
+}
+
+/** Tra cứu phản ứng theo id (id sinh bởi `rxn()` / `labReactionId`). */
+export function getLabReactionById(id: string): LabReaction | undefined {
+  return LAB_REACTIONS.find((r) => r.id === id);
+}
+
+/** Tổng số phản ứng wet-lab khả dụng (dùng cho thành tích "khám phá hết"). */
+export const TOTAL_LAB_REACTIONS = LAB_REACTIONS.length;
+
+/**
+ * pH gần đúng của một thuốc thử (định tính cho mục đích giáo dục — không phải
+ * giá trị đo chính xác). Dựa trên loại chất + độ mạnh axit/bazơ phổ thông.
+ */
+const APPROX_PH: Record<string, number> = {
+  hcl: 1,
+  h2so4: 1,
+  agno3: 4,
+  fecl3: 3,
+  cuso4: 4,
+  pb_no3: 4,
+  iodine: 5,
+  h2o2: 5,
+  kmno4: 5,
+  nacl: 7,
+  na2so4: 7,
+  bacl2: 7,
+  ki: 7,
+  starch: 7,
+  na2co3: 11,
+  nh3: 11,
+  naoh: 14,
+};
+
+/** pH gần đúng cho một tập thuốc thử (lấy trung vị các chất có pH xác định). */
+export function approxPH(contents: string[]): number | null {
+  const vals = contents.map((id) => APPROX_PH[id]).filter((v): v is number => v !== undefined);
+  if (vals.length === 0) return null;
+  vals.sort((a, b) => a - b);
+  const mid = Math.floor(vals.length / 2);
+  const median = vals.length % 2 ? vals[mid] : (vals[mid - 1] + vals[mid]) / 2;
+  return Math.round(median * 10) / 10;
+}
+
+/** Cặp chất nguy hiểm khi trộn — cảnh báo an toàn (định tính). */
+export function isHazardousMix(a: Reagent, b: Reagent): boolean {
+  const strongAcid = (r: Reagent) => r.category === "acid" && r.hazard === "corrosive";
+  const reactiveMetal = (r: Reagent) => r.category === "metal";
+  const strongOxidizer = (r: Reagent) => r.category === "oxidizer";
+  // Axit mạnh + kim loại, hoặc oxi hoá mạnh + (axit/kim loại) → mãnh liệt.
+  if ((strongAcid(a) && reactiveMetal(b)) || (strongAcid(b) && reactiveMetal(a))) return true;
+  if (
+    (strongOxidizer(a) && (b.category === "acid" || b.category === "metal")) ||
+    (strongOxidizer(b) && (a.category === "acid" || a.category === "metal"))
+  )
+    return true;
+  return false;
 }

@@ -5,6 +5,50 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* =============================================================================
+ * DESIGN-SYSTEM SINGLE SOURCE OF TRUTH  (Requirement 17 / task 13.3)
+ * -----------------------------------------------------------------------------
+ * This file is the ONE place that defines color, typography, spacing, radius
+ * and shadow tokens for ChemisARtry. The `:root` CSS variables below hold the
+ * raw values; the `@theme inline` block maps them to Tailwind v4 utilities.
+ *
+ * CONVENTIONS (do not hardcode raw values in pages/components):
+ *   - Color:      read tokens via Tailwind classes — `bg-background`,
+ *                 `text-foreground`, `text-primary`, `bg-card`, `text-muted-foreground`,
+ *                 `border-border`, etc. Never inline `#hex` / `oklch(...)` per page.
+ *   - Radius:     one base token `--radius: 1rem`; use `rounded-2xl` / `rounded-3xl`
+ *                 for standard surfaces (cards, panels, dialogs).
+ *   - Shadow:     use the tokenized `shadow-soft` / `shadow-panel` / `shadow-glow`
+ *                 utilities (defined in @layer utilities) instead of ad-hoc shadows.
+ *   - Spacing:    Tailwind's 4px scale is the single spacing scale
+ *                 (`gap-*`, `p-*`, `m-*`). Do not introduce custom pixel spacing.
+ *   - Typography: families are tokens (`--font-display`, `--font-body`, `--font-mono`).
+ *                 `h1–h4` get `--font-display` automatically (see @layer base).
+ *                 Standardize PAGE TITLES on `text-3xl`/`text-4xl font-display font-bold`.
+ *
+ * ACCESSIBILITY BASELINE (Requirement 23):
+ *   - Contrast (AC 23.1): every documented foreground/background token pair below
+ *     meets WCAG AA (>= 4.5:1) for body text and interactive-control foregrounds.
+ *     Verified ratios (light theme; recompute if you change a token):
+ *       foreground / background ............... 16.63:1
+ *       foreground / card ..................... 17.35:1
+ *       primary-foreground / primary .......... 5.09:1   (was 3.14 — primary darkened)
+ *       primary (as text) / background ........ 5.02:1
+ *       text-primary / bg-primary/10 (chip) ... 4.61:1
+ *       destructive-foreground / destructive .. 5.26:1   (was 3.94 — destructive darkened)
+ *       secondary-foreground / secondary ...... 13.92:1
+ *       accent-foreground / accent ............ 12.03:1
+ *       muted-foreground / background ......... 5.73:1
+ *       muted-foreground / card ............... 5.98:1
+ *       muted-foreground / bg-muted/50 (chip) . 5.53:1
+ *   - Focus (AC 23.2): NEVER use `outline-none` without a replacement focus ring.
+ *     Pair it with `focus-visible:ring-2 focus-visible:ring-ring` (and usually
+ *     `focus-visible:ring-offset-2`) so every interactive control shows a visible
+ *     focus indicator on keyboard focus. Per-control audit is task 16.2.
+ *   - Accessible names (AC 23.3): icon-only controls need `aria-label`/`sr-only`;
+ *     informative images need `alt`. (Handled per-component, not here.)
+ * ========================================================================== */
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -55,8 +99,11 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.04 265);
 
-  /* Playful teal/blue primary */
-  --primary: oklch(0.62 0.17 220);
+  /* Playful teal/blue primary
+   * Darkened from oklch(0.62 0.17 220) to meet WCAG AA (AC 23.1):
+   * primary-foreground on primary is now 5.09:1 (was 3.14:1), and
+   * text-primary on background is 5.02:1 (was 3.10:1). */
+  --primary: oklch(0.5 0.16 220);
   --primary-foreground: oklch(0.99 0.005 240);
 
   --secondary: oklch(0.95 0.03 180);
@@ -69,12 +116,15 @@
   /* warm sun */
   --accent-foreground: oklch(0.22 0.04 265);
 
-  --destructive: oklch(0.62 0.22 25);
+  /* Darkened from oklch(0.62 0.22 25) so destructive-foreground (near-white)
+   * on destructive reaches 5.26:1 (was 3.94:1) for WCAG AA (AC 23.1). */
+  --destructive: oklch(0.55 0.21 25);
   --destructive-foreground: oklch(0.99 0 0);
 
   --border: oklch(0.9 0.015 240);
   --input: oklch(0.93 0.01 240);
-  --ring: oklch(0.62 0.17 220);
+  /* Focus ring tracks the (darkened) primary for a visible, AA-friendly indicator. */
+  --ring: oklch(0.5 0.16 220);
 
   /* Lab accents */
   --lab-sky: oklch(0.82 0.12 220);
@@ -112,7 +162,9 @@
   --border: #334155;
   --input: #334155;
   --muted: #334155;
-  --muted-foreground: #94a3b8;
+  /* Lightened from #94a3b8 so muted-foreground on the muted chip reaches
+   * 4.80:1 (was 4.04:1) for WCAG AA (AC 23.1). */
+  --muted-foreground: #a3b2c6;
 }
 
 @layer base {

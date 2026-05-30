@@ -2,8 +2,16 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, ChevronDown, User } from "lucide-react";
+import { LogOut, ChevronDown, User, Menu } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import {
   DropdownMenu,
@@ -66,8 +74,8 @@ export default function SiteHeader() {
             <>
               <NavLink to="/learn" label="Học tập" active={activePath.startsWith("/learn")} />
               <NavLink
-                to="/lab/ar"
-                label="Phòng thí nghiệm"
+                to="/lab/sim"
+                label="Thực hành"
                 active={activePath.startsWith("/lab") && !activePath.startsWith("/lab/wet")}
               />
               <NavLink
@@ -135,6 +143,63 @@ export default function SiteHeader() {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
+          {/* Mobile hamburger (below md) */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full"
+                  aria-label="Mở menu điều hướng"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72">
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2 font-display">
+                    <span className="text-2xl">⚗️</span> ChemisARtry
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="mt-6 flex flex-col gap-1">
+                  {showAppMenu ? (
+                    <>
+                      <MobileLink to="/learn" label="Học tập" />
+                      <MobileLink to="/lab/sim" label="Thực hành (3D)" />
+                      <MobileLink to="/lab/ar" label="Phòng thí nghiệm AR" />
+                      <MobileLink to="/lab/wet" label="Lab ướt 3D" />
+                      <MobileLink to="/tools/periodic-table" label="Bảng tuần hoàn" />
+                      <MobileLink to="/tools/explorer" label="Khám phá hợp chất" />
+                      <MobileLink to="/tools/molecules" label="Thư viện phân tử" />
+                      <MobileLink to="/tools/reactions" label="Danh sách phản ứng" />
+                      <MobileLink to="/progress" label="Tiến độ" />
+                      <div className="my-2 border-t border-border" />
+                      <MobileLink to="/dashboard" label="Dashboard" />
+                      {user ? (
+                        <SheetClose asChild>
+                          <button
+                            onClick={() => supabase.auth.signOut()}
+                            className="flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-sm font-medium text-red-500 hover:bg-red-500/10"
+                          >
+                            <LogOut className="h-4 w-4" /> Đăng xuất
+                          </button>
+                        </SheetClose>
+                      ) : (
+                        <MobileLink to="/auth" label="Đăng nhập" />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <MobileLink to="/auth" label="Đăng nhập" />
+                      <MobileLink to="/lab/sim" label="Dùng thử (Mô phỏng 3D)" />
+                    </>
+                  )}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+
           {showAppMenu ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -201,5 +266,18 @@ function NavLink({ to, label, active }: { to: string; label: string; active: boo
     >
       {label}
     </Link>
+  );
+}
+
+function MobileLink({ to, label }: { to: string; label: string }) {
+  return (
+    <SheetClose asChild>
+      <Link
+        to={to}
+        className="rounded-2xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+      >
+        {label}
+      </Link>
+    </SheetClose>
   );
 }

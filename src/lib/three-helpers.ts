@@ -81,6 +81,9 @@ export function buildMoleculeGroup(
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(a.x, a.y, a.z);
+    // Gắn metadata để raycast/hover nhận diện đây là một nguyên tử và biết
+    // ký hiệu nguyên tố. Dùng chung cho tooltip hover ở cả Sim và AR.
+    mesh.userData = { isAtom: true, el: a.el };
     group.add(mesh);
 
     if (withLabels) {
@@ -113,8 +116,17 @@ export function buildMoleculeGroup(
 }
 
 /** Spawn a sparkly particle burst at a world position. */
-export function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: string): void {
-  const count = 60;
+export function spawnBurst(
+  scene: THREE.Scene,
+  position: THREE.Vector3,
+  color: string,
+  opts?: { count?: number; size?: number; speed?: number; life?: number; gravity?: number },
+): void {
+  const count = opts?.count ?? 60;
+  const size = opts?.size ?? 0.18;
+  const speed = opts?.speed ?? 4;
+  const life = opts?.life ?? 1.2;
+  const gravity = opts?.gravity ?? 0;
   const geom = new THREE.BufferGeometry();
   const pos = new Float32Array(count * 3);
   const vel: THREE.Vector3[] = [];
@@ -125,9 +137,9 @@ export function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: s
     pos[i * 3 + 2] = position.z;
     vel.push(
       new THREE.Vector3(
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
+        (Math.random() - 0.5) * speed,
+        (Math.random() - 0.5) * speed,
+        (Math.random() - 0.5) * speed,
       ),
     );
   }
@@ -135,9 +147,11 @@ export function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: s
   geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   const mat = new THREE.PointsMaterial({
     color,
-    size: 0.18,
+    size,
     transparent: true,
     opacity: 1,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
   });
   const points = new THREE.Points(geom, mat);
   scene.add(points);
@@ -147,14 +161,15 @@ export function spawnBurst(scene: THREE.Scene, position: THREE.Vector3, color: s
     const t = (performance.now() - start) / 1000;
     const arr = geom.attributes.position.array as Float32Array;
     for (let i = 0; i < count; i++) {
+      vel[i].y -= gravity * 0.016;
       arr[i * 3] += vel[i].x * 0.016;
       arr[i * 3 + 1] += vel[i].y * 0.016;
       arr[i * 3 + 2] += vel[i].z * 0.016;
       vel[i].multiplyScalar(0.94);
     }
     geom.attributes.position.needsUpdate = true;
-    mat.opacity = Math.max(0, 1 - t / 1.2);
-    if (t < 1.2) requestAnimationFrame(tick);
+    mat.opacity = Math.max(0, 1 - t / life);
+    if (t < life) requestAnimationFrame(tick);
     else {
       scene.remove(points);
       geom.dispose();

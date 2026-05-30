@@ -10,13 +10,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { findLabReaction, getReagent, type LabReaction } from "@/lib/lab-experiments";
-import {
-  playClink,
-  playPour,
-  playPuff,
-  startFizz,
-  startSizzle,
-} from "@/lib/lab-audio";
+import { playClink, playPour, playPuff, startFizz, startSizzle } from "@/lib/lab-audio";
 
 type FizzHandle = { stop: () => void };
 
@@ -35,6 +29,8 @@ type Props = {
   onReaction?: (tubeIndex: number, reaction: LabReaction) => void;
   onTubesChange?: (tubes: TubeView[]) => void;
   resetSignal: number;
+  /** Tăng để đổ bỏ riêng ống đang chọn (activeTube). */
+  clearTubeSignal?: number;
   activeTube: number | null;
   onSelectTube?: (index: number | null) => void;
 };
@@ -92,6 +88,7 @@ export default function WetLabScene({
   onReaction,
   onTubesChange,
   resetSignal,
+  clearTubeSignal = 0,
   activeTube,
   onSelectTube,
 }: Props) {
@@ -285,7 +282,9 @@ export default function WetLabScene({
       if (eff.fizz) startFoam(tube, eff.gasColor ?? "#ffffff");
       playPuff();
       tube.fizzSound?.stop();
-      tube.fizzSound = startFizz(intensity === "violent" ? 0.95 : intensity === "vigorous" ? 0.65 : 0.4);
+      tube.fizzSound = startFizz(
+        intensity === "violent" ? 0.95 : intensity === "vigorous" ? 0.65 : 0.4,
+      );
     }
     if (eff.precipitate) startPrecipitate(tube, eff.precipitate);
     if (eff.smoke) startSmoke(tube, eff.smoke);
@@ -1072,6 +1071,18 @@ export default function WetLabScene({
     emitTubes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetSignal]);
+
+  // Đổ bỏ riêng ống đang chọn.
+  useEffect(() => {
+    if (clearTubeSignal === 0) return;
+    const idx = activeTubeRef.current;
+    if (idx === null) return;
+    const tube = tubesRef.current.find((t) => t.index === idx);
+    if (!tube) return;
+    resetTube(tube);
+    emitTubes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearTubeSignal]);
 
   // Đồng bộ trạng thái đun nóng từ props.
   useEffect(() => {

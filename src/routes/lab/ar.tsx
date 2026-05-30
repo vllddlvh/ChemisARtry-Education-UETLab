@@ -3,16 +3,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState, useCallback, useEffect } from "react";
-import { Check } from "lucide-react";
+import { Check, Monitor } from "lucide-react";
 import ARScene from "@/components/ARScene";
 import ControlPanel from "@/components/ControlPanel";
 import { useChemistryData } from "@/hooks/use-chemistry-data";
 import { useVoiceCommands } from "@/hooks/use-voice-commands";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { createAtomMolecule, resolveLabSpawn } from "@/lib/lab-spawn";
 import { reactionVisual } from "@/lib/reaction-data";
 import { getLessonById, type Lesson, type Mission } from "@/lib/lessons-data";
+import { appStore } from "@/store/app-store";
+import { recordSpawn as contentRecordSpawn } from "@/lib/content-store";
 import { toast } from "sonner";
 import type { Molecule, Reaction } from "@/lib/chemistry";
 
@@ -40,6 +43,8 @@ function LabARPage() {
   const { spawn: spawnParam, element: elementParam, lesson: lessonParam } = Route.useSearch();
   const { molecules, reactions, loading } = useChemistryData();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
+  const [advisoryDismissed, setAdvisoryDismissed] = useState(false);
 
   const lesson = lessonParam ? getLessonById(lessonParam) : undefined;
 
@@ -106,6 +111,8 @@ function LabARPage() {
     async (r: Reaction) => {
       setLastReaction(r);
       setHistory((prev) => [r, ...prev].slice(0, 8));
+      // Bridge → App_State_Store → Content_Store (đếm phản ứng, streak, thành tích).
+      appStore.pushReaction(r);
 
       // Thông báo phản ứng với phân loại (toả/thu nhiệt, loại phản ứng).
       const v = reactionVisual(r);
@@ -126,6 +133,7 @@ function LabARPage() {
             if (next.has(m.id)) continue;
             if (missionMatchesReaction(m, r, reactedCount)) {
               next.add(m.id);
+              appStore.completeMission(m.id);
               toast(`🎯 Hoàn thành: ${m.description}`);
             }
           }
@@ -144,6 +152,8 @@ function LabARPage() {
   // Preload phân tử mặc định của bài học (nếu mở từ tab Học tập).
   useEffect(() => {
     if (!lesson || molecules.length === 0) return;
+    // Ghi nhận lesson context (mở bài, đếm streak) qua App_State_Store.
+    appStore.enterLessonContext(lesson.id);
     const first = lesson.practice.defaultMolecules[0];
     if (!first) return;
     const m = resolveLabSpawn(molecules, first, undefined);
@@ -154,6 +164,8 @@ function LabARPage() {
 
   const markSpawned = useCallback(
     (formula: string) => {
+      // Đếm phân tử đã tạo vào Content_Store (tiến độ/streak/thành tích).
+      contentRecordSpawn(formula);
       setSpawnedFormulas((prev) => {
         const next = new Set(prev);
         next.add(formula);
@@ -164,6 +176,7 @@ function LabARPage() {
               if (nd.has(m.id)) continue;
               if (missionMatchesSpawn(m, formula, next.size)) {
                 nd.add(m.id);
+                appStore.completeMission(m.id);
                 toast(`🎯 Hoàn thành: ${m.description}`);
               }
             }
@@ -208,15 +221,50 @@ function LabARPage() {
 
       {/* UI Overlay Layer */}
       <div className="absolute inset-x-0 bottom-0 top-0 pointer-events-none z-10 flex flex-col p-4 md:p-6 justify-between">
+        {/* Khuyến nghị dùng Mô phỏng 3D trên thiết bị di động (hiệu năng) */}
+        {isMobile && !advisoryDismissed && (
+          <div className="pointer-events-auto absolute inset-x-4 top-4 z-20 rounded-2xl border border-amber-500/40 bg-card/90 backdrop-blur-xl p-4 shadow-xl">
+            <div className="text-sm font-bold text-foreground">📱 Mẹo cho thiết bị di động</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Chế độ AR cần nhiều tài nguyên. Trên điện thoại, chế độ Mô phỏng 3D thường mượt hơn.
+            </p>
+            <div className="flex items-center gap-2 mt-3">
+              <Link
+                to="/lab/sim"
+                search={lessonParam ? { lesson: lessonParam } : {}}
+                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-primary text-primary-foreground text-xs font-bold px-4 py-2 shadow-glow"
+              >
+                <Monitor className="h-3.5 w-3.5" aria-hidden="true" /> Chuyển sang Mô phỏng 3D
+              </Link>
+              <button
+                onClick={() => setAdvisoryDismissed(true)}
+                className="text-xs text-muted-foreground hover:text-foreground px-3 py-2"
+              >
+                Vẫn dùng AR
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Reaction banner (Floating Top Center) */}
         {lastReaction && <ReactionBanner reaction={lastReaction} />}
 
         {/* Lesson objectives panel (top-left) */}
         {lesson && <LessonObjectives lesson={lesson} done={doneMissions} />}
 
+        {/* Chuyển sang chế độ mô phỏng 3D (không cần camera) */}
+        <Link
+          to="/lab/sim"
+          search={lessonParam ? { lesson: lessonParam } : {}}
+          className="pointer-events-auto absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-xl border border-white/10 px-4 py-2 text-sm font-medium shadow-xl hover:border-primary/50 transition-colors"
+        >
+          <Monitor className="h-4 w-4" aria-hidden="true" />
+          Mô phỏng 3D
+        </Link>
+
         {/* Reaction history log (top-right) */}
         {history.length > 0 && (
-          <div className="pointer-events-auto absolute top-4 right-4 w-64 rounded-2xl border border-white/10 bg-card/70 backdrop-blur-xl p-3 shadow-xl hidden lg:block">
+          <div className="pointer-events-auto absolute top-16 right-4 w-64 rounded-2xl border border-white/10 bg-card/70 backdrop-blur-xl p-3 shadow-xl hidden lg:block">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2 px-1">
               Nhật ký phản ứng
             </div>

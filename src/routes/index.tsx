@@ -32,7 +32,6 @@ function LandingPage() {
 
   return (
     <div className="dark flex flex-col h-full overflow-y-auto no-scrollbar overflow-x-hidden snap-y snap-mandatory scroll-pt-16 scroll-smooth bg-background text-foreground">
-
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative min-h-[calc(100dvh-4rem)] flex items-center py-12 lg:py-0 overflow-hidden snap-start">
@@ -63,15 +62,21 @@ function LandingPage() {
                 >
                   <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-border/40 bg-muted/30 backdrop-blur-md shadow-sm">
                     <BookOpen className="size-4 text-primary" />
-                    <span className="text-sm md:text-base font-medium text-foreground">Bám sát SGK</span>
+                    <span className="text-sm md:text-base font-medium text-foreground">
+                      Bám sát SGK
+                    </span>
                   </div>
                   <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-border/40 bg-muted/30 backdrop-blur-md shadow-sm">
                     <Sparkles className="size-4 text-primary" />
-                    <span className="text-sm md:text-base font-medium text-foreground">Tương tác 3D</span>
+                    <span className="text-sm md:text-base font-medium text-foreground">
+                      Tương tác 3D
+                    </span>
                   </div>
                   <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-border/40 bg-muted/30 backdrop-blur-md shadow-sm">
                     <FlaskConical className="size-4 text-primary" />
-                    <span className="text-sm md:text-base font-medium text-foreground">Thí nghiệm AR</span>
+                    <span className="text-sm md:text-base font-medium text-foreground">
+                      Thí nghiệm AR
+                    </span>
                   </div>
                 </motion.div>
 
@@ -97,7 +102,7 @@ function LandingPage() {
                     variant="outline"
                     className="rounded-full h-14 px-8 text-base border-border bg-card/50 hover:bg-muted text-card-foreground backdrop-blur transition-colors"
                   >
-                    <Link to="/lab/ar">Xem thử không cần đăng nhập</Link>
+                    <Link to="/lab/sim">Xem thử không cần đăng nhập</Link>
                   </Button>
                 </motion.div>
               </div>
@@ -214,7 +219,9 @@ function LandingPage() {
                 transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
               >
                 <div className="group rounded-3xl border border-border bg-card/80 backdrop-blur p-8 hover:border-primary/30 hover:bg-card hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-default h-full">
-                  <div className="text-2xl mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 w-fit">🧪</div>
+                  <div className="text-2xl mb-4 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 w-fit">
+                    🧪
+                  </div>
                   <h3 className="font-bold text-xl mb-2 text-foreground text-balance">
                     Road 1: Nguyên tố & Liên kết
                   </h3>
@@ -242,7 +249,9 @@ function LandingPage() {
                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               >
                 <div className="group rounded-3xl border border-border/50 bg-card/40 p-8 opacity-80 hover:opacity-100 hover:border-border hover:bg-card/60 hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-default h-full">
-                  <div className="text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 w-fit">⚗️</div>
+                  <div className="text-2xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 w-fit">
+                    ⚗️
+                  </div>
                   <h3 className="font-bold text-xl mb-2 text-foreground text-balance">
                     Road 2: Phản ứng Hoá học
                   </h3>
@@ -251,13 +260,16 @@ function LandingPage() {
                   </p>
                   <ul className="space-y-3 text-sm font-medium text-muted-foreground mb-8">
                     <li className="flex items-center gap-2">
-                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" /> Phân loại phản ứng
+                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" />{" "}
+                      Phân loại phản ứng
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" /> Nhiệt hoá học
+                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" />{" "}
+                      Nhiệt hoá học
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" /> Tốc độ phản ứng
+                      <div className="size-1.5 rounded-full bg-muted group-hover:bg-primary/50 transition-colors" />{" "}
+                      Tốc độ phản ứng
                     </li>
                   </ul>
                 </div>

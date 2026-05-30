@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { BookOpen, FlaskConical, Trophy, ArrowRight } from "lucide-react";
 import { ROAD1_LESSONS, ROAD2_LESSONS } from "@/lib/lessons-data";
+import { useContentStore } from "@/hooks/use-content-store";
 
 export const Route = createFileRoute("/learn/")({
   head: () => ({
@@ -17,6 +19,11 @@ export const Route = createFileRoute("/learn/")({
 });
 
 function LearnPage() {
+  const { roadProgress } = useContentStore();
+  const road1 = roadProgress(1);
+  const road2 = roadProgress(2);
+  const road1Done = road1.percent === 100;
+
   return (
     <div className="h-full bg-background overflow-y-auto flex flex-col">
       <div className="mx-auto max-w-4xl px-4 md:px-6 py-10 flex-1 w-full">
@@ -36,25 +43,29 @@ function LearnPage() {
             subtitle="Nền tảng — bắt đầu từ đây"
             lessonsCount={ROAD1_LESSONS.length}
             weeks={4}
+            completed={road1.completed}
+            percent={road1.percent}
             chapters={[
               "Cấu tạo nguyên tử",
               "Bảng tuần hoàn",
               "Liên kết hoá học",
               "Phân tử & Hình dạng",
             ]}
-            locked={false}
+            softLocked={false}
           />
 
-          {/* Road 2 */}
+          {/* Road 2 — soft-locked cho tới khi xong Road 1, nhưng vẫn vào được */}
           <RoadCard
             roadId={2}
             icon="⚗️"
             title="Road 2: Phản ứng Hoá học"
-            subtitle="Nâng cao — hoàn thành Road 1 trước"
+            subtitle="Nâng cao — nên hoàn thành Road 1 trước"
             lessonsCount={ROAD2_LESSONS.length}
             weeks={3}
+            completed={road2.completed}
+            percent={road2.percent}
             chapters={["Phản ứng hoá học", "Phân loại phản ứng", "Acid & Base", "Cân bằng hoá học"]}
-            locked={false}
+            softLocked={!road1Done}
           />
         </div>
 
@@ -65,7 +76,7 @@ function LearnPage() {
           </h2>
           <div className="grid sm:grid-cols-3 gap-4">
             <ToolCard
-              href="/lab/ar"
+              href="/lab/sim"
               icon={<FlaskConical className="h-5 w-5" />}
               title="Phòng thí nghiệm"
               desc="Mô phỏng 3D không cần camera"
@@ -96,8 +107,10 @@ function RoadCard({
   subtitle,
   lessonsCount,
   weeks,
+  completed,
+  percent,
   chapters,
-  locked,
+  softLocked,
 }: {
   roadId: 1 | 2;
   icon: string;
@@ -105,15 +118,18 @@ function RoadCard({
   subtitle: string;
   lessonsCount: number;
   weeks: number;
+  completed: number;
+  percent: number;
   chapters: string[];
-  locked: boolean;
+  softLocked: boolean;
 }) {
+  const started = completed > 0;
   return (
     <div
-      className={`rounded-3xl border p-6 transition ${locked ? "bg-muted/20 border-border opacity-70" : "bg-card border-border hover:shadow-soft"}`}
+      className={`rounded-3xl border p-6 transition ${softLocked ? "bg-muted/20 border-border" : "bg-card border-border hover:shadow-soft"}`}
     >
       <div className="flex items-start gap-4">
-        <span className="text-4xl">{icon}</span>
+        <span className={`text-4xl ${softLocked ? "opacity-70" : ""}`}>{icon}</span>
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-display font-bold">{title}</h2>
           <p className="text-muted-foreground text-sm mt-0.5">{subtitle}</p>
@@ -122,36 +138,42 @@ function RoadCard({
             <span>⏱ ~{weeks} tuần</span>
           </div>
 
+          {/* Progress */}
+          <div className="mt-4">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+              <span>Tiến độ</span>
+              <span>
+                {completed}/{lessonsCount} bài · {percent}%
+              </span>
+            </div>
+            <Progress value={percent} />
+          </div>
+
           {/* Chapter list preview */}
           <div className="mt-4 grid grid-cols-2 gap-2">
             {chapters.map((ch, i) => (
               <div key={i} className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <span
-                  className={`h-1.5 w-1.5 rounded-full ${locked ? "bg-muted-foreground/30" : "bg-primary"}`}
+                  className={`h-1.5 w-1.5 rounded-full ${softLocked ? "bg-muted-foreground/30" : "bg-primary"}`}
                 />
                 {ch}
               </div>
             ))}
           </div>
 
-          <div className="mt-5">
-            {locked ? (
-              <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                🔒 Hoàn thành Road 1 để mở khoá
-                <Link
-                  to="/learn/road"
-                  search={{ roadId: 2 }}
-                  className="underline text-primary text-xs ml-1"
-                >
-                  Bỏ qua và xem
-                </Link>
-              </div>
-            ) : (
-              <Button asChild className="rounded-full bg-gradient-primary">
-                <Link to="/learn/road" search={{ roadId: roadId }}>
-                  Bắt đầu Road {roadId} <ArrowRight className="ml-1.5 h-4 w-4" />
-                </Link>
-              </Button>
+          <div className="mt-5 flex items-center gap-3">
+            <Button
+              asChild
+              className={softLocked ? "rounded-full" : "rounded-full bg-gradient-primary"}
+              variant={softLocked ? "secondary" : "default"}
+            >
+              <Link to="/learn/road" search={{ roadId: roadId }}>
+                {softLocked ? "Bỏ qua và học" : started ? "Tiếp tục" : `Bắt đầu Road ${roadId}`}
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Link>
+            </Button>
+            {softLocked && (
+              <span className="text-xs text-muted-foreground">🔒 Nên hoàn thành Road 1 trước</span>
             )}
           </div>
         </div>
