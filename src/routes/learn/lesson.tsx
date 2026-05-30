@@ -4,12 +4,23 @@ import { useState, useEffect } from "react";
 import { getLessonById, type Lesson } from "@/lib/lessons-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, BookOpen, Box, FlaskConical, X, Play } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Box,
+  FlaskConical,
+  X,
+  Play,
+  Sparkles,
+} from "lucide-react";
 import AtomViewer3D from "@/components/AtomViewer3D";
 import { FALLBACK_ELEMENTS } from "@/lib/lesson-element-map";
 import { getChallengeForLesson } from "@/lib/lab-challenges";
 import { useContentStore } from "@/hooks/use-content-store";
 import { appStore } from "@/store/app-store";
+import TutorChat from "@/components/TutorChat";
+import { stripHtml, type TutorLessonContext } from "@/lib/tutor";
 
 const searchSchema = z.object({ lessonId: z.string().catch("road1-lesson1") });
 
@@ -62,6 +73,20 @@ function LessonPage() {
   const prevLesson = getLessonById(`road${lesson.roadId}-lesson${lesson.order - 1}`);
   const nextLesson = getLessonById(`road${lesson.roadId}-lesson${lesson.order + 1}`);
 
+  // Ngữ cảnh truyền cho Trợ giảng để câu trả lời bám sát bài học.
+  const tutorContext: TutorLessonContext = {
+    lessonId: lesson.id,
+    title: lesson.title,
+    chapter: lesson.chapter,
+    roadId: lesson.roadId,
+    theory: lesson.theory ? stripHtml(lesson.theory) : undefined,
+  };
+  const tutorSuggestions = [
+    `Giải thích ngắn gọn nội dung chính của bài "${lesson.title}".`,
+    "Cho mình một ví dụ minh hoạ dễ hiểu.",
+    "Ra cho mình một câu hỏi để tự kiểm tra.",
+  ];
+
   return (
     <div className="dark h-screen bg-background text-foreground fixed inset-0 z-50 flex flex-col font-body overflow-hidden">
       {/* Background noise */}
@@ -87,13 +112,29 @@ function LessonPage() {
           </div>
         </div>
 
-        <Link
-          to="/learn/road"
-          search={{ roadId: lesson.roadId }}
-          className="size-12 rounded-full bg-card/40 border border-border/50 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all cursor-pointer pointer-events-auto shadow-soft backdrop-blur-xl"
-        >
-          <X className="size-6" />
-        </Link>
+        <div className="pointer-events-auto flex items-center gap-2">
+          <TutorChat
+            lesson={tutorContext}
+            suggestions={tutorSuggestions}
+            trigger={
+              <button
+                className="h-12 flex items-center gap-1.5 rounded-full bg-gradient-primary text-primary-foreground px-4 font-bold shadow-glow transition-transform hover:scale-105 cursor-pointer"
+                aria-label="Hỏi Trợ giảng Hoá học"
+              >
+                <Sparkles className="size-4" />
+                <span className="hidden md:inline text-sm">Trợ giảng</span>
+              </button>
+            }
+          />
+          <Link
+            to="/learn/road"
+            search={{ roadId: lesson.roadId }}
+            className="size-12 rounded-full bg-card/40 border border-border/50 grid place-items-center text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all cursor-pointer pointer-events-auto shadow-soft backdrop-blur-xl"
+            aria-label="Đóng bài học"
+          >
+            <X className="size-6" />
+          </Link>
+        </div>
       </div>
 
       {/* Content Container */}

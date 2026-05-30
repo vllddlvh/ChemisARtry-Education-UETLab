@@ -1,0 +1,35 @@
+
+> build
+> vite build
+
+[36mvite v7.3.2 [32mbuilding client environment for production...[36m[39m
+transforming...
+
+<--- Last few GCs --->
+
+[652:000001D22BB9E000]   153412 ms: Scavenge 393.3 (473.1) -> 370.8 (494.1) MB, pooled: 0 MB, 31.66 / 0.02 ms  (average mu = 0.996, current mu = 0.996) task; 
+[652:000001D22BB9E000]   153765 ms: Scavenge 429.6 (499.0) -> 413.0 (510.1) MB, pooled: 0 MB, 33.99 / 0.01 ms  (average mu = 0.996, current mu = 0.996) allocation failure; 
+[652:000001D22BB9E000]   155008 ms: Scavenge 430.5 (510.1) -> 421.1 (547.3) MB, pooled: 0 MB, 937.30 / 0.01 ms  (average mu = 0.996, current mu = 0.996) task; 
+
+FATAL ERROR: NewSpace::EnsureCurrentCapacity Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 00007FF6370F7F8F 
+ 2: 00007FF637D3B1E7 
+ 3: 00007FF637B3BA97 
+ 4: 00007FF637AFC533 
+ 5: 00007FF637B3DE9A 
+ 6: 00007FF637B3D4C6 
+ 7: 00007FF637B4E452 
+ 8: 00007FF637B4DF7B 
+ 9: 00007FF638FB5D2D 
+10: 00007FF637B39560 
+11: 00007FF637B53DEA 
+12: 00007FF637B5FBC8 
+13: 00007FF637B7756C 
+14: 00007FF637B77505 
+15: 00007FF63784A35B 
+16: 00007FF637849BDD 
+17: 00007FF63784ADE8 
+18: 00007FF63773D167 
+19: 000001D263AF733A 

@@ -1,7 +1,15 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
+import {
+  Outlet,
+  Link,
+  createRootRoute,
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
 import SiteHeader from "@/components/SiteHeader";
+import TutorChat from "@/components/TutorChat";
 
 import appCss from "../styles.css?url";
 
@@ -98,6 +106,14 @@ function RootComponent() {
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
   const isAuthPage = pathname.startsWith("/auth");
+  // Ẩn nút Trợ giảng nổi ở các màn hình "đắm chìm" (landing, auth, các phòng lab
+  // có overlay toàn màn hình). Trang bài học có nút riêng theo ngữ cảnh.
+  const hideFloatingTutor =
+    isAuthPage ||
+    pathname === "/" ||
+    pathname.startsWith("/lab") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/learn/lesson");
 
   return (
     <div className="flex flex-col h-[100dvh] w-full overflow-hidden">
@@ -114,6 +130,7 @@ function RootComponent() {
           <Outlet />
         </motion.div>
       </AnimatePresence>
+      {!hideFloatingTutor && <TutorChat />}
       <Toaster position="top-center" richColors />
     </div>
   );
